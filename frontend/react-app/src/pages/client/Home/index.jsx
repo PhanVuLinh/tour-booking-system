@@ -1,9 +1,11 @@
+import Hero from "../../../components/client/Hero";
+
 function Home() {
-    return (
-        <>
-            Page Home
-        </>
-    )
+  return (
+    <>
+      <Hero />
+    </>
+  );
 }
 
 export default Home;
