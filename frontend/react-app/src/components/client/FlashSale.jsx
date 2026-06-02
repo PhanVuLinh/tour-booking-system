@@ -1,7 +1,27 @@
+import { useRef } from "react";
 import TourCard from "./TourCard";
 
 function FlashSale() {
-  // Dữ liệu mẫu (sau này bạn có thể map từ API)
+  const trackRef = useRef(null);
+
+  const handlePrev = () => {
+    if (trackRef.current) {
+      trackRef.current.scrollBy({
+        left: -trackRef.current.clientWidth,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const handleNext = () => {
+    if (trackRef.current) {
+      trackRef.current.scrollBy({
+        left: trackRef.current.clientWidth,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const tours = [
     {
       id: 1,
@@ -39,13 +59,24 @@ function FlashSale() {
       time: "10 Ngày 9 Đêm",
       slots: 10,
     },
+    {
+      id: 4,
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdMadsoH9dgFVmJCZwsPKI7Eizq12E_h-wmA&s",
+      title: "Combo Đà Nẵng 2026: ĐÀ NẴNG - HỘI AN - BÀ NÀ HILL",
+      oldPrice: "13.650.000đ",
+      newPrice: "2.590.000 đ",
+      code: "123456789",
+      date: "22/07/2026",
+      time: "10 Ngày 9 Đêm",
+      slots: 10,
+    },
   ];
 
   return (
     <section className="flash-sale">
       <div className="container">
         <div className="flash-sale__inner">
-          {/* Cột trái: Thông tin ưu đãi */}
           <div className="flash-sale__info">
             <h2 className="fs-title">
               ƯU ĐÃI 2026 <br /> TOUR GIỜ CHÓT
@@ -83,17 +114,24 @@ function FlashSale() {
             </div>
           </div>
 
-          {/* Cột phải: Danh sách Tour */}
           <div className="flash-sale__tours">
-            {/* Nút điều hướng ảo */}
-            <button className="slider-nav prev">
+            <button
+              className="slider-nav next"
+              onClick={handleNext}
+              aria-label="Next"
+            >
               <i className="fa-solid fa-chevron-right"></i>
             </button>
-            <button className="slider-nav next">
+
+            <button
+              className="slider-nav prev"
+              onClick={handlePrev}
+              aria-label="Prev"
+            >
               <i className="fa-solid fa-chevron-left"></i>
             </button>
 
-            <div className="tour-grid">
+            <div className="tour-track" ref={trackRef}>
               {tours.map((tour) => (
                 <TourCard key={tour.id} tour={tour} />
               ))}

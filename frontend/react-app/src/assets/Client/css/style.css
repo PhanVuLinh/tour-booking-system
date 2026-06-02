@@ -619,20 +619,33 @@ textarea {
   position: relative;
 }
 
-.tour-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.tour-track {
+  display: flex;
   gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 10px;
 }
 
-/* Mũi tên điều hướng (Giả lập) */
+.tour-track::-webkit-scrollbar {
+  display: none;
+}
+
+.tour-track .tour-card {
+  flex: 0 0 calc((100% - 40px) / 3);
+  scroll-snap-align: start;
+}
+
+/* Nút điều hướng */
 .slider-nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 24px;
-  height: 48px;
-  background-color: rgba(255, 255, 255, 0.75);
+  width: 30px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.85);
   border: none;
   border-radius: 50%;
   color: #555;
@@ -652,15 +665,13 @@ textarea {
 }
 
 .slider-nav.prev {
-  right: -24px;
-  border-radius: 0 40px 40px 0;
-  padding-right: 3px;
+  left: -30px;
+  border-radius: 28px 0 0 28px;
 }
 
 .slider-nav.next {
-  left: -24px;
-  border-radius: 40px 0 0 40px;
-  padding-left: 3px;
+  right: -30px;
+  border-radius: 0 28px 28px 0;
 }
 
 /* Thẻ Tour (Card) */
@@ -1056,6 +1067,315 @@ textarea {
   overflow: hidden;
 }
 
+/* BREADCRUMB (Thanh điều hướng trang trong)*/
+.box-breadcrumb {
+  position: relative;
+  height: 320px;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 50px;
+}
+
+.box-breadcrumb .inner-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.box-breadcrumb .inner-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.box-breadcrumb .inner-image .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(69, 2, 199, 0.2) 0%,
+    rgba(69, 2, 199, 0.85) 100%
+  );
+}
+
+.box-breadcrumb .inner-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  padding-bottom: 40px;
+}
+
+.box-breadcrumb .inner-title {
+  color: var(--white);
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.box-breadcrumb .inner-list {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.box-breadcrumb .inner-list a {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.box-breadcrumb .inner-list a:hover {
+  color: #ffc107;
+}
+
+.box-breadcrumb .inner-list .separator {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+/* LAYOUT TRANG DANH SÁCH TOUR (BỘ LỌC + GRID)*/
+.tour-list-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-bottom: 60px;
+}
+
+/* 1. Style Khối Bộ Lọc (Cột trái) */
+.tour-filter {
+  width: 280px;
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  position: sticky;
+  top: 90px; /* Ghim bộ lọc lại khi cuộn trang */
+}
+
+.filter-header {
+  background-color: var(--white);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-header h3 {
+  color: var(--color-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.filter-header i {
+  color: var(--color-primary);
+}
+
+.filter-body {
+  padding: 20px;
+}
+
+.filter-group {
+  margin-bottom: 18px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.filter-group select,
+.filter-group input[type="date"] {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  background-color: var(--white);
+}
+
+/* Khối đếm số lượng khách */
+.passenger-inputs {
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.passenger-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.passenger-item:last-child {
+  margin-bottom: 0;
+}
+
+.passenger-item span {
+  font-size: 13px;
+  color: #666;
+}
+
+.passenger-item input {
+  width: 60px;
+  height: 30px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.btn-apply-filter {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-primary);
+  color: var(--white);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-apply-filter:hover {
+  background-color: #31009c;
+}
+
+/* 2. Style Cột Nội Dung Phải */
+.tour-list-content {
+  flex: 1;
+}
+.tour-list-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-primary); /* Màu tím chủ đạo */
+  margin-bottom: 15px;
+}
+
+.tour-list-desc {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+/* Thanh sắp xếp (Sort Bar) */
+.sort-bar {
+  background-color: var(--white);
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.sort-options {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.sort-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: 0.3s;
+}
+
+.sort-btn:hover,
+.sort-btn.active {
+  color: var(--red-main);
+}
+
+.sort-btn.hot {
+  color: var(--red-main);
+}
+
+.sort-total {
+  font-size: 14px;
+  color: #444;
+}
+
+/* Lưới 3 cột chứa TourCard */
+.tour-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+/* 3. Style Phân Trang (Pagination) */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd;
+  background-color: var(--white);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  transition: 0.3s;
+}
+
+.page-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.page-btn.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--white);
+}
+.mobile-filter-btn {
+  display: none;
+}
+.close-filter-btn {
+  display: none;
+}
+.filter-overlay {
+  display: none;
+}
+.desktop-filter-icon {
+  color: var(--color-primary);
+}
+
 @media (max-width: 1200px) {
   .tour-grid-4 {
     grid-template-columns: repeat(3, 1fr);
@@ -1070,6 +1390,9 @@ textarea {
   .center-col {
     grid-column: 1 / -1;
     order: -1;
+  }
+  .tour-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -1296,6 +1619,74 @@ textarea {
   .tour-grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }
+  .tour-list-layout {
+    flex-direction: column;
+  }
+
+  .mobile-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background-color: var(--white);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+
+  .filter-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .filter-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .tour-filter {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 300px;
+    height: 100vh;
+    border-radius: 0;
+    overflow-y: auto;
+    z-index: 1001;
+    transition: all 0.4s ease;
+  }
+  .tour-filter.active {
+    left: 0;
+  }
+
+  .desktop-filter-icon {
+    display: none;
+  }
+  .close-filter-btn {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-dark);
+    cursor: pointer;
+  }
+  .tour-track .tour-card {
+    flex: 0 0 calc((100% - 15px) / 2);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1382,6 +1773,16 @@ textarea {
   .news-card-small {
     min-height: 220px;
   }
+
+  .box-breadcrumb {
+    height: 250px;
+  }
+  .box-breadcrumb .inner-title {
+    font-size: 28px;
+  }
+  .tour-track .tour-card {
+    flex: 0 0 100%;
+  }
 }
 
 @media (max-width: 576px) {
@@ -1391,5 +1792,16 @@ textarea {
 
   .newsletter-form button {
     padding: 12px 15px;
+  }
+  .tour-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .sort-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .sort-options {
+    flex-wrap: wrap;
   }
 }
