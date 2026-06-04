@@ -2,6 +2,7 @@ import MainLayout from "../../layouts/client/MainLayout";
 
 import Home from "../../pages/client/Home";
 import Tour from "../../pages/client/Tours";
+import TourDetail from "../../pages/client/Tours/TourDetail";
 import Login from "../../pages/client/Login";
 import Register from "../../pages/client/Register";
 
@@ -29,6 +30,10 @@ export const clientRoutes = [
       {
         path: "tours",
         element: <Tour />,
+      },
+      {
+        path: "tours/detail",
+        element: <TourDetail />,
       },
       {
         element: <PrivateRoute />,
