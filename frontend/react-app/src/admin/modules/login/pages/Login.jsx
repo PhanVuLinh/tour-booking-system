@@ -30,7 +30,7 @@ function Login() {
       // });
 
       // Mock authentication - Remove in production
-      if (email === 'admin@example.com' && password === 'password123') {
+      if (email === 'admin@example.com' && password === '123') {
         localStorage.setItem('authToken', 'mock-token-12345');
         localStorage.setItem('userRole', 'ADMIN');
         navigate('/admin');
@@ -88,7 +88,7 @@ function Login() {
         <div className="login-info">
           <p><strong>Demo Credentials:</strong></p>
           <p>Email: admin@example.com</p>
-          <p>Password: password123</p>
+          <p>Password: 123</p>
         </div>
       </div>
     </div>

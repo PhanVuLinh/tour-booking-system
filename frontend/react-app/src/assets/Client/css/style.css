@@ -8,9 +8,9 @@
   --text-dark: #1a1a1a;
 }
 
-*,
-*::before,
-*::after {
+.client-layout *,
+.client-layout *::before,
+.client-layout *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -24,7 +24,7 @@ body {
   line-height: 1.5;
 }
 
-a {
+.client-layout a {
   color: inherit;
   text-decoration: none;
 }
