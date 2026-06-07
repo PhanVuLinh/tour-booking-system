@@ -5,8 +5,11 @@ import { CategoryList } from "../modules/categories";
 import { UserList } from "../modules/users";
 import { Booking } from "../modules/bookings";
 import { Departure } from "../modules/departures";
-
+import { Discount } from "../modules/discounts";
 import { Login } from "../modules/login";
+import { BlogList } from "../modules/blogs";
+import { ReviewList } from "../modules/reviews";
+import { BannerList } from "../modules/banners";
 
 import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
@@ -53,6 +56,22 @@ export const adminRoutes = [
           {
             path: "/admin/departures",
             element: <Departure />,
+          },
+          {
+            path: "/admin/discounts",
+            element: <Discount />,
+          },
+          {
+            path: "/admin/blogs",
+            element: <BlogList />,
+          },
+          {
+            path: "/admin/reviews",
+            element: <ReviewList />,
+          },
+          {
+            path: "/admin/banners",
+            element: <BannerList />,
           },
         ],
       },
