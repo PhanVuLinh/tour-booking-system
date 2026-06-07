@@ -6,7 +6,7 @@ import { TourList, TourDetail } from "../modules/tours";
 
 // import { LoginPage, RegisterPage } from "../modules/auth";
 
-// import { BookingPage } from "../modules/booking";
+import { OrderBooking } from "../modules/booking";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -43,10 +43,10 @@ export const clientRoutes = [
       {
         element: <PrivateRoute />,
         children: [
-          // {
-          //   path: "booking",
-          //   element: <Booking />,
-          // },
+          {
+            path: "booking",
+            element: <OrderBooking />,
+          },
         ],
       },
     ],
