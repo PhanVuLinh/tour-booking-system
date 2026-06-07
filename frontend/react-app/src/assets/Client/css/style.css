@@ -1196,7 +1196,7 @@ body {
   margin-bottom: 18px;
 }
 
-.filter-group label {
+.filter-group .filter-label {
   display: block;
   font-size: 13px;
   font-weight: 600;
@@ -1204,8 +1204,8 @@ body {
   margin-bottom: 8px;
 }
 
-.filter-group select,
-.filter-group input[type="date"] {
+.filter-group .filter-select,
+.filter-group .filter-input {
   width: 100%;
   height: 40px;
   padding: 0 12px;
@@ -1216,36 +1216,47 @@ body {
   background-color: var(--white);
 }
 
-/* Khối đếm số lượng khách */
 .passenger-inputs {
-  background-color: #f9f9f9;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
 }
-
 .passenger-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: var(--white, #fff);
 }
 
-.passenger-item:last-child {
-  margin-bottom: 0;
-}
-
-.passenger-item span {
-  font-size: 13px;
+.passenger-item .passenger-label {
+  font-size: 14px;
   color: #666;
+  font-weight: 500;
 }
 
-.passenger-item input {
-  width: 60px;
-  height: 30px;
-  text-align: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.passenger-item .passenger-value {
+  width: 40px;
+  text-align: right;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  padding: 0;
+}
+
+.passenger-item .passenger-value::-webkit-outer-spin-button,
+.passenger-item .passenger-value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.passenger-item .passenger-value[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .btn-apply-filter {
@@ -1601,21 +1612,21 @@ body {
 /* =========================================
    FORM ĐẶT TOUR BÊN SIDEBAR MỚI
    ========================================= */
-.form-group label {
+.booking-form .booking-label {
   display: block;
   font-size: 14px;
+  font-weight: 600;
   color: #555;
-  margin-bottom: 8px;
 }
 
-.form-group select {
+.form-group select.tour-detail-select {
   width: 100%;
   height: 45px;
   padding: 0 15px;
   border: 1px solid #ddd;
   border-radius: 6px;
   outline: none;
-  font-family: inherit;
+  margin-bottom: 10px;
 }
 
 .section-label {
@@ -1818,8 +1829,112 @@ body {
   margin: 0 auto;
 }
 
-.b-page-title {
+.b-page-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.b-page-header-flex .b-page-title {
+  margin-bottom: 0;
+}
+
+.b-page-header-flex .booking-stepper-wrap {
+  margin-bottom: 0;
+}
+
+/* =========================
+   PHẦN CHỌN SỐ LƯỢNG HÀNH KHÁCH
+   ========================= */
+.passenger-quantity-box h3 {
   margin-bottom: 20px;
+}
+
+.pq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Chia 2 cột đều nhau */
+  gap: 16px; /* Khoảng cách giữa các ô */
+}
+
+/* Thẻ bọc từng loại hành khách */
+.pq-item {
+  background-color: #f5f5f5; /* Nền xám nhạt */
+  border-radius: 24px; /* Bo tròn viền giống ảnh */
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pq-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pq-name {
+  font-size: 14px;
+  color: #333;
+}
+
+.pq-desc {
+  font-size: 13px;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Icon chữ i */
+.pq-desc i {
+  color: #555;
+  font-size: 14px;
+}
+
+/* Khu vực nút bấm + - */
+.pq-stepper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Nút cộng/trừ hình tròn */
+.pq-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover đổi viền xanh khi nút không bị disable */
+.pq-btn:hover:not(:disabled) {
+  border-color: #007aff;
+  color: #007aff;
+}
+
+/* Nút bị mờ khi không thể bấm (Ví dụ: số lượng 0) */
+.pq-btn:disabled {
+  border-color: #ddd;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Số lượng hiển thị */
+.pq-count {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  min-width: 16px;
+  text-align: center;
 }
 
 .b-page-title h2 {
@@ -1897,7 +2012,7 @@ body {
 
 .b-box {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 20px;
   padding: 24px;
   border: 1px solid #f0f0f0;
   box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
@@ -1906,27 +2021,34 @@ body {
 
 .b-box h3,
 .booking-title {
-  color: var(--color-primary);
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 18px;
 }
 
-.login-banner {
+.login-banner.blue-banner {
+  background-color: #e6f4ff;
+  color: #007aff;
   display: flex;
-  gap: 12px;
+  gap: 5px;
   padding: 14px 16px;
-  margin-bottom: 18px;
-  border-radius: 10px;
-  background: #f7f2ff;
-  color: #4b4b4b;
-  line-height: 1.5;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  align-items: center;
+  justify-content: center;
 }
 
-.login-banner i {
-  color: var(--color-primary);
+.login-banner.blue-banner i {
+  color: #007aff;
   font-size: 20px;
-  margin-top: 2px;
+}
+
+.login-banner.blue-banner .login-link {
+  color: #007aff;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .b-grid-2 {
@@ -1945,32 +2067,39 @@ body {
   grid-column: 1 / -1;
 }
 
-.form-group label,
-.promo-box label {
+.form-group .form-label,
+.promo-box .promo-label {
   font-size: 14px;
-  font-weight: 600;
+  /* font-weight: 600; */
   color: #555;
 }
 
 .b-input,
-.form-group select,
-textarea.b-input,
 .promo-input {
   width: 100%;
-  height: 45px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 0 14px;
+  height: 48px;
+  border: none !important;
+  border-radius: 24px !important;
+  padding: 0 20px;
   outline: none;
-  font-family: inherit;
-  background: #fff;
+  background: #f5f5f5 !important;
+  color: #333;
+  box-sizing: border-box;
 }
 
 textarea.b-input {
   height: auto;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  resize: vertical;
+  border-radius: 16px !important;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+/* Làm mờ chữ Ví dụ (Placeholder) */
+.b-input::placeholder,
+textarea.b-input::placeholder,
+.promo-input::placeholder {
+  color: #999;
+  font-size: 14px;
 }
 
 .box-subtext {
@@ -1980,23 +2109,226 @@ textarea.b-input {
   line-height: 1.6;
 }
 
-.p-form-card {
-  background: #fafafa;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 16px;
-  margin-top: 15px;
-}
-
-.p-form-header h4 {
+.text-red {
   color: var(--color-primary);
-  margin-bottom: 12px;
-  font-size: 16px;
 }
 
-.p-form-grid {
-  display: grid;
+/* Banner hỗ trợ */
+.support-banner {
+  background: #fff4ed;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
   gap: 12px;
+  margin-bottom: 24px;
+}
+
+.support-banner input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #ff5e3a;
+}
+
+.support-banner .support-label {
+  color: #ff5e3a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Header của nhóm hành khách */
+.passenger-group {
+  margin-bottom: 24px;
+}
+
+.pg-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pg-icon,
+.pg-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pg-subtitle {
+  color: #888;
+  font-size: 14px;
+}
+
+.pg-notice {
+  color: #007aff;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.pg-price {
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+/* Card Hành Khách */
+.passenger-card-wrapper {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+
+.pc-index {
+  font-weight: 600;
+  font-size: 15px;
+  margin-top: 14px;
+  min-width: 24px;
+}
+
+.pc-content {
+  flex: 1;
+}
+
+/* Ô thu gọn */
+.pc-collapsed {
+  border: 1px dashed #ccc;
+  border-radius: 24px;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+
+.pc-collapsed:hover {
+  border-color: var(--color-primary);
+}
+
+.pc-collapsed.hidden {
+  display: none;
+}
+
+/* Panel mở ra / đóng lại mượt */
+.pc-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    grid-template-rows 0.25s ease,
+    opacity 0.25s ease,
+    transform 0.35s ease,
+    margin-top 0.35s ease;
+  margin-top: 0;
+}
+
+.pc-panel.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 12px;
+}
+
+.pc-panel-inner {
+  overflow: hidden;
+}
+
+/* Khung form mở */
+.pc-expanded-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed #eee;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.pc-expanded-header:hover .text-gray {
+  color: var(--color-primary);
+}
+
+/* Chia cột Ngày sinh & Giới tính */
+.form-group-flex {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 16px;
+}
+
+/* Switch Toggle (Phòng đơn) */
+.pc-toggle-wrap {
+  display: flex;
+  min-width: 80px;
+}
+
+.pc-toggle-wrap.closed {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pc-toggle-wrap.open {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: #333;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007aff; /* Màu xanh active */
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
 }
 
 .form-group-flex {
@@ -2654,6 +2986,9 @@ textarea.b-input {
 
   .btn-apply {
     height: 45px;
+  }
+  .pq-grid {
+    grid-template-columns: 1fr;
   }
 }
 

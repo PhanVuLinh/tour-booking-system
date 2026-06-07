@@ -1,6 +1,86 @@
 import React, { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Breadcrumb } from "../../../shared";
+import { Breadcrumb } from "../../../shared"; // Đảm bảo đường dẫn này đúng với project của bạn
+
+// Component con xử lý giao diện từng hành khách (Đóng/Mở accordion)
+const PassengerCard = ({ type, index, isAdult }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={`passenger-card-wrapper ${isOpen ? "open" : ""}`}>
+      <div className="pc-index">#{index}</div>
+
+      <div className="pc-content">
+        <div
+          className={`pc-collapsed ${isOpen ? "hidden" : ""}`}
+          onClick={() => setIsOpen(true)}
+        >
+          <span className="pc-label">
+            {type} <span className="text-red">(*)</span>
+          </span>
+          <span className="pc-action text-red">Nhập thông tin &rarr;</span>
+        </div>
+
+        <div className={`pc-panel ${isOpen ? "open" : ""}`}>
+          <div className="pc-panel-inner">
+            <div
+              className="pc-expanded-header"
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="pc-label">
+                {type} <span className="text-red">(*)</span>
+              </span>
+              <span className="pc-action text-gray">Thu gọn &uarr;</span>
+            </div>
+
+            <div className="form-group full-width">
+              <label className="form-label">
+                Họ tên <span className="text-red">(*)</span>
+              </label>
+              <input
+                type="text"
+                className="b-input"
+                placeholder="Ví dụ: Nguyễn Văn A"
+              />
+            </div>
+
+            <div className="form-group-flex">
+              <div className="form-group">
+                <label className="form-label">
+                  Ngày sinh <span className="text-red">(*)</span>
+                </label>
+                <input type="date" className="b-input" />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  Giới tính <span className="text-red">(*)</span>
+                </label>
+                <select className="b-input" defaultValue="Nam">
+                  <option>Nam</option>
+                  <option>Nữ</option>
+                </select>
+              </div>
+            </div>
+
+            {isAdult && (
+              <div className="form-group full-width">
+                <label className="form-label">
+                  Số điện thoại <span className="text-red">(*)</span>
+                </label>
+                <input
+                  type="text"
+                  className="b-input"
+                  placeholder="Ví dụ: 0901234567"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 function OrderBooking() {
   const location = useLocation();
@@ -16,6 +96,9 @@ function OrderBooking() {
       {
         url: "#",
         title: "Tour Hà Nội - Ninh Bình - Hạ Long - Yên Tử - Sapa | 6N5Đ",
+      },
+      {
+        title: "Đặt tour",
       },
     ],
   };
@@ -33,97 +116,96 @@ function OrderBooking() {
     tourImage = "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80",
   } = location.state || {};
 
+  const [adultCount, setAdultCount] = useState(adults);
+  const [childCount, setChildCount] = useState(children);
+  const [toddlerCount, setToddlerCount] = useState(1);
+  const [infantCount, setInfantCount] = useState(infants);
+
+  // Hàm xử lý tăng/giảm số lượng
+  const updatePassenger = (type, action) => {
+    if (type === "adult") {
+      setAdultCount((prev) =>
+        action === "add" ? prev + 1 : Math.max(1, prev - 1),
+      );
+    } else if (type === "child") {
+      setChildCount((prev) =>
+        action === "add" ? prev + 1 : Math.max(0, prev - 1),
+      );
+    } else if (type === "toddler") {
+      setToddlerCount((prev) =>
+        action === "add" ? prev + 1 : Math.max(0, prev - 1),
+      );
+    } else if (type === "infant") {
+      setInfantCount((prev) =>
+        action === "add" ? prev + 1 : Math.max(0, prev - 1),
+      );
+    }
+  };
+
   const priceAdult = 10000000;
   const priceChild = 7990000;
+  const priceToddler = 6990000; // Giá giả định cho Trẻ nhỏ
   const priceInfant = 5990000;
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("vi-VN").format(price) + " đ";
 
   const subtotal = useMemo(() => {
-    return adults * priceAdult + children * priceChild + infants * priceInfant;
-  }, [adults, children, infants]);
+    return (
+      adultCount * priceAdult +
+      childCount * priceChild +
+      toddlerCount * priceToddler +
+      infantCount * priceInfant
+    );
+  }, [adultCount, childCount, toddlerCount, infantCount]);
 
   const [promoCode, setPromoCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
 
   const handleApplyPromo = () => {
     const code = promoCode.trim().toUpperCase();
-
     if (!code) {
       setDiscountAmount(0);
       return;
     }
-
     if (code === "GIAM10") {
       setDiscountAmount(Math.min(subtotal * 0.1, subtotal));
       return;
     }
-
     if (code === "GIAM500K") {
       setDiscountAmount(Math.min(500000, subtotal));
       return;
     }
-
     setDiscountAmount(0);
     alert("Mã giảm giá không hợp lệ");
   };
 
   const finalPrice = Math.max(subtotal - discountAmount, 0);
 
-  const renderPassengerForms = (type, count, startIndex) => {
-    const forms = [];
+  // Render từng nhóm hành khách theo giao diện mới
+  const renderPassengerGroup = (type, count, isAdult, subtitle) => {
+    if (count === 0) return null;
 
-    for (let i = 0; i < count; i++) {
-      forms.push(
-        <div className="p-form-card" key={`${type}-${i}`}>
-          <div className="p-form-header">
-            <h4>
-              #{startIndex + i} {type} (*)
-            </h4>
-          </div>
+    return (
+      <div className="passenger-group" key={type}>
+        <div className="pg-header">
+          <i className="fa-solid fa-user-group pg-icon"></i>
+          <span className="pg-title">{type}</span>
+          <span className="pg-subtitle">{subtitle}</span>
+        </div>
 
-          <div className="p-form-grid">
-            <div className="form-group full-width">
-              <label>Họ tên (*)</label>
-              <input
-                type="text"
-                className="b-input"
-                placeholder="Ví dụ: Nguyễn Văn A"
-              />
-            </div>
-
-            <div className="form-group-flex">
-              <div className="form-group w-60">
-                <label>Ngày sinh (*)</label>
-                <input type="date" className="b-input" />
-              </div>
-
-              <div className="form-group w-40">
-                <label>Giới tính (*)</label>
-                <select className="b-input" defaultValue="Nam">
-                  <option>Nam</option>
-                  <option>Nữ</option>
-                </select>
-              </div>
-            </div>
-
-            {type === "Người lớn" && (
-              <div className="form-group full-width">
-                <label>Số điện thoại</label>
-                <input
-                  type="text"
-                  className="b-input"
-                  placeholder="Ví dụ: 0901234567"
-                />
-              </div>
-            )}
-          </div>
-        </div>,
-      );
-    }
-
-    return forms;
+        <div className="pg-list">
+          {Array.from({ length: count }).map((_, i) => (
+            <PassengerCard
+              key={`${type}-${i}`}
+              type={type}
+              index={i + 1} // Đánh số lại từ 1 cho mỗi nhóm
+              isAdult={isAdult}
+            />
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -135,26 +217,28 @@ function OrderBooking() {
       />
 
       <div className="b-container">
-        <div className="b-page-title">
-          <h2>Đặt tour của bạn</h2>
-          <p>
-            Hãy đảm bảo tất cả thông tin chi tiết trên trang này đã chính xác
-            trước khi tiến hành thanh toán.
-          </p>
-        </div>
+        <div className="b-page-header-flex">
+          <div className="b-page-title">
+            <h2>Đặt tour của bạn</h2>
+            <p>
+              Hãy đảm bảo tất cả thông tin chi tiết trên trang này đã chính xác
+              trước khi tiến hành thanh toán.
+            </p>
+          </div>
 
-        <div className="booking-stepper-wrap">
-          <div className="b-stepper">
-            <div className="step active">
-              <span className="step-num">1</span> Nhập thông tin
-            </div>
-            <i className="fa-solid fa-chevron-right step-arrow"></i>
-            <div className="step">
-              <span className="step-num">2</span> Thanh toán
-            </div>
-            <i className="fa-solid fa-chevron-right step-arrow"></i>
-            <div className="step">
-              <span className="step-num">3</span> Hoàn tất
+          <div className="booking-stepper-wrap">
+            <div className="b-stepper">
+              <div className="step active">
+                <span className="step-num">1</span> Nhập thông tin
+              </div>
+              <i className="fa-solid fa-chevron-right step-arrow"></i>
+              <div className="step">
+                <span className="step-num">2</span> Thanh toán
+              </div>
+              <i className="fa-solid fa-chevron-right step-arrow"></i>
+              <div className="step">
+                <span className="step-num">3</span> Hoàn tất
+              </div>
             </div>
           </div>
         </div>
@@ -164,18 +248,20 @@ function OrderBooking() {
             <div className="b-box contact-box">
               <h3>Thông tin liên lạc</h3>
 
-              <div className="login-banner">
+              <div className="login-banner blue-banner">
                 <i className="fa-solid fa-circle-user"></i>
                 <span>
-                  <strong>Đăng nhập</strong> để nhận ưu đãi, tích điểm và quản
-                  lý đơn hàng dễ dàng hơn!
+                  <a href="#" className="login-link">
+                    Đăng nhập
+                  </a>{" "}
+                  để nhận ưu đãi, tích điểm và quản lý đơn hàng dễ dàng hơn!
                 </span>
               </div>
 
               <div className="b-grid-2">
                 <div className="form-group">
-                  <label>
-                    Họ tên <span>(*)</span>
+                  <label className="form-label">
+                    Họ tên <span className="text-red">(*)</span>
                   </label>
                   <input
                     type="text"
@@ -185,29 +271,29 @@ function OrderBooking() {
                 </div>
 
                 <div className="form-group">
-                  <label>
-                    Số điện thoại <span>(*)</span>
+                  <label className="form-label">
+                    Số điện thoại <span className="text-red">(*)</span>
                   </label>
                   <input
                     type="text"
                     className="b-input"
-                    placeholder="Ví dụ: 0901234567 / +84901234567"
+                    placeholder="Ví dụ: 0901234567"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>
-                    Email <span>(*)</span>
+                  <label className="form-label">
+                    Email <span className="text-red">(*)</span>
                   </label>
                   <input
                     type="email"
                     className="b-input"
-                    placeholder="Ví dụ: email@example.com"
+                    placeholder="Ví dụ: email@travelgo.com"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Địa chỉ</label>
+                  <label className="form-label">Địa chỉ</label>
                   <input
                     type="text"
                     className="b-input"
@@ -217,11 +303,157 @@ function OrderBooking() {
               </div>
             </div>
 
-            <div className="b-box">
+            {/* Khối chọn số lượng Hành khách (mới thêm) */}
+            <div className="b-box passenger-quantity-box">
+              <h3>Hành khách</h3>
+
+              <div className="pq-grid">
+                {/* Người lớn */}
+                <div className="pq-item">
+                  <div className="pq-info">
+                    <div className="pq-name">Người lớn</div>
+                    <div className="pq-desc">
+                      Từ 12 tuổi trở lên{" "}
+                      <i className="fa-solid fa-circle-info"></i>
+                    </div>
+                  </div>
+                  <div className="pq-stepper">
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("adult", "sub")}
+                      disabled={adultCount <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="pq-count">{adultCount}</span>
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("adult", "add")}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Trẻ em */}
+                <div className="pq-item">
+                  <div className="pq-info">
+                    <div className="pq-name">Trẻ em</div>
+                    <div className="pq-desc">
+                      Từ 5 - 11 tuổi <i className="fa-solid fa-circle-info"></i>
+                    </div>
+                  </div>
+                  <div className="pq-stepper">
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("child", "sub")}
+                      disabled={childCount <= 0}
+                    >
+                      -
+                    </button>
+                    <span className="pq-count">{childCount}</span>
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("child", "add")}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Trẻ nhỏ */}
+                <div className="pq-item">
+                  <div className="pq-info">
+                    <div className="pq-name">Trẻ nhỏ</div>
+                    <div className="pq-desc">
+                      Từ 2 - 4 tuổi <i className="fa-solid fa-circle-info"></i>
+                    </div>
+                  </div>
+                  <div className="pq-stepper">
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("toddler", "sub")}
+                      disabled={toddlerCount <= 0}
+                    >
+                      -
+                    </button>
+                    <span className="pq-count">{toddlerCount}</span>
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("toddler", "add")}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Em bé */}
+                <div className="pq-item">
+                  <div className="pq-info">
+                    <div className="pq-name">Em bé</div>
+                    <div className="pq-desc">
+                      Dưới 2 tuổi <i className="fa-solid fa-circle-info"></i>
+                    </div>
+                  </div>
+                  <div className="pq-stepper">
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("infant", "sub")}
+                      disabled={infantCount <= 0}
+                    >
+                      -
+                    </button>
+                    <span className="pq-count">{infantCount}</span>
+                    <button
+                      type="button"
+                      className="pq-btn"
+                      onClick={() => updatePassenger("infant", "add")}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="b-box passenger-box">
               <h3>Thông tin hành khách</h3>
-              {renderPassengerForms("Người lớn", adults, 1)}
-              {renderPassengerForms("Trẻ em", children, adults + 1)}
-              {renderPassengerForms("Em bé", infants, adults + children + 1)}
+
+              {renderPassengerGroup(
+                "Người lớn",
+                adultCount,
+                1,
+                true,
+                "(Người lớn sinh trước ngày 25/06/2014)",
+              )}
+              {renderPassengerGroup(
+                "Trẻ em",
+                childCount,
+                adultCount + 1,
+                false,
+                "(Từ 5 - 11 tuổi)",
+              )}
+              {renderPassengerGroup(
+                "Trẻ nhỏ",
+                toddlerCount,
+                adultCount + childCount + 1,
+                false,
+                "(Từ 2 - 4 tuổi)",
+              )}
+              {renderPassengerGroup(
+                "Em bé",
+                infantCount,
+                adultCount + childCount + toddlerCount + 1,
+                false,
+                "(Dưới 2 tuổi)",
+              )}
             </div>
 
             <div className="b-box">
@@ -272,11 +504,11 @@ function OrderBooking() {
                   <div className="spd-left">
                     <span className="spd-name">Người lớn</span>
                     <span className="spd-meta">
-                      {adults} x {formatPrice(priceAdult)}
+                      {adultCount} x {formatPrice(priceAdult)}
                     </span>
                   </div>
                   <div className="spd-right">
-                    <strong>{formatPrice(adults * priceAdult)}</strong>
+                    <strong>{formatPrice(adultCount * priceAdult)}</strong>
                   </div>
                 </div>
 
@@ -284,11 +516,11 @@ function OrderBooking() {
                   <div className="spd-left">
                     <span className="spd-name">Trẻ em</span>
                     <span className="spd-meta">
-                      {children} x {formatPrice(priceChild)}
+                      {childCount} x {formatPrice(priceChild)}
                     </span>
                   </div>
                   <div className="spd-right">
-                    <strong>{formatPrice(children * priceChild)}</strong>
+                    <strong>{formatPrice(childCount * priceChild)}</strong>
                   </div>
                 </div>
 
@@ -296,11 +528,11 @@ function OrderBooking() {
                   <div className="spd-left">
                     <span className="spd-name">Em bé</span>
                     <span className="spd-meta">
-                      {infants} x {formatPrice(priceInfant)}
+                      {toddlerCount} x {formatPrice(priceToddler)}
                     </span>
                   </div>
                   <div className="spd-right">
-                    <strong>{formatPrice(infants * priceInfant)}</strong>
+                    <strong>{formatPrice(toddlerCount * priceToddler)}</strong>
                   </div>
                 </div>
               </div>

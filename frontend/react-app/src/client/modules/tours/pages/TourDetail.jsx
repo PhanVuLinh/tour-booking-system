@@ -243,8 +243,8 @@ function TourDetail() {
 
               <div className="booking-form">
                 <div className="form-group">
-                  <label>Khởi Hành Tại:</label>
-                  <select defaultValue="hanoi">
+                  <label className="booking-label">Khởi Hành Tại:</label>
+                  <select className="tour-detail-select" defaultValue="hanoi">
                     <option value="hanoi">Hà Nội</option>
                     <option value="hcm">TP. Hồ Chí Minh</option>
                   </select>
