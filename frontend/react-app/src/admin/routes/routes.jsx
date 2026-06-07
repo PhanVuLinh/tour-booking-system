@@ -1,19 +1,10 @@
-// import Dashboard from "../../pages/admin/Dashboard";
-// import Tours from "../../pages/admin/Tours";
-// import Categories from "../../pages/admin/Categories";
-// import Users from "../../pages/admin/Users";
-// import Bookings from "../../pages/admin/Bookings";
-
-// import Login from "../../pages/admin/Login";
-
-// import AdminLayout from "../layouts/MainLayout";
-// import AdminAuthLayout from "../layouts/AuthLayout";
 
 import { Dashboard } from "../modules/dashboard";
 import { TourList } from "../modules/tours";
 import { CategoryList } from "../modules/categories";
 import { UserList } from "../modules/users";
 import { Booking } from "../modules/bookings";
+import { Departure } from "../modules/departures";
 
 import { Login } from "../modules/login";
 
@@ -58,6 +49,10 @@ export const adminRoutes = [
           {
             path: "/admin/bookings",
             element: <Booking />,
+          },
+          {
+            path: "/admin/departures",
+            element: <Departure />,
           },
         ],
       },
