@@ -10,6 +10,7 @@ import { Login } from "../modules/login";
 import { BlogList } from "../modules/blogs";
 import { ReviewList } from "../modules/reviews";
 import { BannerList } from "../modules/banners";
+import TourForm from "../modules/tours/pages/TourForm";
 
 import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
@@ -40,6 +41,14 @@ export const adminRoutes = [
           {
             path: "/admin/tours",
             element: <TourList />,
+          },
+          {
+            path: "/admin/tours/new",
+            element: <TourForm />,
+          },
+          {
+            path: "/admin/tours/:id/edit",
+            element: <TourForm />,
           },
           {
             path: "/admin/categories",

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Edit, Trash2, Eye, RotateCcw } from "lucide-react";
 
-export function TourTable({ tours, onDelete }) {
+export function TourTable({ tours, onView, onDelete }) {
   return (
     <div className="w-full max-w-full bg-white border rounded-lg shadow-sm overflow-hidden">
       <div className="overflow-x-auto w-full">
@@ -10,7 +10,7 @@ export function TourTable({ tours, onDelete }) {
             <tr className="border-b bg-gray-50/50">
               <th className="py-4 px-4 text-sm font-semibold text-gray-600 w-24">Hình ảnh</th>
               <th className="py-4 px-4 text-sm font-semibold text-gray-600 w-auto">Tên Tour</th>
-              <th className="py-4 px-4 text-sm font-semibold text-gray-600 w-32">Danh mục</th>
+              <th className="py-4 px-4 text-sm font-semibold text-gray-600 w-40">Danh mục</th>
               <th className="py-4 px-4 text-sm font-semibold text-gray-600 w-32">Giá</th>
               <th className="py-4 px-4 text-sm font-semibold text-gray-600 w-28">Trạng thái</th>
               <th className="py-4 px-4 text-sm font-semibold text-gray-600 w-32">Ngày tạo</th>
@@ -38,7 +38,7 @@ export function TourTable({ tours, onDelete }) {
                 <td className="py-3 px-4 text-sm text-gray-600">{tour.createdAt}</td>
                 <td className="py-3 px-4 text-right">
                   <div className="flex justify-end gap-1">
-                    <button className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 transition-colors">
+                    <button onClick={() => onView(tour)} className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 transition-colors" title="Xem chi tiết">
                       <Eye className="w-4 h-4 text-gray-600" />
                     </button>
                     <Link to={`/admin/tours/${tour.id}/edit`} className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 transition-colors">
