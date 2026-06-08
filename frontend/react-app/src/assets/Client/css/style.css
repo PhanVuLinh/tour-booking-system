@@ -2087,6 +2087,15 @@ body {
   box-sizing: border-box;
 }
 
+.promo-input-coupon {
+  width: 100%;
+  height: 48px;
+  padding: 0 20px;
+  outline: none;
+  color: #333;
+  box-sizing: border-box;
+}
+
 textarea.b-input {
   height: auto;
   border-radius: 16px !important;

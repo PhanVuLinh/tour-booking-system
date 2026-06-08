@@ -33,48 +33,50 @@ const PassengerCard = ({ type, index, isAdult }) => {
               <span className="pc-action text-gray">Thu gọn &uarr;</span>
             </div>
 
-            <div className="form-group full-width">
-              <label className="form-label">
-                Họ tên <span className="text-red">(*)</span>
-              </label>
-              <input
-                type="text"
-                className="b-input"
-                placeholder="Ví dụ: Nguyễn Văn A"
-              />
-            </div>
-
-            <div className="form-group-flex">
-              <div className="form-group">
-                <label className="form-label">
-                  Ngày sinh <span className="text-red">(*)</span>
-                </label>
-                <input type="date" className="b-input" />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  Giới tính <span className="text-red">(*)</span>
-                </label>
-                <select className="b-input" defaultValue="Nam">
-                  <option>Nam</option>
-                  <option>Nữ</option>
-                </select>
-              </div>
-            </div>
-
-            {isAdult && (
+            <div className="b-grid-2">
               <div className="form-group full-width">
                 <label className="form-label">
-                  Số điện thoại <span className="text-red">(*)</span>
+                  Họ tên <span className="text-red">(*)</span>
                 </label>
                 <input
                   type="text"
                   className="b-input"
-                  placeholder="Ví dụ: 0901234567"
+                  placeholder="Ví dụ: Nguyễn Văn A"
                 />
               </div>
-            )}
+
+              <div className="form-group-flex">
+                <div className="form-group">
+                  <label className="form-label">
+                    Ngày sinh <span className="text-red">(*)</span>
+                  </label>
+                  <input type="date" className="b-input" />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">
+                    Giới tính <span className="text-red">(*)</span>
+                  </label>
+                  <select className="b-input" defaultValue="Nam">
+                    <option>Nam</option>
+                    <option>Nữ</option>
+                  </select>
+                </div>
+              </div>
+
+              {isAdult && (
+                <div className="form-group full-width">
+                  <label className="form-label">
+                    Số điện thoại <span className="text-red">(*)</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="b-input"
+                    placeholder="Ví dụ: 0901234567"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -118,7 +120,6 @@ function OrderBooking() {
 
   const [adultCount, setAdultCount] = useState(adults);
   const [childCount, setChildCount] = useState(children);
-  const [toddlerCount, setToddlerCount] = useState(1);
   const [infantCount, setInfantCount] = useState(infants);
 
   // Hàm xử lý tăng/giảm số lượng
@@ -131,10 +132,6 @@ function OrderBooking() {
       setChildCount((prev) =>
         action === "add" ? prev + 1 : Math.max(0, prev - 1),
       );
-    } else if (type === "toddler") {
-      setToddlerCount((prev) =>
-        action === "add" ? prev + 1 : Math.max(0, prev - 1),
-      );
     } else if (type === "infant") {
       setInfantCount((prev) =>
         action === "add" ? prev + 1 : Math.max(0, prev - 1),
@@ -144,7 +141,6 @@ function OrderBooking() {
 
   const priceAdult = 10000000;
   const priceChild = 7990000;
-  const priceToddler = 6990000; // Giá giả định cho Trẻ nhỏ
   const priceInfant = 5990000;
 
   const formatPrice = (price) =>
@@ -154,10 +150,9 @@ function OrderBooking() {
     return (
       adultCount * priceAdult +
       childCount * priceChild +
-      toddlerCount * priceToddler +
       infantCount * priceInfant
     );
-  }, [adultCount, childCount, toddlerCount, infantCount]);
+  }, [adultCount, childCount, infantCount]);
 
   const [promoCode, setPromoCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -342,7 +337,7 @@ function OrderBooking() {
                   <div className="pq-info">
                     <div className="pq-name">Trẻ em</div>
                     <div className="pq-desc">
-                      Từ 5 - 11 tuổi <i className="fa-solid fa-circle-info"></i>
+                      Từ 2 - 11 tuổi <i className="fa-solid fa-circle-info"></i>
                     </div>
                   </div>
                   <div className="pq-stepper">
@@ -359,34 +354,6 @@ function OrderBooking() {
                       type="button"
                       className="pq-btn"
                       onClick={() => updatePassenger("child", "add")}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* Trẻ nhỏ */}
-                <div className="pq-item">
-                  <div className="pq-info">
-                    <div className="pq-name">Trẻ nhỏ</div>
-                    <div className="pq-desc">
-                      Từ 2 - 4 tuổi <i className="fa-solid fa-circle-info"></i>
-                    </div>
-                  </div>
-                  <div className="pq-stepper">
-                    <button
-                      type="button"
-                      className="pq-btn"
-                      onClick={() => updatePassenger("toddler", "sub")}
-                      disabled={toddlerCount <= 0}
-                    >
-                      -
-                    </button>
-                    <span className="pq-count">{toddlerCount}</span>
-                    <button
-                      type="button"
-                      className="pq-btn"
-                      onClick={() => updatePassenger("toddler", "add")}
                     >
                       +
                     </button>
@@ -425,32 +392,21 @@ function OrderBooking() {
 
             <div className="b-box passenger-box">
               <h3>Thông tin hành khách</h3>
-
               {renderPassengerGroup(
                 "Người lớn",
                 adultCount,
-                1,
                 true,
-                "(Người lớn sinh trước ngày 25/06/2014)",
+                "(Từ 12 tuổi trở lên)",
               )}
               {renderPassengerGroup(
                 "Trẻ em",
                 childCount,
-                adultCount + 1,
                 false,
-                "(Từ 5 - 11 tuổi)",
-              )}
-              {renderPassengerGroup(
-                "Trẻ nhỏ",
-                toddlerCount,
-                adultCount + childCount + 1,
-                false,
-                "(Từ 2 - 4 tuổi)",
+                "(Từ 2 - 11 tuổi)",
               )}
               {renderPassengerGroup(
                 "Em bé",
                 infantCount,
-                adultCount + childCount + toddlerCount + 1,
                 false,
                 "(Dưới 2 tuổi)",
               )}
@@ -528,11 +484,11 @@ function OrderBooking() {
                   <div className="spd-left">
                     <span className="spd-name">Em bé</span>
                     <span className="spd-meta">
-                      {toddlerCount} x {formatPrice(priceToddler)}
+                      {infantCount} x {formatPrice(priceInfant)}
                     </span>
                   </div>
                   <div className="spd-right">
-                    <strong>{formatPrice(toddlerCount * priceToddler)}</strong>
+                    <strong>{formatPrice(infantCount * priceInfant)}</strong>
                   </div>
                 </div>
               </div>
@@ -544,7 +500,7 @@ function OrderBooking() {
                   <div className="promo-input-group">
                     <input
                       type="text"
-                      className="promo-input"
+                      className="promo-input-coupon"
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value)}
                       placeholder="Nhập mã giảm giá"
