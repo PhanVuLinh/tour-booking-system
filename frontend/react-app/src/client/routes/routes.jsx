@@ -1,3 +1,5 @@
+import { Navigate } from "react-router-dom";
+
 import { MainLayout } from "../layouts";
 
 import { Home } from "../modules/home";
@@ -5,8 +7,13 @@ import { Home } from "../modules/home";
 import { TourList, TourDetail } from "../modules/tours";
 
 // import { LoginPage, RegisterPage } from "../modules/auth";
+import { OrderBooking } from "../modules/booking/layouts";
 
-import { OrderBooking } from "../modules/booking";
+import {
+  BookingInfo,
+  BookingPayment,
+  BookingSuccess,
+} from "../modules/booking";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -47,9 +54,10 @@ export const clientRoutes = [
             path: "booking",
             element: <OrderBooking />,
             children: [
-              { path: "info", element: <BookingInfoPage /> },
-              { path: "payment", element: <BookingPaymentPage /> },
-              { path: "success", element: <BookingSuccessPage /> },
+              { index: true, element: <Navigate to="info" replace /> },
+              { path: "info", element: <BookingInfo /> },
+              { path: "payment", element: <BookingPayment /> },
+              { path: "success", element: <BookingSuccess /> },
             ],
           },
         ],
