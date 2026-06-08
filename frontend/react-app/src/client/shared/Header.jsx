@@ -83,11 +83,11 @@ function Header() {
 
           {/* KÊU GỌI HÀNH ĐỘNG - Chỉ có GIỎ HÀNG giống hệt ảnh */}
           <div className="nav-actions">
-            <Link to="/cart" className="action-btn">
-              <i className="fa-solid fa-cart-shopping"></i>
-              {miniCart > 0 && (
-                <span className="action-badge badge-red">{miniCart}</span>
-              )}
+            <Link to="/login" className="action-btn">
+              <button className="btn-login-header">
+                <i className="fa-solid fa-circle-user"></i>
+                <span>Đăng nhập</span>
+              </button>
             </Link>
           </div>
         </div>

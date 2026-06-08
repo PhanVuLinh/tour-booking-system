@@ -40,8 +40,8 @@ function TourFilter() {
         <div className="filter-body">
           {/* Điểm đi */}
           <div className="filter-group">
-            <label>Điểm đi</label>
-            <select defaultValue="">
+            <label className="filter-label">Điểm đi</label>
+            <select className="filter-select" defaultValue="">
               <option value="" disabled>
                 -- Chọn điểm đi --
               </option>
@@ -52,8 +52,8 @@ function TourFilter() {
 
           {/* Điểm đến */}
           <div className="filter-group">
-            <label>Điểm đến</label>
-            <select defaultValue="">
+            <label className="filter-label">Điểm đến</label>
+            <select className="filter-select" defaultValue="">
               <option value="" disabled>
                 -- Chọn điểm đến --
               </option>
@@ -64,33 +64,48 @@ function TourFilter() {
 
           {/* Ngày khởi hành */}
           <div className="filter-group">
-            <label>Ngày khởi hành</label>
-            <input type="date" />
+            <label className="filter-label">Ngày khởi hành</label>
+            <input type="date" className="filter-input" />
           </div>
 
           {/* Số lượng hành khách */}
           <div className="filter-group">
-            <label>Số Lượng Hành Khách</label>
+            <label className="filter-label">Số Lượng Hành Khách</label>
             <div className="passenger-inputs">
               <div className="passenger-item">
-                <span>Người lớn:</span>
-                <input type="number" min="0" defaultValue="0" />
+                <span className="passenger-label">Người lớn:</span>
+                <input
+                  className="passenger-value"
+                  type="number"
+                  min="0"
+                  defaultValue="0"
+                />
               </div>
               <div className="passenger-item">
-                <span>Trẻ em:</span>
-                <input type="number" min="0" defaultValue="0" />
+                <span className="passenger-label">Trẻ em:</span>
+                <input
+                  className="passenger-value"
+                  type="number"
+                  min="0"
+                  defaultValue="0"
+                />
               </div>
               <div className="passenger-item">
-                <span>Em bé:</span>
-                <input type="number" min="0" defaultValue="0" />
+                <span className="passenger-label">Em bé:</span>
+                <input
+                  className="passenger-value"
+                  type="number"
+                  min="0"
+                  defaultValue="0"
+                />
               </div>
             </div>
           </div>
 
           {/* Mức giá */}
           <div className="filter-group">
-            <label>Mức giá</label>
-            <select defaultValue="">
+            <label className="filter-label">Mức giá</label>
+            <select className="filter-select" defaultValue="">
               <option value="" disabled>
                 -- Chọn khoảng giá --
               </option>
