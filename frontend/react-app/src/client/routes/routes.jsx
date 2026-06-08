@@ -46,6 +46,11 @@ export const clientRoutes = [
           {
             path: "booking",
             element: <OrderBooking />,
+            children: [
+              { path: "info", element: <BookingInfoPage /> },
+              { path: "payment", element: <BookingPaymentPage /> },
+              { path: "success", element: <BookingSuccessPage /> },
+            ],
           },
         ],
       },
