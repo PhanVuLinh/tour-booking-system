@@ -43,7 +43,7 @@ const Step1Info = ({
             <a href="#" className="login-link">
               Đăng nhập
             </a>{" "}
-            để nhận ưu đãi, tích điểm và quản lý đơn hàng dễ dàng hơn!
+            để nhận ưu đãi và quản lý đơn hàng dễ dàng hơn!
           </span>
         </div>
         <div className="b-grid-2">

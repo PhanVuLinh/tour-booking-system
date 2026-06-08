@@ -6,8 +6,15 @@ import { Home } from "../modules/home";
 
 import { TourList, TourDetail } from "../modules/tours";
 
-// import { LoginPage, RegisterPage } from "../modules/auth";
 import { OrderBooking } from "../modules/booking/layouts";
+
+import {
+  Login,
+  Register,
+  ForgotPassword,
+  VerifyOTP,
+  ResetPassword,
+} from "../modules/auth";
 
 import {
   BookingInfo,
@@ -27,15 +34,28 @@ export const clientRoutes = [
         element: <Home />,
       },
 
-      // {
-      //   path: "login",
-      //   element: <Login />,
-      // },
+      {
+        path: "login",
+        element: <Login />,
+      },
 
-      // {
-      //   path: "register",
-      //   element: <Register />,
-      // },
+      {
+        path: "register",
+        element: <Register />,
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPassword />,
+      },
+
+      {
+        path: "verify-otp",
+        element: <VerifyOTP />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+      },
 
       {
         path: "tours",

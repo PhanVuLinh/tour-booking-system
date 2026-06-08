@@ -83,9 +83,10 @@ function Header() {
 
           {/* KÊU GỌI HÀNH ĐỘNG - Chỉ có GIỎ HÀNG giống hệt ảnh */}
           <div className="nav-actions">
-            <Link to="/Login" className="action-btn">
+            <Link to="/login" className="action-btn">
               <button className="btn-login-header">
-                <i className="fa-solid fa-circle-user"></i> Đăng nhập
+                <i className="fa-solid fa-circle-user"></i>
+                <span>Đăng nhập</span>
               </button>
             </Link>
           </div>
