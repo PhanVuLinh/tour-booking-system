@@ -8,11 +8,11 @@ const navigation = [
   { name: "Tổng quan", href: "/admin", icon: LayoutDashboard },
   { name: "Quản lý Tour", href: "/admin/tours", icon: MapPin },
   { name: "Danh mục", href: "/admin/categories", icon: FolderTree },
+  { name: "Người dùng", href: "/admin/users", icon: Users },
   { name: "Lịch khởi hành", href: "/admin/departures", icon: Calendar },
   { name: "Mã giảm giá", href: "/admin/discounts", icon: Ticket },
   { name: "Đơn đặt vé", href: "/admin/bookings", icon: ShoppingCart },
   { name: "Bài viết", href: "/admin/blogs", icon: FileText },
-  { name: "Người dùng", href: "/admin/users", icon: Users },
   { name: "Đánh giá", href: "/admin/reviews", icon: MessageSquare },
   { name: "Banner", href: "/admin/banners", icon: ImageIcon },
 ];
