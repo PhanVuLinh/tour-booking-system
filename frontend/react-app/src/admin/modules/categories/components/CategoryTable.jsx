@@ -1,77 +1,103 @@
 import { Edit, Trash2, RotateCcw } from "lucide-react";
 
 export function CategoryTable({ categories, onEdit, onDelete }) {
-    return (
+  return (
     <div className="w-full overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[800px]">
+      <table className="w-full text-left border-collapse min-w-[800px]">
         <thead>
-            <tr className="border-b bg-gray-50/50">
+          <tr className="border-b bg-gray-50/50">
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-16">STT</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Tên danh mục</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Mô tả</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Số lượng tour</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-28 text-right">Thao tác</th>
-            </tr>
+          </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
-            {categories.map((category, index) => (
+          {categories.map((category, index) => (
             <tr key={category.id} className="hover:bg-gray-50 transition-colors">
-                <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
-                <td className="py-3 px-4 font-medium text-gray-900">{category.name}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{category.description}</td>
-                <td className="py-3 px-4 text-sm text-blue-600 font-medium">{category.tourCount} tour</td>
-                <td className="py-3 px-4 text-right">
+              <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
+              <td className="py-3 px-4 font-medium text-gray-900">{category.title}</td>
+              <td className="py-3 px-4 text-sm text-gray-600">{category.description || "—"}</td>
+              
+              {/* Hiển thị số lượng tour (mặc định là 0 nếu API chưa có) */}
+              <td className="py-3 px-4 text-sm text-blue-600 font-medium">
+                {category.tourCount || 0} tour
+              </td>
+              
+              {/* CÁC NÚT THAO TÁC ĐÃ ĐƯỢC THÊM LẠI VÀO ĐÂY */}
+              <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
-                    <button onClick={() => onEdit(category)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+                  <button 
+                    onClick={() => onEdit(category)} 
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                    title="Chỉnh sửa"
+                  >
                     <Edit className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => onDelete(category.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                  </button>
+                  <button 
+                    onClick={() => onDelete(category.id)} 
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    title="Chuyển vào thùng rác"
+                  >
                     <Trash2 className="w-4 h-4" />
-                    </button>
+                  </button>
                 </div>
-                </td>
+              </td>
             </tr>
-            ))}
+          ))}
         </tbody>
-        </table>
+      </table>
     </div>
-    );
+  );
 }
 
 export function CategoryTrashTable({ categories, onRestore, onPermanentDelete }) {
-    return (
+  return (
     <div className="w-full overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[800px]">
+      <table className="w-full text-left border-collapse min-w-[800px]">
         <thead>
-            <tr className="border-b bg-gray-50/50">
+          <tr className="border-b bg-gray-50/50">
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-16">STT</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Tên danh mục</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Người xóa</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-40">Thời gian xóa</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-28 text-right">Thao tác</th>
-            </tr>
+          </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
-            {categories.map((category, index) => (
+          {categories.map((category, index) => (
             <tr key={category.id} className="hover:bg-gray-50 transition-colors opacity-75">
-                <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
-                <td className="py-3 px-4 font-medium text-gray-500">{category.name}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{category.deletedBy}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{category.deletedAt}</td>
-                <td className="py-3 px-4 text-right">
+              <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
+              <td className="py-3 px-4 font-medium text-gray-500">{category.title}</td>
+              <td className="py-3 px-4 text-sm text-gray-600">—</td> 
+              <td className="py-3 px-4 text-sm text-gray-600">
+                {category.deletedAt ? new Date(category.deletedAt).toLocaleString('vi-VN') : "—"}
+              </td>
+              
+              {/* CÁC NÚT KHÔI PHỤC VÀ XÓA VĨNH VIỄN ĐÃ ĐƯỢC THÊM LẠI */}
+              <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
-                    <button onClick={() => onRestore(category.id)} title="Khôi phục" className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors">
+                  <button 
+                    onClick={() => onRestore(category.id)} 
+                    className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                    title="Khôi phục danh mục"
+                  >
                     <RotateCcw className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => onPermanentDelete(category.id)} title="Xóa vĩnh viễn" className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                  </button>
+                  <button 
+                    onClick={() => onPermanentDelete(category.id)} 
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    title="Xóa vĩnh viễn"
+                  >
                     <Trash2 className="w-4 h-4" />
-                    </button>
+                  </button>
                 </div>
-                </td>
+              </td>
             </tr>
-            ))}
+          ))}
         </tbody>
-        </table>
+      </table>
     </div>
-    );
+  );
 }

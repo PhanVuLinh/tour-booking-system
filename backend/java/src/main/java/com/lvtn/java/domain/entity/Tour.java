@@ -1,10 +1,13 @@
 package com.lvtn.java.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lvtn.java.domain.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+
+import java.util.List;
 
 @Entity
 @Table(name = "tours")
@@ -28,6 +31,10 @@ public class Tour extends AuditableEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @OneToMany(mappedBy = "tourId")
+    @JsonIgnore
+    private List<Departure> departures;
 
     @Column
     private Integer price;

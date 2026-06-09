@@ -15,15 +15,16 @@ export function CategoryModal({ isOpen, onClose, onSubmit, formData, setFormData
         
         <div className="p-6 space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Tên danh mục <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Ví dụ: Tour Miền Bắc"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            />
-          </div>
+    <label className="text-sm font-medium text-gray-700">Tên danh mục <span className="text-red-500">*</span></label>
+    <input
+      type="text"
+      // ĐỔI 'name' THÀNH 'title'
+      value={formData.title || ""} 
+      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+      placeholder="Ví dụ: Tour Miền Bắc"
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Mô tả</label>
             <textarea

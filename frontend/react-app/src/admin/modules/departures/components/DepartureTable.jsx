@@ -3,39 +3,38 @@ import { Edit, Trash2 } from "lucide-react";
 export function DepartureTable({ departures, onEdit, onDelete }) {
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full text-left border-collapse min-w-[900px]">
+      <table className="w-full text-left border-collapse min-w-[1000px]">
         <thead>
           <tr className="border-b bg-gray-50/50">
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Tour</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Ngày khởi hành</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Phương tiện</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Số chỗ</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Giá vé</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Trạng thái</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Tour ID</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-40">Khởi hành</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Giá NL</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ NL</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ TE/EB</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-28">Trạng thái</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24 text-right">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           {departures.map((departure) => {
-            const availableSeats = departure.seats - departure.bookedSeats;
-            const isFull = availableSeats === 0;
+            // Spring Boot trả về Tour dưới dạng Object (departure.tourId.id)
+            const tourIdDisplay = departure.tourId ? departure.tourId.id : "N/A";
+            const dateDisplay = departure.startTime ? new Date(departure.startTime).toLocaleString('vi-VN') : "N/A";
 
             return (
               <tr key={departure.id} className="hover:bg-gray-50 transition-colors">
-                <td className="py-3 px-4 font-medium text-gray-900">{departure.tourName}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{departure.departureDate}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{departure.vehicle}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">
-                  <span className="font-medium text-gray-900">{departure.bookedSeats}</span>/{departure.seats}
-                </td>
+                <td className="py-3 px-4 font-bold text-blue-600">#{tourIdDisplay}</td>
+                <td className="py-3 px-4 text-sm text-gray-600">{dateDisplay}</td>
                 <td className="py-3 px-4 text-sm font-medium text-gray-900">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.price)}
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.priceAdult)}
                 </td>
+                <td className="py-3 px-4 text-sm text-gray-600">{departure.stockAdult}</td>
+                <td className="py-3 px-4 text-sm text-gray-600">{departure.stockChildren} / {departure.stockBaby}</td>
                 <td className="py-3 px-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    isFull ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                    departure.status === "OPEN" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
                   }`}>
-                    {isFull ? "Hết chỗ" : `Còn ${availableSeats} chỗ`}
+                    {departure.status}
                   </span>
                 </td>
                 <td className="py-3 px-4 text-right">
