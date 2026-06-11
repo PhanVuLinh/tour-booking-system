@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { TourTable, TourTrashTable } from "../components/TourTable";
+import { TourDetailModal } from "../components/TourDetailModal"; 
 import { tourService } from "../services/tourService";
 
 export function TourList() {
@@ -21,33 +22,36 @@ export function TourList() {
         setLoading(true);
         setError(null);
 
-        const [toursData, categoriesData] = await Promise.all([
+        const [toursData, categoriesData, trashData] = await Promise.all([
           tourService.getAll().catch(() => []),       
-          tourService.getCategories().catch(() => []) 
+          tourService.getCategories().catch(() => []),
+          tourService.getAllTrash().catch(() => [])
         ]);
 
         const safeTours = Array.isArray(toursData) ? toursData : [];
         const safeCategories = Array.isArray(categoriesData) ? categoriesData : [];
+        const safeTrash = Array.isArray(trashData) ? trashData : []; 
 
-        const mappedTours = safeTours.map(tour => {
+        const mapCategoryInfo = (tour) => {
           const foundCategory = safeCategories.find(
             cat => Number(cat.id) === Number(tour.categoryId)
           );
-          
           return {
             ...tour,
-            // SỬA CHỖ NÀY: cat.name đổi thành cat.title vì dữ liệu DB dùng trường title
             category: foundCategory ? foundCategory.title : `Danh mục #${tour.categoryId}`
           };
-        });
+        };
 
-        setTours(mappedTours);
+        setTours(safeTours.map(mapCategoryInfo));
+        setDeletedTours(safeTrash.map(mapCategoryInfo));
+        
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
+    
     loadData();
   }, []);
 
@@ -81,20 +85,31 @@ export function TourList() {
     }
   };
 
-  const handleRestore = (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn khôi phục tour này?")) return;
-    const tour = deletedTours.find((t) => t.id === id);
-    if (tour) {
-      // eslint-disable-next-line no-unused-vars
-      const { deletedBy: _deletedBy, deletedAt: _deletedAt, ...restTour } = tour;
-      setTours([...tours, restTour]);
-      setDeletedTours(deletedTours.filter((t) => t.id !== id));
+  const handleRestore = async (id) => {
+    if (!window.confirm("Bạn có chắc chắn muốn khôi phục tour này?")) 
+      return;
+    try {
+      await tourService.restore(id); 
+      const tour = deletedTours.find((t) => t.id === id);
+      if (tour) {
+        const { deletedBy: _deletedBy, deletedAt: _deletedAt, ...restTour } = tour;
+        setTours([...tours, restTour]);
+        setDeletedTours(deletedTours.filter((t) => t.id !== id));
+      }
+    } catch (err) {
+      alert("Lỗi khi khôi phục: " + err.message);
     }
   };
 
-  const handlePermanentDelete = (id) => {
+  const handlePermanentDelete = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn tour này? Hành động này không thể hoàn tác.")) return;
-    setDeletedTours(deletedTours.filter((t) => t.id !== id));
+    try{
+      await tourService.hardDelete(id);
+      setDeletedTours(deletedTours.filter((t) => t.id !== id));
+
+    }catch(err){
+      alert("Lỗi khi xóa vĩnh viễn: " + err.message);
+    }
   };
 
   if (loading) {
@@ -178,59 +193,11 @@ export function TourList() {
         </div>
       </div>
 
-      {isDetailOpen && selectedTour && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-xl font-bold text-gray-900">Chi tiết Tour</h2>
-              <button
-                onClick={() => setIsDetailOpen(false)}
-                className="p-2 text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <img
-                src={selectedTour.image}
-                alt={selectedTour.name}
-                className="w-full h-56 object-cover rounded-xl shadow-sm border border-gray-100"
-              />
-              <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Tên Tour</p>
-                  <p className="font-semibold text-gray-900">{selectedTour.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Danh mục</p>
-                  <p className="font-medium text-gray-900">{selectedTour.category}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Giá Tour</p>
-                  <p className="font-bold text-blue-600 text-lg">
-                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(selectedTour.price)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Trạng thái</p>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      selectedTour.status === "active" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {selectedTour.status === "active" ? "Hoạt động" : "Tạm dừng"}
-                  </span>
-                </div>
-                <div className="col-span-2 pt-4 border-t border-gray-100">
-                  <p className="text-sm text-gray-500 mb-1">Ngày tạo hệ thống</p>
-                  <p className="font-medium text-gray-900">{selectedTour.createdAt}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <TourDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        selectedTour={selectedTour}
+      />
     </div>
   );
 }

@@ -25,6 +25,7 @@ public class DepartureResponse {
     private int stockAdult;
     private int stockChildren;
     private int stockBaby;
+    private Integer discount;
     private DepartureStatus status=DepartureStatus.OPEN;
     private Boolean deleted = false;
     private LocalDateTime deletedAt;

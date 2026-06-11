@@ -40,5 +40,7 @@ public class Departure extends AuditableEntity {
     @Column
     private DepartureStatus status=DepartureStatus.OPEN;
 
+    @Column(name = "discount")
+    private Integer discount;
 
 }

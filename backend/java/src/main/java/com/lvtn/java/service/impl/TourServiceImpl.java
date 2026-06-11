@@ -4,13 +4,16 @@ import com.github.slugify.Slugify;
 import com.lvtn.java.domain.entity.Tour;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
+import com.lvtn.java.repository.DepartureRepository;
 import com.lvtn.java.repository.TourRepository;
 import com.lvtn.java.service.TourService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.text.Normalizer;
@@ -21,6 +24,7 @@ import java.util.regex.Pattern;
 public class TourServiceImpl implements TourService {
 
     private final TourRepository tourRepository;
+    private final DepartureRepository departureRepository;
 
     private String generateSlug(String title) {
         if (title == null || title.isEmpty()) {
@@ -94,14 +98,21 @@ public class TourServiceImpl implements TourService {
 
     @Override
     @Transactional
-    public void deleteTour(Integer id, Integer deletedByAdminId) {
+    public void deleteTour(Integer id) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
 
-        tour.setDeletedBy(deletedByAdminId);
-        tourRepository.save(tour);
+        // GỌI HÀM NATIVE QUERY MỚI
+        int departureCount = departureRepository.countDeparturesByTourId(id);
 
-        tourRepository.delete(tour);
+        if (departureCount > 0) {
+            throw new RuntimeException("Không thể chuyển vào thùng rác! Tour này đang có " + departureCount + " lịch khởi hành hoạt động.");
+        }
+
+        tour.setDeleted(true);
+        tour.setDeletedAt(LocalDateTime.now());
+
+        tourRepository.save(tour);
     }
 
     private TourResponse mapToResponse(Tour tour) {
@@ -109,5 +120,29 @@ public class TourServiceImpl implements TourService {
         BeanUtils.copyProperties(tour, response);
         return response;
     }
+    @Override
+    public List<TourResponse> findAllActive() {
+        return tourRepository.findAllActiveTours().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 
+    @Override
+    public List<TourResponse> findAllTrash() {
+        return tourRepository.findAllTrashTours().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    @Override
+    @Transactional
+    public void restore(Integer id) {
+        tourRepository.restoreTourNative(id);
+    }
+
+    @Override
+    @Transactional
+    public void hardDelete(Integer id) {
+        departureRepository.hardDeleteDeparturesByTourId(id);
+        tourRepository.hardDeleteTourNative(id);
+    }
 }

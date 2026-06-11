@@ -38,11 +38,6 @@ public class TourController {
         );
     }
 
-    @GetMapping
-    public ResponseEntity<List<TourResponse>> getAllTours() {
-        return ResponseEntity.ok(tourService.getAllTours());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<TourResponse> getTourById(@PathVariable Integer id) {
         return ResponseEntity.ok(tourService.getTourById(id));
@@ -56,9 +51,50 @@ public class TourController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTour(@PathVariable Integer id) {
-        Integer currentAdminId = 1;
-        tourService.deleteTour(id, currentAdminId);
-        return ResponseEntity.ok("Xóa Tour thành công!");
+    public ResponseEntity<?> deleteTour(@PathVariable Integer id) {
+        try {
+            tourService.deleteTour(id);
+
+            return ResponseEntity.ok("Đã chuyển Tour vào thùng rác thành công!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    @GetMapping
+    public ResponseEntity<?> getAllActiveTours() {
+        try {
+            return ResponseEntity.ok(tourService.findAllActive());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi tải danh sách: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/trash")
+    public ResponseEntity<?> getAllTrashTours() {
+        try {
+            return ResponseEntity.ok(tourService.findAllTrash());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi tải thùng rác: " + e.getMessage());
+        }
+    }
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<?> restoreTour(@PathVariable Integer id) {
+        try {
+            tourService.restore(id);
+            return ResponseEntity.ok("Khôi phục tour thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi khôi phục: " + e.getMessage());
+        }
+    }
+    @DeleteMapping("/{id}/force")
+    public ResponseEntity<?> hardDeleteTour(@PathVariable Integer id) {
+        try {
+            tourService.hardDelete(id);
+            return ResponseEntity.ok("Đã xóa vĩnh viễn tour khỏi hệ thống!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Không thể xóa vĩnh viễn: " + e.getMessage());
+        }
     }
 }
