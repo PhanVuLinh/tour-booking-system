@@ -1,6 +1,6 @@
-import { Edit, Trash2, RotateCcw } from "lucide-react";
+import { Edit, Trash2, RotateCcw, Eye} from "lucide-react";
 
-export function CategoryTable({ categories, onEdit, onDelete }) {
+export function CategoryTable({ categories,onView, onEdit, onDelete }) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[800px]">
@@ -20,14 +20,17 @@ export function CategoryTable({ categories, onEdit, onDelete }) {
               <td className="py-3 px-4 font-medium text-gray-900">{category.title}</td>
               <td className="py-3 px-4 text-sm text-gray-600">{category.description || "—"}</td>
               
-              {/* Hiển thị số lượng tour (mặc định là 0 nếu API chưa có) */}
               <td className="py-3 px-4 text-sm text-blue-600 font-medium">
                 {category.tourCount || 0} tour
               </td>
               
-              {/* CÁC NÚT THAO TÁC ĐÃ ĐƯỢC THÊM LẠI VÀO ĐÂY */}
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
+                  <button onClick={()=>onView(category)}
+                    className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md transition-colors"
+                    title="Xem chi tiết">
+                    <Eye className="w-4 h-4" />
+                  </button>
                   <button 
                     onClick={() => onEdit(category)} 
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"

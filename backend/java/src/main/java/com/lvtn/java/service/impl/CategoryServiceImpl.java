@@ -103,7 +103,10 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(Integer id) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy danh mục với ID: " + id));
-
+        int tourCount = tourRepository.countByCategoryIdAndDeletedFalse(id);
+        if (tourCount > 0) {
+            throw new RuntimeException("Không thể chuyển vào thùng rác! Danh mục này đang chứa " + tourCount + " tour hoạt động.");
+        }
         existingCategory.setDeleted(true);
         existingCategory.setDeletedAt(LocalDateTime.now());
         categoryRepository.save(existingCategory);

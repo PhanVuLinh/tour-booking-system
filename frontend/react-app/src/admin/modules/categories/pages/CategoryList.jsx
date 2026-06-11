@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Search, RefreshCw } from "lucide-react";
 import { CategoryTable, CategoryTrashTable } from "../components/CategoryTable";
 import { CategoryModal } from "../components/CategoryModal";
+import { CategoryDetailModal } from "../components/CategoryDetailModal";
 import { categoryService } from "../services/categoryApi";
 
 const initialFormState = { title: "", description: "" };
@@ -10,7 +11,7 @@ export default function CategoryList() {
   const [categories, setCategories] = useState([]);
   const [deletedCategories, setDeletedCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [viewCategory, setViewCategory] = useState(null);
   const [activeTab, setActiveTab] = useState("active");
   const [searchTerm, setSearchTerm] = useState("");
   const [trashSearchTerm, setTrashSearchTerm] = useState("");
@@ -212,7 +213,7 @@ export default function CategoryList() {
               <span>Đang đồng bộ dữ liệu...</span>
             </div>
           ) : activeTab === "active" ? (
-            <CategoryTable categories={filteredCategories} onEdit={handleEdit} onDelete={handleDelete} />
+            <CategoryTable categories={filteredCategories} onView={(cat) => setViewCategory(cat)} onEdit={handleEdit} onDelete={handleDelete} />
           ) : (
             <CategoryTrashTable categories={filteredDeletedCategories} onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} />
           )}
@@ -228,6 +229,11 @@ export default function CategoryList() {
         setFormData={setFormData} 
         isEdit={!!editCategory} 
       />
+      <CategoryDetailModal 
+    isOpen={!!viewCategory} 
+    category={viewCategory} 
+    onClose={() => setViewCategory(null)} 
+  />
     </div>
   );
 }
