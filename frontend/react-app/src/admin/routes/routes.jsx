@@ -11,6 +11,7 @@ import { BlogList } from "../modules/blogs";
 import { ReviewList } from "../modules/reviews";
 import { BannerList } from "../modules/banners";
 import TourForm from "../modules/tours/pages/TourForm";
+import { VehicleList } from "../modules/vehicles"
 
 import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
@@ -65,6 +66,10 @@ export const adminRoutes = [
           {
             path: "/admin/departures",
             element: <Departure />,
+          },
+          {
+            path: "/admin/vehicles",
+            element: <VehicleList />,
           },
           {
             path: "/admin/discounts",
