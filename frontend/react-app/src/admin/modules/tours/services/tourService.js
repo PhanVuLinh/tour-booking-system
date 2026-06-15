@@ -12,7 +12,6 @@ function mapTour(tour) {
     status:      tour.status,
     price:       tour.price ?? 0,
     
-    // Giữ nguyên ngày giờ và thông tin audit cho TourDetailModal
     createdAt:   tour.createdAt,
     updatedAt:   tour.updatedAt,
     createdBy:   tour.createdBy,

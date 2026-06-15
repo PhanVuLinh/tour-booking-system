@@ -1,6 +1,6 @@
-import { Eye, Lock, Unlock } from "lucide-react";
+import { Eye, Lock, Unlock, Trash2 } from "lucide-react";
 
-export function CustomerTable({ data, onView, onToggleLock }) {
+export function CustomerTable({ data, onView, onToggleLock, onDelete }) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[900px]">
@@ -49,63 +49,26 @@ export function CustomerTable({ data, onView, onToggleLock }) {
                   >
                     {customer.status === "active" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                   </button>
+                  {onDelete && (
+                    <button 
+                      onClick={() => onDelete(customer.id, "customer")} 
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
+                      title="Chuyển vào thùng rác"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-export function EmployeeTable({ data, onView, onToggleLock }) {
-  return (
-    <div className="w-full overflow-x-auto">
-      <table className="w-full text-left border-collapse min-w-[900px]">
-        <thead>
-          <tr className="border-b bg-gray-50/50">
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Nhân viên</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Liên hệ</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Bộ phận</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Ngày vào làm</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Trạng thái</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 text-right">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {data.map((employee) => (
-            <tr key={employee.id} className="hover:bg-gray-50 transition-colors">
-              <td className="py-3 px-4 font-medium text-gray-900">{employee.name}</td>
-              <td className="py-3 px-4 text-sm">
-                <div className="text-gray-900">{employee.email}</div>
-                <div className="text-gray-500 mt-0.5">{employee.phone}</div>
-              </td>
-              <td className="py-3 px-4 text-sm text-gray-600">{employee.department || "—"}</td>
-              <td className="py-3 px-4 text-sm text-gray-600">{employee.joinedDate}</td>
-              <td className="py-3 px-4">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                  employee.status === "active" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
-                }`}>
-                  {employee.status === "active" ? "Hoạt động" : "Đã khóa"}
-                </span>
-              </td>
-              <td className="py-3 px-4 text-right">
-                <div className="flex justify-end gap-1">
-                  <button onClick={() => onView(employee)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" title="Xem chi tiết">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => onToggleLock(employee.id, "employee", employee.status)} 
-                    className={`p-2 rounded-md transition-colors ${employee.status === "active" ? "text-red-600 hover:bg-red-50" : "text-green-600 hover:bg-green-50"}`}
-                    title={employee.status === "active" ? "Khóa tài khoản" : "Mở khóa tài khoản"}
-                  >
-                    {employee.status === "active" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                  </button>
-                </div>
+          {data.length === 0 && (
+            <tr>
+              <td colSpan={7} className="py-10 text-center text-gray-400 text-sm">
+                Không có dữ liệu khách hàng
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

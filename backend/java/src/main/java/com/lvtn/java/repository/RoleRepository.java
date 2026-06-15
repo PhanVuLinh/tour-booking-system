@@ -1,4 +1,7 @@
 package com.lvtn.java.repository;
 
-public interface RoleRepository {
+import com.lvtn.java.domain.entity.Role;
+import org.springframework.data.repository.CrudRepository;
+
+public interface RoleRepository extends CrudRepository<Role, Integer> {
 }
