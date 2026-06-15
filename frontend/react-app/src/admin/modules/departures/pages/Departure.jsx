@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, RefreshCw } from "lucide-react";
 import { DepartureTable } from "../components/DepartureTable";
 import { DepartureModal } from "../components/DepartureModal";
+import { DepartureDetailModal } from "../components/DepartureDetailModal"; 
 import { departureService } from "../services/departureService";
 
 const initialFormState = {
@@ -17,6 +18,13 @@ export default function DepartureList() {
   const [editDeparture, setEditDeparture] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
 
+  const [selectedDeparture, setSelectedDeparture] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  
+  const handleViewDetail = (departureData) => {
+    setSelectedDeparture(departureData);
+    setIsDetailModalOpen(true);
+  };
   
   const fetchDepartures = async () => {
     try {
@@ -29,6 +37,7 @@ export default function DepartureList() {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     fetchDepartures();
   }, []);
@@ -42,6 +51,7 @@ export default function DepartureList() {
     try {
       const payload = {
         tourId: parseInt(formData.tourId),
+        tourTitle: formData.tourTitle,
         startTime: formData.startTime,
         priceAdult: parseFloat(formData.priceAdult),
         priceChildren: parseFloat(formData.priceChildren),
@@ -62,7 +72,7 @@ export default function DepartureList() {
       
       setIsDialogOpen(false);
       resetForm();
-      fetchDepartures(); // Tải lại danh sách sau khi lưu
+      fetchDepartures(); 
       
     } catch (error) {
       alert("Lỗi: " + error.message);
@@ -72,7 +82,7 @@ export default function DepartureList() {
   const handleEdit = (departure) => {
     setEditDeparture(departure);
     setFormData({
-      tourId: departure.tourId ? departure.tourId.id : "",
+      tourId: departure.tourId || "", 
       startTime: departure.startTime,
       priceAdult: departure.priceAdult,
       priceChildren: departure.priceChildren,
@@ -124,7 +134,12 @@ export default function DepartureList() {
           {isLoading ? (
             <div className="text-center py-10 text-gray-500">Đang tải dữ liệu từ máy chủ...</div>
           ) : (
-            <DepartureTable departures={departures} onEdit={handleEdit} onDelete={handleDelete} />
+            <DepartureTable 
+              departures={departures} 
+              onView={handleViewDetail} 
+              onEdit={handleEdit} 
+              onDelete={handleDelete} 
+            />
           )}
         </div>
       </div>
@@ -132,10 +147,16 @@ export default function DepartureList() {
       <DepartureModal 
         isOpen={isDialogOpen} 
         onClose={() => setIsDialogOpen(false)} 
-        onSubmit={handleSubmit} 
+        onSubmit={handleSubmit}
         formData={formData} 
         setFormData={setFormData} 
         isEdit={!!editDeparture} 
+      />
+
+      <DepartureDetailModal 
+        isOpen={isDetailModalOpen} 
+        onClose={() => setIsDetailModalOpen(false)} 
+        departure={selectedDeparture} 
       />
     </div>
   );

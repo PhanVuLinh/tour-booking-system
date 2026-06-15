@@ -22,10 +22,20 @@ public class DepartureServiceImpl implements DepartureService {
         this.departureRepository = departureRepository;
         this.tourRepository = tourRepository;
         this.mapper = mapper;
+
+        this.mapper.typeMap(Departure.class, DepartureResponse.class)
+                .addMappings(m -> m.skip(DepartureResponse::setTourId));
     }
 
     private DepartureResponse mapToResponse(Departure departure) {
-        return mapper.map(departure, DepartureResponse.class);
+        DepartureResponse response = mapper.map(departure, DepartureResponse.class);
+
+        if (departure.getTourId() != null) {
+            response.setTourId(departure.getTourId().getId());
+            response.setTourTitle(departure.getTourId().getTitle());
+        }
+
+        return response;
     }
 
     public List<DepartureResponse> findAll() {

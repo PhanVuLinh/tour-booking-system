@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DepartureResponse {
     private Integer id;
-    private Tour tourId;
+    private Integer tourId;
+    private String tourTitle;
     private LocalDateTime startTime;
     private BigDecimal priceAdult;
     private BigDecimal priceChildren;
