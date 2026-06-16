@@ -19,6 +19,7 @@ public class Departure extends AuditableEntity {
     @Column(name = "startDate")
     private LocalDateTime startTime;
 
+
     @Column
     private BigDecimal priceAdult;
 
