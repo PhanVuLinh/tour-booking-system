@@ -1,4 +1,4 @@
-import { X, User, Calendar, DollarSign, Users, Percent, Info } from "lucide-react";
+import { X, User, Calendar, DollarSign, Users, Percent, Info, Bus, Plane, Train, Ship } from "lucide-react";
 
 export function DepartureDetailModal({ isOpen, onClose, departure }) {
   if (!isOpen || !departure) return null;
@@ -28,6 +28,7 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
 
         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
           
+          {/* KHỐI 1: THÔNG TIN TỔNG QUAN */}
           <div className="bg-gray-50 rounded-xl p-4">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
               <Info className="w-4 h-4 text-blue-600" /> Thông tin tổng quan
@@ -38,6 +39,22 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
                 <p className="font-semibold text-gray-900 mt-0.5">#{departure.id}</p>
               </div>
               
+              {/* THÊM MỚI: TRƯỜNG HIỂN THỊ PHƯƠNG TIỆN */}
+              <div>
+                <p className="text-gray-500 text-xs">Phương tiện di chuyển</p>
+                {departure.vehicleName ? (
+                  <div className="flex items-center gap-1.5 mt-0.5 text-blue-600 font-semibold" title={departure.vehicleName}>
+                    {departure.vehicleType === 'PLANE' ? <Plane className="w-4 h-4" /> :
+                     departure.vehicleType === 'TRAIN' ? <Train className="w-4 h-4" /> :
+                     departure.vehicleType === 'SHIP' ? <Ship className="w-4 h-4" /> :
+                     <Bus className="w-4 h-4" />}
+                    <span className="truncate max-w-[120px]">{departure.vehicleName}</span>
+                  </div>
+                ) : (
+                  <p className="font-semibold text-gray-400 mt-0.5">— Tự túc —</p>
+                )}
+              </div>
+              
               <div>
                 <p className="text-gray-500 text-xs">Trạng thái chuyến đi</p>
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mt-1 ${
@@ -46,6 +63,7 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
                   {departure.status}
                 </span>
               </div>
+              
               <div className="sm:col-span-3 border-t border-gray-200/60 pt-3">
                 <p className="text-gray-500 text-xs">Thời gian bắt đầu khởi hành</p>
                 <p className="font-bold text-base mt-0.5 flex items-center gap-1.5 text-blue-600">

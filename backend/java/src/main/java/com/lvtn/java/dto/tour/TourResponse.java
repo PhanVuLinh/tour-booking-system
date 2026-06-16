@@ -1,5 +1,6 @@
 package com.lvtn.java.dto.tour;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,4 +24,7 @@ public class TourResponse {
     private LocalDateTime updatedAt;
     private Integer createdBy;
     private Integer updatedBy;
+    private Boolean deleted = false;
+    private LocalDateTime deletedAt;
+    private Integer deletedBy;
 }

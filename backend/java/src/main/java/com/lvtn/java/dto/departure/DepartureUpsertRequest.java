@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DepartureUpsertRequest {
     private Integer tourId;
+    private Integer vehicleId;
     private LocalDateTime startTime;
     private BigDecimal priceAdult;
     private BigDecimal priceChildren;

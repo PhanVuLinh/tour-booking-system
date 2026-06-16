@@ -2,6 +2,7 @@ package com.lvtn.java.dto.departure;
 
 import com.lvtn.java.domain.entity.Tour;
 import com.lvtn.java.domain.enums.DepartureStatus;
+import com.lvtn.java.domain.enums.VehicleType;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,11 @@ public class DepartureResponse {
     private Integer id;
     private Integer tourId;
     private String tourTitle;
+
+    private Integer vehicleId;
+    private String vehicleName;
+    private VehicleType vehicleType;
+
     private LocalDateTime startTime;
     private BigDecimal priceAdult;
     private BigDecimal priceChildren;

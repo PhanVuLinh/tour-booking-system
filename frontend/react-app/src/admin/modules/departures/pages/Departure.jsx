@@ -4,16 +4,19 @@ import { DepartureTable } from "../components/DepartureTable";
 import { DepartureModal } from "../components/DepartureModal";
 import { DepartureDetailModal } from "../components/DepartureDetailModal"; 
 import { departureService } from "../services/departureService";
+import { vehicleService } from "../../vehicles/services/vehicleService"; 
+import { tourService } from "../../tours/services/tourService"
 
 const initialFormState = {
-  tourId: "", startTime: "", priceAdult: "", priceChildren: "", priceBaby: "",
+  tourId: "", vehicleId: "", startTime: "", priceAdult: "", priceChildren: "", priceBaby: "",
   stockAdult: "", stockChildren: "", stockBaby: "", status: "OPEN"
 };
 
 export default function DepartureList() {
   const [departures, setDepartures] = useState([]);
+  const [vehicles, setVehicles] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [tourList, setTourList] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editDeparture, setEditDeparture] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
@@ -26,11 +29,18 @@ export default function DepartureList() {
     setIsDetailModalOpen(true);
   };
   
-  const fetchDepartures = async () => {
+  // 4. ĐỔI TÊN HÀM VÀ GỌI SONG SONG 2 API ĐỂ TỐI ƯU TỐC ĐỘ
+  const fetchData = async () => {
     try {
       setIsLoading(true);
-      const data = await departureService.getAll();
-      setDepartures(data);
+      const [depData, vehData, tourData] = await Promise.all([
+        departureService.getAll(),
+        vehicleService.getAll(),
+        tourService.getAll()
+      ]);
+      setDepartures(depData);
+      setVehicles(vehData);
+      setTourList(tourData);
     } catch (error) {
       alert("Không thể kết nối đến máy chủ: " + error.message);
     } finally {
@@ -39,7 +49,7 @@ export default function DepartureList() {
   };
 
   useEffect(() => {
-    fetchDepartures();
+    fetchData();
   }, []);
 
   const resetForm = () => {
@@ -51,7 +61,8 @@ export default function DepartureList() {
     try {
       const payload = {
         tourId: parseInt(formData.tourId),
-        tourTitle: formData.tourTitle,
+        // 5. ÉP KIỂU vehicleId ĐỂ GỬI XUỐNG BACKEND
+        vehicleId: formData.vehicleId ? parseInt(formData.vehicleId) : null,
         startTime: formData.startTime,
         priceAdult: parseFloat(formData.priceAdult),
         priceChildren: parseFloat(formData.priceChildren),
@@ -72,7 +83,7 @@ export default function DepartureList() {
       
       setIsDialogOpen(false);
       resetForm();
-      fetchDepartures(); 
+      fetchData(); // Load lại dữ liệu
       
     } catch (error) {
       alert("Lỗi: " + error.message);
@@ -83,6 +94,7 @@ export default function DepartureList() {
     setEditDeparture(departure);
     setFormData({
       tourId: departure.tourId || "", 
+      vehicleId: departure.vehicleId || "", // 6. NẠP DỮ LIỆU XE CŨ VÀO FORM
       startTime: departure.startTime,
       priceAdult: departure.priceAdult,
       priceChildren: departure.priceChildren,
@@ -120,7 +132,7 @@ export default function DepartureList() {
           <p className="text-gray-500 mt-1">Quản lý chuyến đi</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={fetchDepartures} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50" title="Tải lại dữ liệu">
+          <button onClick={fetchData} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50" title="Tải lại dữ liệu">
             <RefreshCw className={`w-5 h-5 text-gray-600 ${isLoading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={openNewDialog} className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
@@ -150,7 +162,9 @@ export default function DepartureList() {
         onSubmit={handleSubmit}
         formData={formData} 
         setFormData={setFormData} 
-        isEdit={!!editDeparture} 
+        isEdit={!!editDeparture}
+        vehicles={vehicles}
+        tourList={tourList}
       />
 
       <DepartureDetailModal 
@@ -158,6 +172,8 @@ export default function DepartureList() {
         onClose={() => setIsDetailModalOpen(false)} 
         departure={selectedDeparture} 
       />
+      
     </div>
+
   );
 }

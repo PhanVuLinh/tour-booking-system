@@ -16,9 +16,12 @@ public class Departure extends AuditableEntity {
     @JoinColumn(name = "tour_id")
     private Tour tourId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
+
     @Column(name = "startDate")
     private LocalDateTime startTime;
-
 
     @Column
     private BigDecimal priceAdult;

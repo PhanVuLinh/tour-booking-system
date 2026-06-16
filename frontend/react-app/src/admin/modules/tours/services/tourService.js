@@ -18,6 +18,7 @@ function mapTour(tour) {
     updatedBy:   tour.updatedBy,
     deletedAt:   tour.deletedAt,
     deletedBy:   tour.deletedBy,
+    deleted:     tour.deleted,
   };
 }
 
@@ -28,7 +29,6 @@ export const tourService = {
     return res.json();
   },
 
-  // GIỮ LẠI HÀM NÀY CHO TOURLIST.JSX CŨ CHẠY KHÔNG BỊ LỖI
   getAll: async () => {
     const res = await fetch(`${API_BASE}/tour`);
     if (!res.ok) throw new Error("Lấy danh sách tour thất bại");

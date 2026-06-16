@@ -1,8 +1,22 @@
 import { useState, useMemo, Fragment } from "react";
-import { Edit, Trash2, ChevronDown, ChevronRight, CalendarDays, Eye } from "lucide-react";
+import { Edit, Trash2, ChevronDown, ChevronRight, CalendarDays, Eye, Bus, Plane, Train, Ship } from "lucide-react";
 
 export function DepartureTable({ departures, onView, onEdit, onDelete }) {
-  // 1. Nhóm các lịch khởi hành theo Tên Tour
+  
+  const renderVehicle = (type, name) => {
+    if (!name) return <span className="text-gray-400 text-xs">—</span>;
+    let Icon = Bus;
+    if (type === "PLANE") Icon = Plane;
+    if (type === "TRAIN") Icon = Train;
+    if (type === "SHIP") Icon = Ship;
+    return (
+      <div className="flex items-center gap-1.5 text-blue-600 font-medium text-xs mt-1" title={name}>
+        <Icon className="w-3.5 h-3.5" />
+        <span className="truncate max-w-[150px]">{name}</span>
+      </div>
+    );
+  };
+
   const groupedDepartures = useMemo(() => {
     return departures.reduce((acc, departure) => {
       const title = departure.tourTitle || "Tour chưa xác định";
@@ -14,9 +28,7 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
     }, {});
   }, [departures]);
 
-  // 2. State quản lý việc đóng/mở của từng nhóm Tour
   const [expandedGroups, setExpandedGroups] = useState({});
-
   const toggleGroup = (title) => {
     setExpandedGroups((prev) => ({
       ...prev,
@@ -30,7 +42,8 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
         <thead>
           <tr className="border-b bg-gray-50/50">
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Tên Tour / Thông tin</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-40">Khởi hành</th>
+            {/* Đổi tên cột cho rõ nghĩa */}
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Khởi hành & Xe</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Giá NL</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ NL</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ TE/EB</th>
@@ -42,11 +55,8 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
           
           {Object.entries(groupedDepartures).map(([tourTitle, tourDepartures]) => {
             const isExpanded = expandedGroups[tourTitle];
-
             return (
               <Fragment key={tourTitle}>
-                
-                {/* --- DÒNG CHA: HIỂN THỊ TÊN TOUR --- */}
                 <tr 
                   onClick={() => toggleGroup(tourTitle)}
                   className="bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group"
@@ -64,21 +74,21 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
                     </div>
                   </td>
                 </tr>
-
-                {/* --- CÁC DÒNG CON: CHI TIẾT LỊCH KHỞI HÀNH --- */}
                 {isExpanded && tourDepartures.map((departure) => {
                   const dateDisplay = departure.startTime ? new Date(departure.startTime).toLocaleString('vi-VN') : "N/A";
-                  
                   return (
                     <tr key={departure.id} className="hover:bg-blue-50/50 transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center text-sm text-gray-500 pl-8">
-                           <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mr-2"></span>
-                           Mã lịch: #{departure.id}
+                            <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mr-2"></span>
+                            Mã lịch: #{departure.id}
                         </div>
                       </td>
                       
-                      <td className="py-3 px-4 text-sm font-medium text-gray-900">{dateDisplay}</td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm font-medium text-gray-900">{dateDisplay}</div>
+                        {renderVehicle(departure.vehicleType, departure.vehicleName)}
+                      </td>
                       <td className="py-3 px-4 text-sm font-medium text-blue-600">
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.priceAdult)}
                       </td>
@@ -93,7 +103,6 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex justify-end gap-1">
-                          {/* NÚT XEM CHI TIẾT (MỚI THÊM) */}
                           <button onClick={(e) => { 
                                   e.stopPropagation(); 
                                   onView?.(departure);}} 
@@ -121,7 +130,6 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
               </td>
             </tr>
           )}
-
         </tbody>
       </table>
     </div>
