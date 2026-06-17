@@ -23,7 +23,7 @@ app.use(
 //Cho phép gửi data lên dạng json
 app.use(express.json());
 
-app.use("/", routes);
+app.use("/api", routes);
 
 app.listen(port, () => {
   console.log(`API đang chạy cổng ${port}`);
