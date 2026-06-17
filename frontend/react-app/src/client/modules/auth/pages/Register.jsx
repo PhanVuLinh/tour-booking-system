@@ -2,6 +2,36 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Register() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  // Đang test nên để password dạng text luôn cho dễ nhìn
+  const [password, setPassword] = useState("");
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    console.log("Đang gửi dữ liệu:", { name, email, password });
+
+    try {
+      // Thay URL này bằng endpoint Backend của bạn
+      const response = await fetch("http://localhost:3000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      console.log("Kết quả từ Backend trả về:", data);
+      alert("Đã gọi API! Bấm F12 mở tab Console để xem kết quả.");
+    } catch (error) {
+      console.error("Lỗi không gọi được Backend:", error);
+      alert("Lỗi mạng hoặc Backend chưa chạy. Xem Console!");
+    }
+  };
+
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -15,13 +45,15 @@ function Register() {
               <p>Chào mừng bạn gia nhập cộng đồng du lịch!</p>
             </div>
 
-            <form className="login-form">
+            <form className="login-form" onSubmit={handleRegister}>
               <div className="form-group">
                 <label>Họ và tên</label>
                 <div className="input-with-icon">
                   <i className="fa-regular fa-user"></i>
                   <input
                     type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Nhập họ tên của bạn"
                     required
                   />
@@ -35,6 +67,8 @@ function Register() {
                   <input
                     type="email"
                     placeholder="Nhập địa chỉ email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -47,6 +81,8 @@ function Register() {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Tạo mật khẩu"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                   <i
