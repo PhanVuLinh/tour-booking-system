@@ -1,9 +1,23 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 
 function Header() {
-  const miniCart = 1; // Giữ nguyên số 1 để khớp với ảnh mẫu
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/categories`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          setCategories(result.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải danh mục:", error);
+      });
+  }, []);
 
   return (
     <header>
@@ -26,7 +40,6 @@ function Header() {
       {/* ================= MAIN NAVBAR ================= */}
       <nav className="navbar">
         <div className="navbar__inner container">
-          {/* Nút Hamburger cho Mobile */}
           <button className="mobile-toggle-btn">
             <i className="fa-solid fa-bars"></i>
           </button>
@@ -36,10 +49,8 @@ function Header() {
             <img className="logo__img" src={logoTravelGo} alt="TRAVELGO" />
           </Link>
 
-          {/* Lớp phủ màn hình tối cho menu Mobile */}
           <div className="mobile-overlay"></div>
 
-          {/* Menu Điều Hướng */}
           <div className="nav-menu-wrapper">
             <button className="mobile-close-btn">
               <i className="fa-solid fa-xmark"></i>
@@ -51,27 +62,27 @@ function Header() {
                   Trang Chủ
                 </Link>
               </li>
-              <li>
-                <Link to="/category/tour-trong-nuoc">
-                  Tour Trong Nước{" "}
-                  <i className="fa-solid fa-chevron-down arrow"></i>
-                </Link>
-                <div className="dropdown">
-                  <Link to="/category/tour-mien-bac">Du lịch Miền Bắc</Link>
-                  <Link to="/category/tour-mien-trung">Du lịch Miền Trung</Link>
-                  <Link to="/category/tour-mien-nam">Du lịch Miền Nam</Link>
-                </div>
-              </li>
-              <li>
-                <Link to="/category/tour-nuoc-ngoai">
-                  Tour Nước Ngoài{" "}
-                  <i className="fa-solid fa-chevron-down arrow"></i>
-                </Link>
-                <div className="dropdown">
-                  <Link to="/category/tour-chau-a">Du lịch Châu Á</Link>
-                  <Link to="/category/tour-chau-au">Du lịch Châu Âu</Link>
-                </div>
-              </li>
+
+              {categories.map((parent) => (
+                <li key={parent.id}>
+                  <Link to={`/category/${parent.slug}`}>
+                    {parent.title}
+                    {parent.children && parent.children.length > 0 && (
+                      <i className="fa-solid fa-chevron-down arrow"></i>
+                    )}
+                  </Link>
+
+                  {parent.children && parent.children.length > 0 && (
+                    <div className="dropdown">
+                      {parent.children.map((child) => (
+                        <Link key={child.id} to={`/category/${child.slug}`}>
+                          {child.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              ))}
               <li>
                 <Link to="/article">Tin Tức</Link>
               </li>
