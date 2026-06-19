@@ -1,97 +1,30 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import LoginForm from '../components/LoginForm';
+import { loginService } from '../services/authService';
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+const LoginPage = () => {
+    const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+    const handleLogin = async (email, password) => {
+        setLoading(true);
+        try {
+            const data = await loginService(email, password);
+            localStorage.setItem('accessToken', data.accessToken);
+            alert("Chào mừng bạn quay lại!");
+            window.location.href = '/admin';
+        } catch (err) {
+            alert(err.response?.data?.message || "Lỗi đăng nhập");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    // Validation
-    if (!email || !password) {
-      setError('Vui lòng nhập email và mật khẩu');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('http://localhost:8080/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password }),
-      // });
-
-      // Mock authentication - Remove in production
-      if (email === 'admin@example.com' && password === '123') {
-        localStorage.setItem('authToken', 'mock-token-12345');
-        localStorage.setItem('userRole', 'ADMIN');
-        navigate('/admin');
-      } else {
-        setError('Email hoặc mật khẩu không đúng');
-      }
-    } catch (err) {
-      setError('Lỗi đăng nhập. Vui lòng thử lại.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="login-container">
-      <div className="login-box">
-        <h1>Admin Login</h1>
-        <form onSubmit={handleSubmit}>
-          {error && <div className="error-message">{error}</div>}
-
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com"
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Mật khẩu</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Nhập mật khẩu"
-              disabled={loading}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="login-btn"
-            disabled={loading}
-          >
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-          </button>
-        </form>
-
-        <div className="login-info">
-          <p><strong>Demo Credentials:</strong></p>
-          <p>Email: admin@example.com</p>
-          <p>Password: 123</p>
+    return (
+        <div>
+            <h1>Đăng nhập hệ thống</h1>
+            <LoginForm onSubmit={handleLogin} loading={loading} />
         </div>
-      </div>
-    </div>
-  );
-}
+    );
+};
 
-export default Login;
+export default LoginPage;

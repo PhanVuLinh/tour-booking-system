@@ -41,6 +41,7 @@ public class Departure extends AuditableEntity {
     @Column
     private int stockBaby;
 
+    @Enumerated(EnumType.STRING)
     @Column
     private DepartureStatus status=DepartureStatus.OPEN;
 

@@ -1,81 +1,75 @@
-const API_URL = 'http://localhost:8080/api/vehicle';
-
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    const errorData = await response.text();
-    throw new Error(errorData || `Lỗi HTTP: ${response.status}`);
-  }
-  
-  if (response.status === 204) {
-    return null; 
-  }
-  
-  return response.json();
-};
+import { apiClient } from '../../login/services/authService';
 
 export const vehicleService = {
   getAll: async () => {
-    const response = await fetch(API_URL);
-    return handleResponse(response);
+    try {
+      const response = await apiClient.get('/vehicle');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Lấy danh sách phương tiện thất bại");
+    }
   },
 
   getById: async (id) => {
-    const response = await fetch(`${API_URL}/${id}`);
-    return handleResponse(response);
+    try {
+      const response = await apiClient.get(`/vehicle/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Không tìm thấy thông tin phương tiện");
+    }
   },
 
   create: async (data) => {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'X-User-Id': '1' 
-      },
-      body: JSON.stringify(data) 
-    });
-    return handleResponse(response);
+    try {
+      const response = await apiClient.post('/vehicle', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Thêm phương tiện thất bại");
+    }
   },
 
   update: async (id, data) => {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'X-User-Id': '1' 
-      },
-      body: JSON.stringify(data)
-    });
-    return handleResponse(response);
+    try {
+      const response = await apiClient.put(`/vehicle/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Cập nhật phương tiện thất bại");
+    }
   },
 
   delete: async (id) => {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'DELETE',
-      headers: { 
-        'X-User-Id': '1' 
-      }
-    });
-    return handleResponse(response);
+    try {
+      const response = await apiClient.delete(`/vehicle/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Xóa phương tiện thất bại");
+    }
   },
 
   getTrash: async () => {
-    const response = await fetch(`${API_URL}/trash`);
-    return handleResponse(response);
+    try {
+      const response = await apiClient.get('/vehicle/trash');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Lấy danh sách thùng rác thất bại");
+    }
   },
 
   restore: async (id) => {
-    const response = await fetch(`${API_URL}/${id}/restore`, { 
-      method: 'PUT',
-      headers: { 'X-User-Id': '1' }
-    });
-    return handleResponse(response);
+    try {
+      const response = await apiClient.put(`/vehicle/${id}/restore`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Khôi phục phương tiện thất bại");
+    }
   },
 
   hardDelete: async (id) => {
-    const response = await fetch(`${API_URL}/${id}/force`, { 
-      method: 'DELETE',
-      headers: { 'X-User-Id': '1' }
-    });
-    return handleResponse(response);
+    try {
+      const response = await apiClient.delete(`/vehicle/${id}/force`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Xóa vĩnh viễn phương tiện thất bại");
+    }
   }
 };

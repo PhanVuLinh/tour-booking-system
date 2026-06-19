@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @RestController
-@RequestMapping(value = "/admin/api/auth")
+@RequestMapping(value = "/api/admin/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;

@@ -1,0 +1,35 @@
+import axios from 'axios';
+
+export const apiClient = axios.create({
+    baseURL: 'http://localhost:8080/api',
+    headers: { 'Content-Type': 'application/json' }
+});
+
+// Tự động đính kèm token vào mọi request
+apiClient.interceptors.request.use((config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// Hàm loginService
+export const loginService = async (email, password) => {
+    try {
+        const response = await apiClient.post('/admin/auth/login', { email, password });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { message: "Lỗi kết nối server" };
+    }
+};
+
+// Hàm lấy thông tin user (ví dụ: dùng sau khi login)
+export const getMeService = async () => {
+    try {
+        const response = await apiClient.get('/admin/auth/me');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { message: "Lỗi lấy thông tin user" };
+    }
+};

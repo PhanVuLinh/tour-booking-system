@@ -1,51 +1,39 @@
-const BASE_URL = "http://localhost:8080/api"; 
-
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    const errorMsg = await response.text();
-    throw new Error(errorMsg || `Lỗi HTTP: ${response.status}`);
-  }
-  if (response.status === 204) return null;
-  
-  const text = await response.text();
-  return text ? JSON.parse(text) : null;
-};
+import { apiClient } from '../../login/services/authService';
 
 export const departureService = {
   getAll: async () => {
-    const response = await fetch(`${BASE_URL}/departure`);
-    return handleResponse(response);
+    try {
+      const response = await apiClient.get('/departure', { params: { status: 'OPEN' } });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Lấy danh sách lịch khởi hành thất bại");
+    }
   },
 
   create: async (data) => {
-    const response = await fetch(`${BASE_URL}/departure`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "X-User-Id": "1"
-      },
-      body: JSON.stringify(data),
-    });
-    return handleResponse(response);
+    try {
+      const response = await apiClient.post('/departure', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Tạo lịch khởi hành thất bại");
+    }
   },
 
   update: async (id, data) => {
-    const response = await fetch(`${BASE_URL}/departure/${id}`, {
-      method: "PUT",
-      headers: { 
-        "Content-Type": "application/json",
-        "X-User-Id": "1" 
-      },
-      body: JSON.stringify(data),
-    });
-    return handleResponse(response);
+    try {
+      const response = await apiClient.put(`/departure/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Cập nhật lịch khởi hành thất bại");
+    }
   },
 
   delete: async (id) => {
-    const response = await fetch(`${BASE_URL}/departure/${id}`, {
-      method: "DELETE",
-      headers: { "X-User-Id": "1" }
-    });
-    return handleResponse(response); 
+    try {
+      const response = await apiClient.delete(`/departure/${id}`);
+      return response.data; 
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Xóa lịch khởi hành thất bại");
+    }
   }
 };

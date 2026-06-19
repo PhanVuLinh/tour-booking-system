@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080/api/accounts";
+import { apiClient } from '../../login/services/authService';
 
 function mapAccount(acc) {
   return {
@@ -19,90 +19,76 @@ function mapAccount(acc) {
   };
 }
 
-
-const getHeaders = () => ({
-  "Content-Type": "application/json",
-  "X-User-Id": "1" 
-});
-
 export const accountService = {
   getAllActive: async () => {
-    const res = await fetch(`${API_BASE}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error("Lấy danh sách tài khoản thất bại");
-    const data = await res.json();
-    return data.map(mapAccount);
+    try {
+      const res = await apiClient.get('/accounts');
+      return res.data.map(mapAccount);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Lấy danh sách tài khoản thất bại");
+    }
   },
 
   getAllTrash: async () => {
-    const res = await fetch(`${API_BASE}/trash`, { headers: getHeaders() });
-    if (!res.ok) throw new Error("Lấy danh sách thùng rác thất bại");
-    const data = await res.json();
-    return data.map(mapAccount);
+    try {
+      const res = await apiClient.get('/accounts/trash');
+      return res.data.map(mapAccount);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Lấy danh sách thùng rác thất bại");
+    }
   },
 
   getById: async (id) => {
-    const res = await fetch(`${API_BASE}/${id}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error("Không tìm thấy thông tin tài khoản");
-    const data = await res.json();
-    return mapAccount(data);
+    try {
+      const res = await apiClient.get(`/accounts/${id}`);
+      return mapAccount(res.data);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Không tìm thấy thông tin tài khoản");
+    }
   },
 
   create: async (payload) => {
-    const res = await fetch(`${API_BASE}`, {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Tạo tài khoản thất bại");
+    try {
+      const res = await apiClient.post('/accounts', payload);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Tạo tài khoản thất bại");
     }
-    return res.json();
   },
 
   update: async (id, payload) => {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Cập nhật tài khoản thất bại");
+    try {
+      const res = await apiClient.put(`/accounts/${id}`, payload);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Cập nhật tài khoản thất bại");
     }
-    return res.json();
   },
 
   softDelete: async (id) => {
-    const res = await fetch(`${API_BASE}/${id}`, { 
-      method: "DELETE",
-      headers: getHeaders()
-    });
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Chuyển vào thùng rác thất bại");
+    try {
+      const res = await apiClient.delete(`/accounts/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Chuyển vào thùng rác thất bại");
     }
   },
 
   restore: async (id) => {
-    const res = await fetch(`${API_BASE}/${id}/restore`, { 
-      method: "PUT",
-      headers: getHeaders()
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(errText || "Khôi phục tài khoản thất bại");
+    try {
+      const res = await apiClient.put(`/accounts/${id}/restore`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Khôi phục tài khoản thất bại");
     }
   },
 
   hardDelete: async (id) => {
-    const res = await fetch(`${API_BASE}/${id}/force`, { 
-      method: "DELETE",
-      headers: getHeaders()
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(errText || "Xóa vĩnh viễn thất bại");
+    try {
+      const res = await apiClient.delete(`/accounts/${id}/force`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.response?.data || "Xóa vĩnh viễn thất bại");
     }
   },
 };

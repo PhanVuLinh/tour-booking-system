@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080/api";
+import { apiClient } from '../../login/services/authService';
 
 function mapTour(tour) {
   return {
@@ -23,96 +23,117 @@ function mapTour(tour) {
 }
 
 export const tourService = {
+  
   getCategories: async () => {
-    const res = await fetch(`${API_BASE}/category`);
-    if (!res.ok) throw new Error("Lấy danh sách danh mục thất bại");
-    return res.json();
+    try {
+      const res = await apiClient.get('/category');
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Lấy danh sách danh mục thất bại");
+    }
   },
 
   getAll: async () => {
-    const res = await fetch(`${API_BASE}/tour`);
-    if (!res.ok) throw new Error("Lấy danh sách tour thất bại");
-    const data = await res.json();
-    return data.map(mapTour);
+    try {
+      const res = await apiClient.get('/tour');
+      return res.data.map(mapTour);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Lấy danh sách tour thất bại");
+    }
   },
 
   getAllActive: async () => {
-    const res = await fetch(`${API_BASE}/tour`);
-    if (!res.ok) throw new Error("Lấy danh sách tour thất bại");
-    const data = await res.json();
-    return data.map(mapTour);
+    try {
+      const res = await apiClient.get('/tour');
+      return res.data.map(mapTour);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Lấy danh sách tour thất bại");
+    }
   },
 
   getAllTrash: async () => {
-    const res = await fetch(`${API_BASE}/tour/trash`);
-    if (!res.ok) throw new Error("Lấy danh sách thùng rác thất bại");
-    const data = await res.json();
-    return data.map(mapTour);
+    try {
+      const res = await apiClient.get('/tour/trash');
+      return res.data.map(mapTour);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Lấy danh sách thùng rác thất bại");
+    }
   },
 
   getById: async (id) => {
-    const res = await fetch(`${API_BASE}/tour/${id}`);
-    if (!res.ok) throw new Error("Không tìm thấy tour");
-    const data = await res.json();
-    return mapTour(data);
+    try {
+      const res = await apiClient.get(`/tour/${id}`);
+      return mapTour(res.data);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Không tìm thấy tour");
+    }
   },
 
   create: async (payload, imageFile, galleryImages = []) => {
-    const body = new FormData();
-    body.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
-    if (imageFile) body.append("file", imageFile);
-    
-    if (galleryImages && galleryImages.length > 0) {
-      galleryImages.forEach(img => {
-        body.append("images", img);
-      });
-    }
+    try {
+      const body = new FormData();
+      body.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+      if (imageFile) body.append("file", imageFile);
+      
+      if (galleryImages && galleryImages.length > 0) {
+        galleryImages.forEach(img => {
+          body.append("images", img);
+        });
+      }
 
-    const res = await fetch(`${API_BASE}/tour`, { method: "POST", body });
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Tạo tour thất bại");
+      const res = await apiClient.post('/tour', body, {
+        headers: {
+          'Content-Type': 'multipart/form-data' 
+        }
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Tạo tour thất bại");
     }
-    return res.json();
   },
 
   update: async (id, data) => {
-    const res = await fetch(`${API_BASE}/tour/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Cập nhật tour thất bại");
+    try {
+      const res = await apiClient.put(`/tour/${id}`, data);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Cập nhật tour thất bại");
     }
-    return res.json();
   },
 
-  // GIỮ LẠI HÀM NÀY CHO TOURLIST.JSX CŨ GỌI KHÔNG BỊ LỖI
   delete: async (id) => {
-    const res = await fetch(`${API_BASE}/tour/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Xóa tour thất bại");
+    try {
+      const res = await apiClient.delete(`/tour/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Xóa tour thất bại");
     }
   },
 
   softDelete: async (id) => {
-    const res = await fetch(`${API_BASE}/tour/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Xóa tour thất bại");
+    try {
+      const res = await apiClient.delete(`/tour/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Xóa tour thất bại");
     }
   },
 
   restore: async (id) => {
-    const res = await fetch(`${API_BASE}/tour/${id}/restore`, { method: "PUT" });
-    if (!res.ok) throw new Error("Khôi phục tour thất bại");
+    try {
+      const res = await apiClient.put(`/tour/${id}/restore`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Khôi phục tour thất bại");
+    }
   },
 
   hardDelete: async (id) => {
-    const res = await fetch(`${API_BASE}/tour/${id}/force`, { method: "DELETE" });
-    if (!res.ok) throw new Error("Xóa vĩnh viễn thất bại");
+    try {
+      const res = await apiClient.delete(`/tour/${id}/force`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Xóa vĩnh viễn thất bại");
+    }
   },
 };

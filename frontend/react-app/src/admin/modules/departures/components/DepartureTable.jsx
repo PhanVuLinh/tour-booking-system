@@ -42,7 +42,6 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
         <thead>
           <tr className="border-b bg-gray-50/50">
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Tên Tour / Thông tin</th>
-            {/* Đổi tên cột cho rõ nghĩa */}
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Khởi hành & Xe</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Giá NL</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ NL</th>

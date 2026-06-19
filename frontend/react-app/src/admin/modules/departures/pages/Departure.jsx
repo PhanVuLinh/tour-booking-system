@@ -29,7 +29,6 @@ export default function DepartureList() {
     setIsDetailModalOpen(true);
   };
   
-  // 4. ĐỔI TÊN HÀM VÀ GỌI SONG SONG 2 API ĐỂ TỐI ƯU TỐC ĐỘ
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -61,7 +60,6 @@ export default function DepartureList() {
     try {
       const payload = {
         tourId: parseInt(formData.tourId),
-        // 5. ÉP KIỂU vehicleId ĐỂ GỬI XUỐNG BACKEND
         vehicleId: formData.vehicleId ? parseInt(formData.vehicleId) : null,
         startTime: formData.startTime,
         priceAdult: parseFloat(formData.priceAdult),
@@ -83,7 +81,7 @@ export default function DepartureList() {
       
       setIsDialogOpen(false);
       resetForm();
-      fetchData(); // Load lại dữ liệu
+      fetchData(); 
       
     } catch (error) {
       alert("Lỗi: " + error.message);
@@ -94,7 +92,7 @@ export default function DepartureList() {
     setEditDeparture(departure);
     setFormData({
       tourId: departure.tourId || "", 
-      vehicleId: departure.vehicleId || "", // 6. NẠP DỮ LIỆU XE CŨ VÀO FORM
+      vehicleId: departure.vehicleId || "", 
       startTime: departure.startTime,
       priceAdult: departure.priceAdult,
       priceChildren: departure.priceChildren,
