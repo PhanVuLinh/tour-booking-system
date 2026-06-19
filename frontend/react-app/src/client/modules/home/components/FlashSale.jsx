@@ -1,8 +1,23 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { TourCard } from "../../tours";
 
 function FlashSale() {
   const trackRef = useRef(null);
+  const [tourFlashSales, setTourFlashSales] = useState([]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/home/flash-sales`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          setTourFlashSales(result.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải tour flash sale:", error);
+      });
+  }, []);
+
 
   const handlePrev = () => {
     if (trackRef.current) {
@@ -132,8 +147,8 @@ function FlashSale() {
             </button>
 
             <div className="tour-track" ref={trackRef}>
-              {tours.map((tour) => (
-                <TourCard key={tour.id} tour={tour} />
+              {tourFlashSales.map((item) => (
+                <TourCard key={item.id} tour={item} />
               ))}
             </div>
           </div>

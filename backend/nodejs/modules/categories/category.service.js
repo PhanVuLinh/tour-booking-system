@@ -22,7 +22,8 @@ const buildCategoryTree = (categories, parentId = null) => {
 };
 
 module.exports.getCategoryTree = async () => {
-  const sql = "SELECT * FROM categories WHERE deleted = 0";
+  const sql =
+    "SELECT * FROM categories WHERE deleted = 0 AND status = 'active'";
 
   const [rows] = await pool.query(sql);
 

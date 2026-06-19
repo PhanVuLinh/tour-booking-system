@@ -21,7 +21,6 @@ function Header() {
 
   return (
     <header>
-      {/* ================= TOP BAR ================= */}
       <div className="top-bar">
         <div className="top-bar__inner container">
           <div className="top-bar__item">
@@ -37,14 +36,12 @@ function Header() {
         </div>
       </div>
 
-      {/* ================= MAIN NAVBAR ================= */}
       <nav className="navbar">
         <div className="navbar__inner container">
           <button className="mobile-toggle-btn">
             <i className="fa-solid fa-bars"></i>
           </button>
 
-          {/* Logo (Sẽ được CSS căn giữa tuyệt đối trên Mobile) */}
           <Link to="/" className="logo">
             <img className="logo__img" src={logoTravelGo} alt="TRAVELGO" />
           </Link>
@@ -92,7 +89,6 @@ function Header() {
             </ul>
           </div>
 
-          {/* KÊU GỌI HÀNH ĐỘNG - Chỉ có GIỎ HÀNG giống hệt ảnh */}
           <div className="nav-actions">
             <Link to="/login" className="action-btn">
               <button className="btn-login-header">
