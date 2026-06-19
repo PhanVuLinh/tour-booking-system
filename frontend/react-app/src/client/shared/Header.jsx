@@ -90,6 +90,15 @@ function Header() {
               </button>
             </Link>
           </div>
+          {/* Xin miếng điều hướng:)) */}
+          <div className="nav-actions">
+            <Link to="/admin/login" className="action-btn">
+              <button className="btn-login-header">
+                <i className="fa-solid fa-user-shield"></i>
+                <span>Admin</span>
+              </button>
+            </Link>
+          </div>
         </div>
       </nav>
     </header>
