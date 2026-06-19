@@ -1,4 +1,4 @@
-package com.yo.day1.common.exception;
+package com.lvtn.java.common.exception;
 
 public class ConflictException extends RuntimeException {
     public ConflictException(String message) {

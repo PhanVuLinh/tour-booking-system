@@ -21,3 +21,9 @@ spring:
       mode: never
 server:
   port: 8080
+app:
+  jwt:
+    issuer: tour-java
+    secret: tour-java-secret-key-12345678901234567890
+    access-token-ttl-minutes: 480
+    refresh-token-ttl-days: 7

@@ -1,4 +1,4 @@
-package com.yo.day1.common;
+package com.lvtn.java.common;
 
 import java.time.LocalDateTime;
 

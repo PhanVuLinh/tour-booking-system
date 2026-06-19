@@ -1,4 +1,13 @@
 package com.lvtn.java.dto.auth;
 
-public record AuthResponse() {
+import java.time.Instant;
+
+public record AuthResponse(
+        String accessToken,
+        String refreshToken,
+        String tokenType,
+        Instant expiresAt,
+        Instant refreshExpiresAt,
+        CurrentAccountResponse user
+) {
 }

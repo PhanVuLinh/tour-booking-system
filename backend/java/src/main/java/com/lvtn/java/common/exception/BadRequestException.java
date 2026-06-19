@@ -1,4 +1,4 @@
-package com.yo.day1.common.exception;
+package com.lvtn.java.common.exception;
 
 public class BadRequestException extends RuntimeException{
     public BadRequestException(String message) {

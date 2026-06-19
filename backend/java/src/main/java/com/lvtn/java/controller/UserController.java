@@ -34,17 +34,17 @@ public class UserController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<?> create(
-            @RequestBody UserRequest request,
-            @RequestHeader("X-User-Id") Integer accountId
-    ) {
-        try {
-            return ResponseEntity.ok(userService.create(request, accountId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+//    @PostMapping
+//    public ResponseEntity<?> create(
+//            @RequestBody UserRequest request,
+//            @RequestHeader("X-User-Id") Integer accountId
+//    ) {
+//        try {
+//            return ResponseEntity.ok(userService.create(request, accountId));
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(

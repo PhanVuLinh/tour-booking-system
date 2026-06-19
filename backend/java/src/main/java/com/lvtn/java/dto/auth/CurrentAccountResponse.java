@@ -1,6 +1,6 @@
 package com.lvtn.java.dto.auth;
 
-public record CurrentUserResponse(
+public record CurrentAccountResponse(
         Integer id,
         String email,
         String fullName,

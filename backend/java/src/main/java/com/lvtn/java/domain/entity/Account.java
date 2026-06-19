@@ -15,7 +15,9 @@ public class Account extends AuditableEntity {
 
     private String fullName;
     private String email;
+    @Column(length = 1000)
     private String password;
+    @Column(length = 1000)
     private String token;
     private String phone;
     private String avatar;
