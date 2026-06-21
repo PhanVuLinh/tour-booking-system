@@ -17,7 +17,7 @@ function DomesticTours() {
   return (
     <section className="tour-section">
       <div className="container">
-        <h2 className="section-title">Tour Trong Nước</h2>
+        <h2 className="section-title">Khám Phá Tour Trong Nước</h2>
 
         <div className="tour-grid-4">
           {domesticToursData.map((tour) => (

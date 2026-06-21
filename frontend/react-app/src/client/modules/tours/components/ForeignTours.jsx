@@ -20,7 +20,7 @@ function ForeignTours() {
   return (
     <section className="tour-section">
       <div className="container">
-        <h2 className="section-title">Tour Nước Ngoài</h2>
+        <h2 className="section-title">Khám Phá Tour Nước Ngoài</h2>
 
         <div className="tour-grid-4">
           {tourDomesticTours.map((item) => (

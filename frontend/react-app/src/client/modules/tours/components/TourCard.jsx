@@ -1,4 +1,5 @@
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 function TourCard({ tour }) {
   const getVehicleIcon = (type) => {
@@ -15,9 +16,12 @@ function TourCard({ tour }) {
   };
 
   return (
-    <div className="tour-card">
+    <Link to={`/tours/${tour.slug}`} className="tour-card">
       <div className="tour-card__img">
         <img src={tour.thumbnail} alt={tour.slug} />
+        <div className="tour-card__overlay">
+          <span className="tour-card__view-btn">Xem chi tiết</span>
+        </div>
         {tour.discountPercentage > 0 && (
           <span className="badge-discount">
             <i className="fa-solid fa-bolt"></i> Giảm {tour.discountPercentage}%
@@ -70,7 +74,7 @@ function TourCard({ tour }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
