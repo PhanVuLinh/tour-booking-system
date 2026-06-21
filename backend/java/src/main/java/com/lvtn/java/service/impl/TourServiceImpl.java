@@ -6,6 +6,7 @@ import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
 import com.lvtn.java.repository.DepartureRepository;
 import com.lvtn.java.repository.TourRepository;
+import com.lvtn.java.service.ScheduleService;
 import com.lvtn.java.service.TourService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class TourServiceImpl implements TourService {
 
     private final TourRepository tourRepository;
     private final DepartureRepository departureRepository;
+    private final ScheduleService scheduleService;
 
     private String generateSlug(String title) {
         if (title == null || title.isEmpty()) {
@@ -39,7 +41,6 @@ public class TourServiceImpl implements TourService {
 
         return slug;
     }
-
 
     @Override
     @Transactional
@@ -64,24 +65,29 @@ public class TourServiceImpl implements TourService {
         return mapToResponse(tourRepository.save(tour));
     }
 
-
+    @Override
     public TourResponse getTourById(Integer id) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
-        return mapToResponse(tour);
+
+        TourResponse response = mapToResponse(tour);
+        response.setSchedules(scheduleService.getSchedulesByTourId(id));
+
+        return response;
     }
 
+    @Override
     public List<TourResponse> getAllTours() {
         return tourRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public TourResponse updateTour(Integer id, TourCreateRequest request) {
         Tour existingTour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
-
         if (request.getThumbnail() != null && !request.getThumbnail().isBlank()) {
             existingTour.setThumbnail(request.getThumbnail());
         }
@@ -91,6 +97,7 @@ public class TourServiceImpl implements TourService {
         existingTour.setTime(request.getTime());
         existingTour.setStatus(request.getStatus());
         existingTour.setUpdatedBy(request.getCreatedBy());
+        existingTour.setPrice(request.getPrice());
 
         Tour updatedTour = tourRepository.save(existingTour);
         return mapToResponse(updatedTour);
@@ -102,7 +109,6 @@ public class TourServiceImpl implements TourService {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
 
-        // GỌI HÀM NATIVE QUERY MỚI
         int departureCount = departureRepository.countDeparturesByTourId(id);
 
         if (departureCount > 0) {
@@ -120,6 +126,7 @@ public class TourServiceImpl implements TourService {
         BeanUtils.copyProperties(tour, response);
         return response;
     }
+
     @Override
     public List<TourResponse> findAllActive() {
         return tourRepository.findAllActiveTours().stream()
@@ -133,6 +140,7 @@ public class TourServiceImpl implements TourService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
     @Override
     @Transactional
     public void restore(Integer id) {

@@ -1,14 +1,9 @@
 package com.lvtn.java.dto.departure;
 
-import com.lvtn.java.domain.entity.Tour;
-import com.lvtn.java.domain.enums.DepartureStatus;
 import com.lvtn.java.domain.enums.VehicleType;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,7 +28,7 @@ public class DepartureResponse {
     private int stockChildren;
     private int stockBaby;
     private Integer discount;
-    private DepartureStatus status=DepartureStatus.OPEN;
+    private String status = "active";
     private Boolean deleted = false;
     private LocalDateTime deletedAt;
     private Integer createdBy;

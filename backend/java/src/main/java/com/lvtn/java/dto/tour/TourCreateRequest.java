@@ -17,5 +17,5 @@ public class TourCreateRequest {
     private String thumbnail;
     private String status;
     private Integer createdBy;
-    private Integer price;
+    private Double price;
 }

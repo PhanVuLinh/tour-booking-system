@@ -190,12 +190,12 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Trạng thái</label>
               <select
-                value={formData.status || "OPEN"}
+                value={formData.status || "active"}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
               >
-                <option value="OPEN">Mở bán (OPEN)</option>
-                <option value="CLOSED">Đóng (CLOSED)</option>
+                <option value="active">Mở bán (OPEN)</option>
+                <option value="inactive">Đóng (CLOSED)</option>
               </select>
             </div>
           </div>

@@ -1,7 +1,5 @@
 package com.lvtn.java.dto.departure;
 
-import com.lvtn.java.domain.entity.Tour;
-import com.lvtn.java.domain.enums.DepartureStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +21,5 @@ public class DepartureUpsertRequest {
     private int stockChildren;
     private int stockBaby;
     private Integer discount;
-    private DepartureStatus status = DepartureStatus.OPEN;
+    private String status = "active";
 }

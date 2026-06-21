@@ -5,7 +5,6 @@ export const apiClient = axios.create({
     headers: { 'Content-Type': 'application/json' }
 });
 
-// Tự động đính kèm token vào mọi request
 apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
@@ -14,7 +13,6 @@ apiClient.interceptors.request.use((config) => {
     return config;
 });
 
-// Hàm loginService
 export const loginService = async (email, password) => {
     try {
         const response = await apiClient.post('/admin/auth/login', { email, password });
@@ -24,7 +22,6 @@ export const loginService = async (email, password) => {
     }
 };
 
-// Hàm lấy thông tin user (ví dụ: dùng sau khi login)
 export const getMeService = async () => {
     try {
         const response = await apiClient.get('/admin/auth/me');

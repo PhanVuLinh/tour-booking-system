@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Upload, X, ImageIcon } from "lucide-react";
 import { TourItinerary } from "../components/TourItinerary";
 import { tourService } from "../services/tourService";
+import { saveSchedules, getSchedulesByTourId } from "../services/scheduleService"; 
 
 export default function TourForm() {
   const navigate = useNavigate();
@@ -23,7 +24,9 @@ export default function TourForm() {
     status: "active",
   });
 
-  const [itinerary, setItinerary] = useState([{ day: 1, title: "", description: "" }]);
+  const [itinerary, setItinerary] = useState([
+    { dayNumber: 1, title: "", content: "", status: "active" }
+  ]);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -33,17 +36,25 @@ export default function TourForm() {
         setLoading(true);
         const tour = await tourService.getById(id);
         setFormData({
-          name:        tour.name || "",
+          name:        tour.title || tour.name || "",
           category:    tour.categoryId ? String(tour.categoryId) : "",
           price:       tour.price || "",
-          duration:    tour.duration || "",
+          duration:    tour.time || tour.duration || "",
           description: tour.description || "",
-          image:       tour.image || "",
+          image:       tour.thumbnail || tour.image || "",
           status:      tour.status || "active",
         });
-        if (tour.itinerary?.length > 0) {
-          setItinerary(tour.itinerary);
+        
+        try {
+            const scheduleData = await getSchedulesByTourId(id);
+            const validSchedules = Array.isArray(scheduleData) ? scheduleData : (scheduleData.data || []);
+            if (validSchedules.length > 0) {
+                setItinerary(validSchedules);
+            }
+        } catch (scheduleErr) {
+            console.log("Tour này chưa có lộ trình hoặc lỗi lấy lộ trình.");
         }
+
       } catch (err) {
         alert("Không tìm thấy tour: " + err.message);
         navigate("/admin/tours");
@@ -84,7 +95,7 @@ export default function TourForm() {
       alert("Vui lòng điền đầy đủ thông tin bắt buộc (*)");
       return;
     }
-    if (!isEdit && !imageFile) {
+    if (!isEdit && !imageFile && !formData.image) {
       alert("Vui lòng chọn ảnh cho tour");
       return;
     }
@@ -103,9 +114,14 @@ export default function TourForm() {
       setSubmitting(true);
       if (isEdit) {
         await tourService.update(id, payload);
-        alert("Cập nhật tour thành công!");
+        await saveSchedules(id, itinerary);
+        alert("Cập nhật tour và lộ trình thành công!");
       } else {
-        await tourService.create(payload, imageFile);
+        const res = await tourService.create(payload, imageFile);
+        const newTourId = res.id || res.data?.id;
+        if (newTourId) {
+            await saveSchedules(newTourId, itinerary);
+        }
         alert("Thêm tour mới thành công!");
       }
       navigate("/admin/tours");
@@ -117,19 +133,21 @@ export default function TourForm() {
   };
 
   const addItineraryDay = () =>
-    setItinerary([...itinerary, { day: itinerary.length + 1, title: "", description: "" }]);
+    setItinerary([...itinerary, { dayNumber: itinerary.length + 1, title: "", content: "", status: "active" }]);
 
-  const removeItineraryDay = (index) => {
-    const updated = itinerary
-      .filter((_, i) => i !== index)
-      .map((item, i) => ({ ...item, day: i + 1 }));
-    setItinerary(updated);
+  const removeItineraryDay = (indexToRemove) => {
+    setItinerary(prev => {
+      const newItinerary = prev.filter((_, index) => index !== indexToRemove);
+      return newItinerary.map((item, i) => ({ ...item, dayNumber: i + 1 }));
+    });
   };
 
   const updateItinerary = (index, field, value) => {
-    const updated = [...itinerary];
-    updated[index] = { ...updated[index], [field]: value };
-    setItinerary(updated);
+    setItinerary(prev => {
+        const newItinerary = [...prev];
+        newItinerary[index][field] = value;
+        return newItinerary;
+    });
   };
 
   if (loading) {

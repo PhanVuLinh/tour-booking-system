@@ -3,7 +3,7 @@ import { apiClient } from '../../login/services/authService';
 export const departureService = {
   getAll: async () => {
     try {
-      const response = await apiClient.get('/departure', { params: { status: 'OPEN' } });
+      const response = await apiClient.get('/departure', { params: { status: 'active' } });
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data || "Lấy danh sách lịch khởi hành thất bại");

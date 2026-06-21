@@ -56,11 +56,11 @@ export function TourList() {
   }, []);
 
   const filteredTours = tours.filter((tour) =>
-    tour.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    (tour.title || tour.name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredDeletedTours = deletedTours.filter((tour) =>
-    tour.name?.toLowerCase().includes(trashSearchTerm.toLowerCase()) || false
+    (tour.title || tour.name || "").toLowerCase().includes(trashSearchTerm.toLowerCase())
   );
 
   const handleViewDetail = (tour) => {
@@ -76,7 +76,7 @@ export function TourList() {
       if (tour) {
         setDeletedTours([
           ...deletedTours,
-          { ...tour, deletedBy: "Admin User", deletedAt: new Date().toLocaleString("vi-VN") },
+          { ...tour, deletedBy: "Admin User", deletedAt: new Date().toISOString() },
         ]);
         setTours(tours.filter((t) => t.id !== id));
       }
@@ -106,7 +106,6 @@ export function TourList() {
     try{
       await tourService.hardDelete(id);
       setDeletedTours(deletedTours.filter((t) => t.id !== id));
-
     }catch(err){
       alert("Lỗi khi xóa vĩnh viễn: " + err.message);
     }

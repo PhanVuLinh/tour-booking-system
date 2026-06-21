@@ -20,9 +20,9 @@ export function TourTable({ tours, onView, onDelete }) {
             <tr key={tour.id} className="hover:bg-gray-50 transition-colors">
               <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
               <td className="py-3 px-4">
-                <img src={tour.image} alt="tour" className="w-10 h-10 rounded-md object-cover border" />
+                <img src={tour.thumbnail || tour.image} alt="tour" className="w-10 h-10 rounded-md object-cover border" />
               </td>
-              <td className="py-3 px-4 font-medium text-gray-900">{tour.name}</td>
+              <td className="py-3 px-4 font-medium text-gray-900">{tour.title || tour.name}</td>
               <td className="py-3 px-4 text-sm text-gray-600">{tour.category}</td>
               <td className="py-3 px-4 text-sm font-medium text-blue-600">
                 {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.price)}
@@ -32,7 +32,6 @@ export function TourTable({ tours, onView, onDelete }) {
                   <button onClick={() => onView(tour)} className="p-2 text-gray-600 hover:bg-gray-200 rounded-md transition-colors" title="Xem chi tiết">
                     <Eye className="w-4 h-4" />
                   </button>
-                  {/* Dẫn sang trang Edit (Sửa Tour) */}
                   <Link to={`/admin/tours/edit/${tour.id}`} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Chỉnh sửa">
                     <Edit className="w-4 h-4" />
                   </Link>
@@ -67,17 +66,14 @@ export function TourTrashTable({ tours, onRestore, onPermanentDelete }) {
           {tours.map((tour, index) => (
             <tr key={tour.id} className="hover:bg-gray-50 transition-colors opacity-75">
               <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
-              <td className="py-3 px-4 font-medium text-gray-500">{tour.name}</td>
+              <td className="py-3 px-4 font-medium text-gray-500">{tour.title || tour.name}</td>
               <td className="py-3 px-4 text-sm text-gray-600">{tour.category}</td>
-              
-              {/* HIỂN THỊ DẤU VẾT HỆ THỐNG */}
               <td className="py-3 px-4 text-sm text-red-500 font-medium">
                 {tour.deletedBy ? `Account #${tour.deletedBy}` : "Hệ thống"}
               </td>
               <td className="py-3 px-4 text-sm text-gray-600">
                 {tour.deletedAt ? new Date(tour.deletedAt).toLocaleString('vi-VN') : "—"}
               </td>
-              
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
                   <button onClick={() => onRestore(tour.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Khôi phục">

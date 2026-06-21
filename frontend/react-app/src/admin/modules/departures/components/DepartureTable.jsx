@@ -95,7 +95,7 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
                       <td className="py-3 px-4 text-sm text-gray-600">{departure.stockChildren} / {departure.stockBaby}</td>
                       <td className="py-3 px-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          departure.status === "OPEN" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                          departure.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
                         }`}>
                           {departure.status}
                         </span>

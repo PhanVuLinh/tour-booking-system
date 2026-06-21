@@ -48,7 +48,7 @@ export const adminRoutes = [
             element: <TourForm />,
           },
           {
-            path: "/admin/tours/:id/edit",
+            path: "/admin/tours/edit/:id",
             element: <TourForm />,
           },
           {

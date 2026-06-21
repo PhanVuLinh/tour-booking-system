@@ -1,7 +1,6 @@
 package com.lvtn.java.domain.entity;
 
 import com.lvtn.java.domain.AuditableEntity;
-import com.lvtn.java.domain.enums.DepartureStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -41,11 +40,10 @@ public class Departure extends AuditableEntity {
     @Column
     private int stockBaby;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private DepartureStatus status=DepartureStatus.OPEN;
+    @Column(name = "status")
+    private String status = "active";
 
-    @Column(name = "discount")
+    @Column(name = "discountPercentage")
     private Integer discount;
 
 }

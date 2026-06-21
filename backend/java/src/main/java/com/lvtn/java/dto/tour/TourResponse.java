@@ -1,11 +1,13 @@
 package com.lvtn.java.dto.tour;
 
+import com.lvtn.java.dto.schedule.ScheduleResponse;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,8 +17,9 @@ public class TourResponse {
     private Integer categoryId;
     private String title;
     private String slug;
+    private List<ScheduleResponse> schedules;
     private String description;
-    private Integer price;
+    private Double price;
     private String time;
     private String thumbnail;
     private String status;
