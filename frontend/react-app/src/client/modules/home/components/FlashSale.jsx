@@ -37,57 +37,6 @@ function FlashSale() {
     }
   };
 
-  const tours = [
-    {
-      id: 1,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdeWlMKbtuouVVFgxVTZcUgMFAg69DGLq6gA&s",
-      title: "Hà Nội - Lào Cai - SaPa 4N3Đ",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-    {
-      id: 2,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKI9T9qERj6SwONzi-NysVP7teUnRQJ-h8fA&s",
-      title: "Tour 2026 Phú Quốc - Thiên Đường Đảo Ngọc (3N2D)",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-    {
-      id: 3,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdMadsoH9dgFVmJCZwsPKI7Eizq12E_h-wmA&s",
-      title: "Combo Đà Nẵng 2026: ĐÀ NẴNG - HỘI AN - BÀ NÀ HILL",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-    {
-      id: 4,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdMadsoH9dgFVmJCZwsPKI7Eizq12E_h-wmA&s",
-      title: "Combo Đà Nẵng 2026: ĐÀ NẴNG - HỘI AN - BÀ NÀ HILL",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-  ];
-
   return (
     <section className="flash-sale">
       <div className="container">

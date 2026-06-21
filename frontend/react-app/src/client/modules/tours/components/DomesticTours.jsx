@@ -17,10 +17,8 @@ function DomesticTours() {
   return (
     <section className="tour-section">
       <div className="container">
-        {/* Tái sử dụng lại class section-title ở phần Khuyến Mại */}
         <h2 className="section-title">Tour Trong Nước</h2>
 
-        {/* Lưới 4 cột chứa 8 sản phẩm */}
         <div className="tour-grid-4">
           {domesticToursData.map((tour) => (
             <TourCard key={tour.id} tour={tour} />
