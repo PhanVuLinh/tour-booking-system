@@ -1,18 +1,21 @@
 import TourCard from "./TourCard";
 
+import { useEffect, useState } from "react";
+
 function DomesticTours() {
-  // Tự động tạo mảng 8 tour mẫu (sau này bạn map dữ liệu từ API vào đây)
-  const domesticToursData = Array.from({ length: 8 }).map((_, index) => ({
-    id: index + 1,
-    image: `https://travel.com.vn/api/image-proxy?url=https%3A%2F%2Fs3-cmc.travel.com.vn%2Fvtv-image%2FImages%2FDestination%2Ftf__2_3329_thiet-ke-chua-co-ten-2.webp&w=592&q=90`,
-    title: `Combo Du Lịch Trong Nước Đặc Biệt ${index + 1}`,
-    oldPrice: "13.650.000đ",
-    newPrice: "2.590.000 đ",
-    code: `12345678${index}`,
-    date: "22/07/2026", // Giữ đúng năm 2026 như data cũ của bạn
-    time: "10 Ngày 9 Đêm",
-    slots: 10,
-  }));
+  const [tourDomesticTours, setTourDomesticTours] = useState([]);
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/home/domestic-tours`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          setTourDomesticTours(result.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải tour domestic tours:", error);
+      });
+  }, []);
 
   return (
     <section className="tour-section">
@@ -20,8 +23,8 @@ function DomesticTours() {
         <h2 className="section-title">Khám Phá Tour Trong Nước</h2>
 
         <div className="tour-grid-4">
-          {domesticToursData.map((tour) => (
-            <TourCard key={tour.id} tour={tour} />
+          {tourDomesticTours.map((item) => (
+            <TourCard key={item.id} tour={item} />
           ))}
         </div>
 

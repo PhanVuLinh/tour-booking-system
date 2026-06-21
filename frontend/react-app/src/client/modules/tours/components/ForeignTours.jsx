@@ -3,17 +3,17 @@ import TourCard from "../../tours/components/TourCard";
 import { useEffect, useState } from "react";
 
 function ForeignTours() {
-  const [tourDomesticTours, setTourDomesticTours] = useState([]);
+  const [tourForeignTours, setTourForeignTours] = useState([]);
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/home/foreign-tours`)
       .then((res) => res.json())
       .then((result) => {
         if (result.success) {
-          setTourDomesticTours(result.data);
+          setTourForeignTours(result.data);
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải tour domestic tours:", error);
+        console.error("Lỗi khi tải tour Foreign tours:", error);
       });
   }, []);
 
@@ -23,7 +23,7 @@ function ForeignTours() {
         <h2 className="section-title">Khám Phá Tour Nước Ngoài</h2>
 
         <div className="tour-grid-4">
-          {tourDomesticTours.map((item) => (
+          {tourForeignTours.map((item) => (
             <TourCard key={item.id} tour={item} />
           ))}
         </div>
