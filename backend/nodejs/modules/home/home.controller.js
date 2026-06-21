@@ -9,7 +9,7 @@ module.exports.getTourFlashSales = async (req, res) => {
   }
 };
 
-module.exports.getTourDomesticTours = async (req, res) => {
+module.exports.getTourDomestic = async (req, res) => {
   try {
     const data = await homeService.getDomesticTours();
     res.status(200).json({ success: true, data: data });
@@ -18,9 +18,18 @@ module.exports.getTourDomesticTours = async (req, res) => {
   }
 };
 
-module.exports.getTourForeignTours = async (req, res) => {
+module.exports.getTourForeign = async (req, res) => {
   try {
     const data = await homeService.getForeignTours();
+    res.status(200).json({ success: true, data: data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports.getBlog = async (req, res) => {
+  try {
+    const data = await homeService.getBlogs();
     res.status(200).json({ success: true, data: data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

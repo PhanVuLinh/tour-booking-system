@@ -43,8 +43,8 @@ function Promotions() {
   const sliderRef = useRef(null);
 
   // --- CÔNG THỨC CHIA TRANG ---
-  const itemsPerPage = 3;
-  // Làm tròn lên (Ví dụ: 7 ảnh / 3 = 2.33 -> 3 chấm)
+  const itemsPerPage = 1;
+  // Làm tròn lên (Ví dụ: 7 ảnh / 1 = 7 chấm)
   const totalDots = Math.ceil(banners.length / itemsPerPage);
 
   const handleScroll = () => {

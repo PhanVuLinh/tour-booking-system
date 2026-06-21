@@ -19,19 +19,30 @@ function FlashSale() {
   }, []);
 
 
+  const getScrollAmount = () => {
+    if (trackRef.current && trackRef.current.children.length > 0) {
+      const cardWidth = trackRef.current.children[0].offsetWidth;
+      const gap = 20; // 20px gap from CSS
+      return cardWidth + gap;
+    }
+    return 0;
+  };
+
   const handlePrev = () => {
-    if (trackRef.current) {
+    const amount = getScrollAmount();
+    if (trackRef.current && amount > 0) {
       trackRef.current.scrollBy({
-        left: -trackRef.current.clientWidth,
+        left: -amount,
         behavior: "smooth",
       });
     }
   };
 
   const handleNext = () => {
-    if (trackRef.current) {
+    const amount = getScrollAmount();
+    if (trackRef.current && amount > 0) {
       trackRef.current.scrollBy({
-        left: trackRef.current.clientWidth,
+        left: amount,
         behavior: "smooth",
       });
     }

@@ -129,3 +129,12 @@ module.exports.getForeignTours = async () => {
   const [rows] = await pool.query(sqlTours, [categoryIds]);
   return rows;
 };
+
+module.exports.getBlogs = async () => {
+  const sql =
+    "SELECT id,title,slug,thumbnail,description,createdAt FROM blogs WHERE deleted = 0 AND status = 'active' LIMIT 5";
+
+  const [rows] = await pool.query(sql);
+
+  return rows;
+};
