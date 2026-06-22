@@ -1,9 +1,10 @@
 import TourCard from "../../tours/components/TourCard";
-
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function ForeignTours() {
   const [tourForeignTours, setTourForeignTours] = useState([]);
+
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/home/foreign-tours`)
       .then((res) => res.json())
@@ -29,9 +30,9 @@ function ForeignTours() {
         </div>
 
         <div className="btn-view-all-wrap">
-          <a href="#" className="btn-view-all">
+          <Link to="/category/tour-quoc-te" className="btn-view-all">
             Xem tất cả
-          </a>
+          </Link>
         </div>
       </div>
     </section>

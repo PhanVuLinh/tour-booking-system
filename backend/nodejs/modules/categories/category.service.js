@@ -44,10 +44,35 @@ module.exports.getCategoryAndToursBySlug = async (slug) => {
 
   const category = categories[0];
 
+  // const [tours] = await pool.query(
+  //   ` SELECT * FROM tours
+  //     WHERE (category_id = ? or Category_id IN (SELECT id FROM categories WHERE parent_id = ?))
+  //     AND deleted = 0 AND status = "active"`,
+  //   [category.id, category.id],
+  // );
+
   const [tours] = await pool.query(
-    ` SELECT * FROM tours
+    ` SELECT tours.id,
+        tours.slug,
+        tours.title,
+        tours.thumbnail,
+        tours.time AS time,
+        departures.id AS departure_id,
+        departures.startDate,
+        departures.priceAdult AS oldPrice,
+        departures.discountPercentage,
+        (departures.priceAdult - (departures.priceAdult * departures.discountPercentage / 100)) AS newPrice,
+        (departures.stockAdult + departures.stockChildren + departures.stockBaby) AS slots,
+        vehicles.name AS vehicleName,
+        vehicles.vehicleType AS vehicleType
+      FROM tours JOIN departures ON tours.id = departures.tour_id
+      LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
       WHERE (category_id = ? or Category_id IN (SELECT id FROM categories WHERE parent_id = ?))
-      AND deleted = 0 AND status = "active"`,
+        AND tours.deleted = 0 
+        AND tours.status = 'active'
+        AND departures.deleted = 0
+        AND departures.status = 'active'
+      `,
     [category.id, category.id],
   );
   return {

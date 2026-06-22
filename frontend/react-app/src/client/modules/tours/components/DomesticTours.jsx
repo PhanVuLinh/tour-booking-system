@@ -1,9 +1,10 @@
 import TourCard from "./TourCard";
-
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function DomesticTours() {
   const [tourDomesticTours, setTourDomesticTours] = useState([]);
+
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/home/domestic-tours`)
       .then((res) => res.json())
@@ -29,9 +30,9 @@ function DomesticTours() {
         </div>
 
         <div className="btn-view-all-wrap">
-          <a href="#" className="btn-view-all">
+          <Link to="/category/tour-trong-nuoc" className="btn-view-all">
             Xem tất cả
-          </a>
+          </Link>
         </div>
       </div>
     </section>
