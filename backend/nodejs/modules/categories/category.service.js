@@ -34,7 +34,16 @@ module.exports.getCategoryTree = async () => {
 
 module.exports.getCategoryAndToursBySlug = async (slug) => {
   const [categories] = await pool.query(
-    "SELECT id,title,slug,thumbnail  FROM categories WHERE slug=? AND deleted = 0 AND status = 'active'",
+    `SELECT 
+        c1.id, 
+        c1.title, 
+        c1.slug, 
+        c1.thumbnail,
+        c2.title AS parentTitle, 
+        c2.slug AS parentSlug
+     FROM categories c1
+     LEFT JOIN categories c2 ON c1.parent_id = c2.id
+     WHERE c1.slug = ? AND c1.deleted = 0 AND c1.status = 'active'`,
     [slug],
   );
 
@@ -43,13 +52,6 @@ module.exports.getCategoryAndToursBySlug = async (slug) => {
   }
 
   const category = categories[0];
-
-  // const [tours] = await pool.query(
-  //   ` SELECT * FROM tours
-  //     WHERE (category_id = ? or Category_id IN (SELECT id FROM categories WHERE parent_id = ?))
-  //     AND deleted = 0 AND status = "active"`,
-  //   [category.id, category.id],
-  // );
 
   const [tours] = await pool.query(
     ` SELECT tours.id,

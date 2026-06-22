@@ -16,7 +16,7 @@ function TourCard({ tour }) {
   };
 
   return (
-    <Link to={`/tours/${tour.slug}`} className="tour-card">
+    <Link to={`/tours/detail/${tour.slug}`} className="tour-card">
       <div className="tour-card__img">
         <img src={tour.thumbnail} alt={tour.slug} />
         <div className="tour-card__overlay">

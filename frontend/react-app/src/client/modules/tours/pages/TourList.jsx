@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Breadcrumb, Pagination } from "../../../shared";
 import { TourFilter, TourCard } from "../components";
+import { buildCategoryBreadcrumb } from "../../../utils/breadcrumb.helper";
 
 function TourList() {
   const { slug } = useParams();
   const [tours, setTours] = useState([]);
   const [categoryInfo, setCategoryInfo] = useState(null);
 
-  const [activeSort, setActiveSort] = useState("hot");
+  const [activeSort, setActiveSort] = useState(null);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/categories/${slug}`)
@@ -22,17 +23,15 @@ function TourList() {
       .catch((error) => console.log("Lỗi khi tải danh mục: ", error));
   }, [slug]);
 
+  const breadcrumbList = buildCategoryBreadcrumb(categoryInfo, slug);
+
   const breadcrumbData = {
-    title: categoryInfo?.title || "Dang tải...",
+    title: categoryInfo?.title || "Đang tải...",
     thumbnail:
       categoryInfo?.thumbnail ||
       "https://ik.imagekit.io/tvlk/blog/2024/03/du-lich-nuoc-ngoai-cover.jpg",
-    list: [
-      { url: "/", title: "Trang Chủ" },
-      { url: `/category/${slug}`, title: categoryInfo?.title || "Danh mục" },
-    ],
+    list: breadcrumbList,
   };
-
   return (
     <div className="tour-list-page">
       <Breadcrumb
@@ -83,7 +82,7 @@ function TourList() {
                 </button>
               </div>
               <div className="sort-total">
-                Tất cả: <strong>101 Tour</strong>
+                Tất cả: <strong>{tours.length} Tour</strong>
               </div>
             </div>
 

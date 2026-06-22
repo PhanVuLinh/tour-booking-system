@@ -2,6 +2,6 @@ const router = require("express").Router();
 
 const tourController = require("./tour.controller");
 
-router.get("/list", tourController.tourList);
+router.get("/detail/:slug", tourController.getTourDetail);
 
 module.exports = router;

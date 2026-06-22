@@ -63,7 +63,7 @@ export const clientRoutes = [
       },
 
       {
-        path: "tours/detail",
+        path: "tours/detail/:slug",
         element: <TourDetail />,
       },
 
