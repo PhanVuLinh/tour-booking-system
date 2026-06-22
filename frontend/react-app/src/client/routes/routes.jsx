@@ -58,7 +58,7 @@ export const clientRoutes = [
       },
 
       {
-        path: "tours",
+        path: "category/:slug",
         element: <TourList />,
       },
 

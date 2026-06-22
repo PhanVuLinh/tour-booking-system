@@ -1,10 +1,13 @@
 import React from "react";
 
-function Breadcrumb({ title, list, image }) {
+function Breadcrumb({ title, list, thumbnail }) {
   return (
     <div className="box-breadcrumb">
       <div className="inner-image">
-        <img src={image || "assets/images/default-banner.jpg"} alt={title} />
+        <img
+          src={thumbnail || "assets/images/default-banner.jpg"}
+          alt={title}
+        />
         <div className="overlay"></div>
       </div>
 

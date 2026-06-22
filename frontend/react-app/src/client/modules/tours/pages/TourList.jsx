@@ -1,60 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Breadcrumb, Pagination } from "../../../shared";
 import { TourFilter, TourCard } from "../components";
 
 function TourList() {
-  // Trạng thái lưu tiêu chí sắp xếp đang được chọn
+  const { slug } = useParams();
+  const [tours, setTours] = useState([]);
+  const [categoryInfo, setCategoryInfo] = useState(null);
+
   const [activeSort, setActiveSort] = useState("hot");
 
-  // Dữ liệu này sau này bạn dùng fetch() hoặc axios để gọi từ API Node.js về nhé
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/categories/${slug}`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          setCategoryInfo(result.data.category);
+          setTours(result.data.tours);
+        }
+      })
+      .catch((error) => console.log("Lỗi khi tải danh mục: ", error));
+  }, [slug]);
+
   const breadcrumbData = {
-    title: "Tour Nước Ngoài",
-    image:
+    title: categoryInfo?.title || "Dang tải...",
+    thumbnail:
+      categoryInfo?.thumbnail ||
       "https://ik.imagekit.io/tvlk/blog/2024/03/du-lich-nuoc-ngoai-cover.jpg",
     list: [
       { url: "/", title: "Trang Chủ" },
-      { url: "/tours", title: "Tour Nước Ngoài" },
-      { url: "/tours/detail", title: "phú quốc" },
+      { url: `/category/${slug}`, title: categoryInfo?.title || "Danh mục" },
     ],
   };
-
-  const tours = Array.from({ length: 6 }).map((_, index) => ({
-    id: index + 1,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdeWlMKbtuouVVFgxVTZcUgMFAg69DGLq6gA&s",
-    title: "Combo Đà Nẵng 2026: ĐÀ NẴNG - HỘI AN - BÀ NÀ HILL",
-    oldPrice: "13.650.000đ",
-    newPrice: "2.590.000 đ",
-    code: "123456789",
-    date: "22/07/2026",
-    time: "10 Ngày 9 Đêm",
-    slots: 10,
-  }));
 
   return (
     <div className="tour-list-page">
       <Breadcrumb
         title={breadcrumbData.title}
         list={breadcrumbData.list}
-        image={breadcrumbData.image}
+        thumbnail={breadcrumbData.thumbnail}
       />
 
       <div className="container">
         <div className="tour-list-layout">
-          {/* CỘT TRÁI: BỘ LỌC */}
           <TourFilter />
-
-          {/* CỘT PHẢI: NỘI DUNG TOUR */}
           <main className="tour-list-content">
-            {/* THÊM TIÊU ĐỀ Ở ĐÂY: Tự động lấy tên từ breadcrumbData */}
             <h2 className="tour-list-title">{breadcrumbData.title}</h2>
 
-            <p className="tour-list-desc">
+            {/* <p className="tour-list-desc">
               Du lịch Châu Á: là châu lục lớn và đông dân nhất thế giới... Hãy
               cùng TravelGo du lịch Châu Á để tận hưởng những dịch vụ tốt nhất.
-            </p>
+            </p> */}
 
-            {/* Thanh sắp xếp */}
             <div className="sort-bar">
               <div className="sort-options">
                 <span>Sắp xếp:</span>
@@ -90,14 +87,12 @@ function TourList() {
               </div>
             </div>
 
-            {/* Lưới chứa danh sách Tour (3 cột) */}
             <div className="tour-grid-3">
               {tours.map((tour) => (
                 <TourCard key={tour.id} tour={tour} />
               ))}
             </div>
 
-            {/* Thanh phân trang */}
             <Pagination />
           </main>
         </div>
