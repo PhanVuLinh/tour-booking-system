@@ -1696,6 +1696,21 @@ body {
   flex-shrink: 0;
   position: sticky;
   top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.tour-detail-right::-webkit-scrollbar {
+  width: 5px;
+}
+
+.tour-detail-right::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.tour-detail-right::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .booking-box {
@@ -2181,6 +2196,21 @@ body {
   flex-shrink: 0;
   position: sticky;
   top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.b-right::-webkit-scrollbar {
+  width: 5px;
+}
+
+.b-right::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.b-right::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .b-box {
