@@ -3,8 +3,22 @@ import PassengerCard from "./PassengerCard";
 import { useOutletContext } from "react-router-dom";
 
 const Step1Info = () => {
-  const { adultCount, childCount, infantCount, updatePassenger } =
-    useOutletContext();
+  const {
+    adultCount,
+    childCount,
+    infantCount,
+    updatePassenger,
+    formData,
+    setFormData,
+    formErrors,
+  } = useOutletContext();
+
+  const handleContactChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      contact: { ...prev.contact, [field]: value },
+    }));
+  };
 
   const renderPassengerGroup = (type, count, isAdult, subtitle) => {
     if (count === 0) return null;
@@ -52,9 +66,17 @@ const Step1Info = () => {
             </label>
             <input
               type="text"
-              className="b-input"
+              className={`b-input ${formErrors["contact.fullName"] ? "error-border" : ""}`}
               placeholder="Ví dụ: Nguyễn Văn A"
+              value={formData?.contact?.fullName || ""}
+              onChange={(e) => handleContactChange("fullName", e.target.value)}
             />
+            {formErrors["contact.fullName"] && (
+              <span className="error-text">
+                <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
+                {formErrors["contact.fullName"]}
+              </span>
+            )}
           </div>
           <div className="form-group">
             <label className="form-label">
@@ -62,9 +84,17 @@ const Step1Info = () => {
             </label>
             <input
               type="text"
-              className="b-input"
+              className={`b-input ${formErrors["contact.phone"] ? "error-border" : ""}`}
               placeholder="Ví dụ: 0901234567"
+              value={formData?.contact?.phone || ""}
+              onChange={(e) => handleContactChange("phone", e.target.value)}
             />
+            {formErrors["contact.phone"] && (
+              <span className="error-text">
+                <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
+                {formErrors["contact.phone"]}
+              </span>
+            )}
           </div>
           <div className="form-group">
             <label className="form-label">
@@ -72,9 +102,17 @@ const Step1Info = () => {
             </label>
             <input
               type="email"
-              className="b-input"
+              className={`b-input ${formErrors["contact.email"] ? "error-border" : ""}`}
               placeholder="Ví dụ: email@travelgo.com"
+              value={formData?.contact?.email || ""}
+              onChange={(e) => handleContactChange("email", e.target.value)}
             />
+            {formErrors["contact.email"] && (
+              <span className="error-text">
+                <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
+                {formErrors["contact.email"]}
+              </span>
+            )}
           </div>
           <div className="form-group">
             <label className="form-label">Địa chỉ</label>
@@ -82,6 +120,8 @@ const Step1Info = () => {
               type="text"
               className="b-input"
               placeholder="Ví dụ: 190 Pasteur, Phường Xuân Hòa, TP.HCM"
+              value={formData?.contact?.address || ""}
+              onChange={(e) => handleContactChange("address", e.target.value)}
             />
           </div>
         </div>
@@ -198,6 +238,8 @@ const Step1Info = () => {
           className="b-input"
           rows="4"
           placeholder="Ví dụ: Bữa ăn chay, đến muộn,..."
+          value={formData?.note || ""}
+          onChange={(e) => setFormData((prev) => ({ ...prev, note: e.target.value }))}
         ></textarea>
       </div>
     </>

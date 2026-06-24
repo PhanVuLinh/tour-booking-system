@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useOutletContext, Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function BookingSuccess() {
   // Lấy dữ liệu từ OrderBooking truyền xuống qua context
   const contextData = useOutletContext();
+
+  useEffect(() => {
+    toast.success("Đặt tour thành công!", {
+      description: "Cảm ơn bạn đã sử dụng dịch vụ của TravelGo.",
+    });
+  }, []);
 
   // Tránh lỗi khi người dùng F5 lại trang (mất context)
   const contactInfo = contextData?.contactInfo || {

@@ -1,9 +1,11 @@
 import { useLocation, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { Breadcrumb } from "../../../shared";
 import { buildBookingBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { BookingStepper, BookingSidebar } from "../components";
+import { validateBookingStep1 } from "../validations/booking.validator";
 
 function OrderBooking() {
   const location = useLocation();
@@ -26,6 +28,14 @@ function OrderBooking() {
   const [adultCount, setAdultCount] = useState(passengers.adults || 1);
   const [childCount, setChildCount] = useState(passengers.children || 0);
   const [infantCount, setInfantCount] = useState(passengers.infants || 0);
+
+  const [formData, setFormData] = useState(
+    location.state?.formData || {
+      contact: { fullName: "", phone: "", email: "", address: "" },
+      note: "",
+    },
+  );
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     // Đồng bộ lại state vào React Router history để khi F5 không bị mất dữ liệu số lượng
@@ -117,10 +127,20 @@ function OrderBooking() {
     };
 
     if (currentStep === 1) {
-      navigate("/booking/payment", {
-        state: { ...location.state, passengers: currentPassengers },
+      const errors = validateBookingStep1(formData);
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        toast.error("Thông tin liên lạc chưa đầy đủ hoặc không hợp lệ.!");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      setFormErrors({});
+      toast.success("Thông tin hợp lệ!", {
+        description: "Đang chuyển sang bước thanh toán.",
       });
-      window.scrollTo(0, 0);
+      navigate("/booking/payment", {
+        state: { ...location.state, passengers: currentPassengers, formData },
+      });
       return;
     }
     if (currentStep === 2) {
@@ -180,6 +200,9 @@ function OrderBooking() {
                 childCount,
                 infantCount,
                 updatePassenger,
+                formData,
+                setFormData,
+                formErrors,
               }}
             />
           </div>
