@@ -1,7 +1,13 @@
 import AllRoutes from "./routes";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
-  return <AllRoutes />;
+  return (
+    <>
+      <ScrollToTop />
+      <AllRoutes />
+    </>
+  );
 }
 
 export default App;

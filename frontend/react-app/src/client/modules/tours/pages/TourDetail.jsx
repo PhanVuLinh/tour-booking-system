@@ -179,8 +179,8 @@ function TourDetail() {
                   <strong>
                     {selectedDate
                       ? new Date(selectedDate.startDate).toLocaleDateString(
-                          "vi-VN",
-                        )
+                        "vi-VN",
+                      )
                       : "Chưa chọn"}
                   </strong>
                 </li>

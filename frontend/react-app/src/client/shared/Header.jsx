@@ -5,6 +5,25 @@ import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 
 function Header() {
   const [categories, setCategories] = useState([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const [openDropdowns, setOpenDropdowns] = useState({});
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const toggleDropdown = (e, id) => {
+    // Only intercept if on mobile
+    if (window.innerWidth <= 992) {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpenDropdowns((prev) => ({
+        ...prev,
+        [id]: !prev[id]
+      }));
+    }
+  };
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/categories`)
@@ -38,7 +57,7 @@ function Header() {
 
       <nav className="navbar">
         <div className="navbar__inner container">
-          <button className="mobile-toggle-btn">
+          <button className="mobile-toggle-btn" onClick={toggleMobileMenu}>
             <i className="fa-solid fa-bars"></i>
           </button>
 
@@ -46,33 +65,45 @@ function Header() {
             <img className="logo__img" src={logoTravelGo} alt="TRAVELGO" />
           </Link>
 
-          <div className="mobile-overlay"></div>
+          <div 
+            className={`mobile-overlay ${isMobileMenuOpen ? "active" : ""}`} 
+            onClick={toggleMobileMenu}
+          ></div>
 
-          <div className="nav-menu-wrapper">
-            <button className="mobile-close-btn">
+          <div className={`nav-menu-wrapper ${isMobileMenuOpen ? "active" : ""}`}>
+            <button className="mobile-close-btn" onClick={toggleMobileMenu}>
               <i className="fa-solid fa-xmark"></i>
             </button>
 
             <ul className="nav-links">
               <li>
-                <Link to="/" className="active">
+                <Link to="/" className="active" onClick={() => setIsMobileMenuOpen(false)}>
                   Trang Chủ
                 </Link>
               </li>
 
               {categories.map((parent) => (
                 <li key={parent.id}>
-                  <Link to={`/category/${parent.slug}`}>
+                  <Link 
+                    to={`/category/${parent.slug}`} 
+                    onClick={(e) => {
+                      if (window.innerWidth <= 992 && parent.children && parent.children.length > 0) {
+                        toggleDropdown(e, parent.id);
+                      } else {
+                        setIsMobileMenuOpen(false);
+                      }
+                    }}
+                  >
                     {parent.title}
                     {parent.children && parent.children.length > 0 && (
-                      <i className="fa-solid fa-chevron-down arrow"></i>
+                      <i className={`fa-solid fa-chevron-down arrow ${openDropdowns[parent.id] ? "active" : ""}`}></i>
                     )}
                   </Link>
 
                   {parent.children && parent.children.length > 0 && (
-                    <div className="dropdown">
+                    <div className={`dropdown ${openDropdowns[parent.id] ? "active" : ""}`}>
                       {parent.children.map((child) => (
-                        <Link key={child.id} to={`/category/${child.slug}`}>
+                        <Link key={child.id} to={`/category/${child.slug}`} onClick={() => setIsMobileMenuOpen(false)}>
                           {child.title}
                         </Link>
                       ))}
@@ -81,10 +112,10 @@ function Header() {
                 </li>
               ))}
               <li>
-                <Link to="/article">Tin Tức</Link>
+                <Link to="/article" onClick={() => setIsMobileMenuOpen(false)}>Tin Tức</Link>
               </li>
               <li>
-                <Link to="/contact">Liên Hệ</Link>
+                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>Liên Hệ</Link>
               </li>
             </ul>
           </div>
