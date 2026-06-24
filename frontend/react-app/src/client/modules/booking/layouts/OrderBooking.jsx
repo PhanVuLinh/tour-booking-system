@@ -1,54 +1,56 @@
 import { useLocation, Outlet, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
-import { Breadcrumb } from "../../../shared";
+import { useEffect, useMemo, useState } from "react";
 
+import { Breadcrumb } from "../../../shared";
+import { buildBookingBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { BookingStepper, BookingSidebar } from "../components";
 
 function OrderBooking() {
-  const breadcrumbData = {
-    title: "Tour Hà Nội - Ninh Bình - Hạ Long - Yên Tử - Sapa | 6N5Đ",
-    image:
-      "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80",
-    list: [
-      { url: "/", title: "Trang Chủ" },
-      { url: "/tours", title: "Tour Trong Nước" },
-      { url: "#", title: "Tour Miền Bắc" },
-      {
-        url: "#",
-        title: "Tour Hà Nội - Ninh Bình - Hạ Long - Yên Tử - Sapa | 6N5Đ",
-      },
-      { title: "Đặt tour" },
-    ],
-  };
-
   const location = useLocation();
   const navigate = useNavigate();
 
   const {
-    adults = 1,
-    children = 0,
-    infants = 0,
-    selectedDate = { dayMonth: "22/08", year: "2026" },
-    tourCode = "28T00001",
-    transport = "Ô tô 45 chỗ",
-    departure = "Hà Nội",
-    tourTitle = "Tour Hà Nội - Ninh Bình - Hạ Long - Yên Tử - Sapa | 6N5Đ",
-    tourImage = "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80",
+    tour = {},
+    selectedDate = {},
+    passengers = { adults: 1, children: 0, infants: 0 },
   } = location.state || {};
 
-  const [adultCount, setAdultCount] = useState(adults);
-  const [childCount, setChildCount] = useState(children);
-  const [infantCount, setInfantCount] = useState(infants);
+  const breadcrumbData = {
+    title: tour?.title || "Đặt tour",
+    image:
+      tour?.thumbnail ||
+      "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80",
+    list: buildBookingBreadcrumb(tour),
+  };
+
+  const [adultCount, setAdultCount] = useState(passengers.adults || 1);
+  const [childCount, setChildCount] = useState(passengers.children || 0);
+  const [infantCount, setInfantCount] = useState(passengers.infants || 0);
+
+  useEffect(() => {
+    // Đồng bộ lại state vào React Router history để khi F5 không bị mất dữ liệu số lượng
+    navigate(location.pathname, {
+      replace: true,
+      state: {
+        ...location.state,
+        passengers: {
+          adults: adultCount,
+          children: childCount,
+          infants: infantCount,
+        },
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adultCount, childCount, infantCount]);
 
   const [promoCode, setPromoCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
 
-  const priceAdult = 10000000;
-  const priceChild = 7990000;
-  const priceInfant = 5990000;
+  const priceAdult = Number(selectedDate.newPriceAdult) || 0;
+  const priceChild = Number(selectedDate.newPriceChildren) || 0;
+  const priceInfant = Number(selectedDate.newPriceBaby) || 0;
 
-  const formatPrice = (price) =>
-    new Intl.NumberFormat("vi-VN").format(price) + " đ";
+  const formatPrice = (price) => price.toLocaleString("vi-VN") + " đ";
 
   const subtotal = useMemo(() => {
     return (
@@ -56,7 +58,14 @@ function OrderBooking() {
       childCount * priceChild +
       infantCount * priceInfant
     );
-  }, [adultCount, childCount, infantCount]);
+  }, [
+    adultCount,
+    childCount,
+    infantCount,
+    priceAdult,
+    priceChild,
+    priceInfant,
+  ]);
 
   const finalPrice = Math.max(subtotal - discountAmount, 0);
 
@@ -65,6 +74,7 @@ function OrderBooking() {
     : location.pathname.includes("/payment")
       ? 2
       : 1;
+
   const updatePassenger = (type, action) => {
     if (type === "adult") {
       setAdultCount((prev) =>
@@ -83,56 +93,48 @@ function OrderBooking() {
 
   const handleApplyPromo = () => {
     const code = promoCode.trim().toUpperCase();
-
     if (!code) {
       setDiscountAmount(0);
       return;
     }
-
     if (code === "GIAM10") {
       setDiscountAmount(Math.min(subtotal * 0.1, subtotal));
       return;
     }
-
     if (code === "GIAM500K") {
       setDiscountAmount(Math.min(500000, subtotal));
       return;
     }
-
     setDiscountAmount(0);
     alert("Mã giảm giá không hợp lệ");
   };
 
   const handleNextStep = () => {
+    const currentPassengers = {
+      adults: adultCount,
+      children: childCount,
+      infants: infantCount,
+    };
+
     if (currentStep === 1) {
       navigate("/booking/payment", {
-        state: {
-          ...location.state,
-          adults: adultCount,
-          children: childCount,
-          infants: infantCount,
-        },
+        state: { ...location.state, passengers: currentPassengers },
       });
       window.scrollTo(0, 0);
       return;
     }
-
     if (currentStep === 2) {
       navigate("/booking/success", {
         state: {
           ...location.state,
-          adults: adultCount,
-          children: childCount,
-          infants: infantCount,
+          passengers: currentPassengers,
           subtotal,
           discountAmount,
           finalPrice,
         },
       });
-      window.scrollTo(0, 0);
       return;
     }
-
     navigate("/");
   };
 
@@ -140,13 +142,15 @@ function OrderBooking() {
     navigate("/booking/info", {
       state: {
         ...location.state,
-        adults: adultCount,
-        children: childCount,
-        infants: infantCount,
+        passengers: {
+          adults: adultCount,
+          children: childCount,
+          infants: infantCount,
+        },
       },
     });
-    window.scrollTo(0, 0);
   };
+
   return (
     <div className="booking-page-wrapper">
       <Breadcrumb
@@ -165,12 +169,10 @@ function OrderBooking() {
             </p>
           </div>
 
-          {/* THANH TIẾN TRÌNH ĐỘNG DỰA THEO currentStep */}
           <BookingStepper currentStep={currentStep} />
         </div>
 
         <div className="booking-layout">
-          {/* CỘT TRÁI: THAY ĐỔI RUỘT ĐỘNG THEO TRẠNG THÁI currentStep */}
           <div className="b-left">
             <Outlet
               context={{
@@ -182,14 +184,14 @@ function OrderBooking() {
             />
           </div>
 
-          {/* CỘT PHẢI: GIỮ NGUYÊN (CHỈ ĐỔI TEXT NÚT BẤM) */}
           <BookingSidebar
-            tourImage={tourImage}
-            tourTitle={tourTitle}
-            tourCode={tourCode}
-            transport={transport}
-            departure={departure}
-            selectedDate={selectedDate}
+            tourImage={tour.thumbnail}
+            tourTitle={tour.title}
+            tourCode={tour.id}
+            transport={selectedDate.vehicleName || "Đang cập nhật"}
+            // departure={tour.departure}
+            departure="Theo lịch trình"
+            selectedDate={selectedDate.startDate}
             adultCount={adultCount}
             childCount={childCount}
             infantCount={infantCount}

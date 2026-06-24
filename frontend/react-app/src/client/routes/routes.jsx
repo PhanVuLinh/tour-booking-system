@@ -74,7 +74,6 @@ export const clientRoutes = [
             path: "booking",
             element: <OrderBooking />,
             children: [
-              { index: true, element: <Navigate to="info" replace /> },
               { path: "info", element: <BookingInfo /> },
               { path: "payment", element: <BookingPayment /> },
               { path: "success", element: <BookingSuccess /> },

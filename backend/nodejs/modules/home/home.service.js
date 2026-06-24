@@ -19,6 +19,7 @@ module.exports.getFlashSales = async () => {
         tours.title,
         tours.thumbnail,
         tours.time AS time,
+        departures.id as departure_id,
         departures.startDate,
         departures.priceAdult AS oldPrice,
         departures.discountPercentage,

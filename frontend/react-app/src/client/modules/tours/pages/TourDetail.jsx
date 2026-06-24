@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Breadcrumb } from "../../../shared";
 import { buildTourDetailBreadcrumb } from "../../../utils/breadcrumb.helper";
 
+import moment from "moment";
+
 function TourDetail() {
   const navigate = useNavigate();
   const { slug } = useParams();
@@ -50,18 +52,12 @@ function TourDetail() {
     return price.toLocaleString("vi-VN") + " đ";
   };
 
-  const formatDayMonth = (dateString) => {
-    if (!dateString) return "";
-    const d = new Date(dateString);
-    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
-  };
-
   const handleBooking = () => {
     if (!selectedDate) {
       alert("Vui lòng chọn ngày khởi hành!");
       return;
     }
-    navigate("/booking", {
+    navigate("/booking/info", {
       state: {
         tour: tourData,
         selectedDate,
@@ -173,27 +169,24 @@ function TourDetail() {
                   <i className="fa-solid fa-bus"></i> Phương Tiện:{" "}
                   <strong>{selectedDate?.vehicleName || "Đang tải..."}</strong>
                 </li>
-                {/* Ngày khởi hành thay đổi theo lựa chọn ở dưới */}
                 <li>
                   <i className="fa-regular fa-calendar"></i> Khởi Hành:{" "}
                   <strong>
                     {selectedDate
-                      ? new Date(selectedDate.startDate).toLocaleDateString(
-                        "vi-VN",
-                      )
+                      ? moment(selectedDate.startDate).format("DD/MM/YYYY")
                       : "Chưa chọn"}
                   </strong>
                 </li>
               </ul>
 
               <div className="booking-form">
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label className="booking-label">Khởi Hành Tại:</label>
                   <select className="tour-detail-select" defaultValue="hanoi">
                     <option value="hanoi">Hà Nội</option>
                     <option value="hcm">TP. Hồ Chí Minh</option>
                   </select>
-                </div>
+                </div> */}
 
                 {/* --- LƯỚI CHỌN NGÀY KHỞI HÀNH ĐỘNG --- */}
                 <div className="form-group">
@@ -206,10 +199,10 @@ function TourDetail() {
                         onClick={() => setSelectedDate(item)}
                       >
                         <span className="d-date">
-                          {formatDayMonth(item.startDate)}
+                          {moment(item.startDate).format("DD/MM")}
                         </span>
                         <span className="d-year">
-                          {new Date(item.startDate).getFullYear()}
+                          {moment(item.startDate).format("YYYY")}
                         </span>
                         <hr className="d-divider" />
                         <span className="d-price">

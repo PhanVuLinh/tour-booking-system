@@ -18,7 +18,6 @@ function FlashSale() {
       });
   }, []);
 
-
   const getScrollAmount = () => {
     if (trackRef.current && trackRef.current.children.length > 0) {
       const cardWidth = trackRef.current.children[0].offsetWidth;
@@ -108,7 +107,7 @@ function FlashSale() {
 
             <div className="tour-track" ref={trackRef}>
               {tourFlashSales.map((item) => (
-                <TourCard key={item.id} tour={item} />
+                <TourCard key={item.departure_id} tour={item} />
               ))}
             </div>
           </div>

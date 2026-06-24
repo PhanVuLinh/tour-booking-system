@@ -23,10 +23,18 @@ export const buildTourDetailBreadcrumb = (tour, currentSlug) => {
 
   if (tour || currentSlug) {
     list.push({
-      url: `/tour/${currentSlug || tour?.slug}`,
+      url: `/tours/detail/${currentSlug || tour?.slug}`,
       title: tour?.title || "Chi tiết tour",
     });
   }
 
+  return list;
+};
+
+export const buildBookingBreadcrumb = (tour) => {
+  const list = buildTourDetailBreadcrumb(tour, tour?.slug);
+  list.push({
+    title: "Đặt tour",
+  });
   return list;
 };

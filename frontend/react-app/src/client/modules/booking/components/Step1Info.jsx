@@ -1,12 +1,11 @@
 import React from "react";
 import PassengerCard from "./PassengerCard";
+import { useOutletContext } from "react-router-dom";
 
-const Step1Info = ({
-  adultCount,
-  childCount,
-  infantCount,
-  updatePassenger,
-}) => {
+const Step1Info = () => {
+  const { adultCount, childCount, infantCount, updatePassenger } =
+    useOutletContext();
+
   const renderPassengerGroup = (type, count, isAdult, subtitle) => {
     if (count === 0) return null;
 
