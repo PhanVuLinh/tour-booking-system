@@ -38,7 +38,7 @@ function OrderBooking() {
   const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
-    // Đồng bộ lại state vào React Router history để khi F5 không bị mất dữ liệu số lượng
+    // Đồng bộ lại state vào React Router history để khi F5 không bị mất dữ liệu
     navigate(location.pathname, {
       replace: true,
       state: {
@@ -48,10 +48,11 @@ function OrderBooking() {
           children: childCount,
           infants: infantCount,
         },
+        formData: formData,
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adultCount, childCount, infantCount]);
+  }, [adultCount, childCount, infantCount, formData]);
 
   const [promoCode, setPromoCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -135,9 +136,7 @@ function OrderBooking() {
         return;
       }
       setFormErrors({});
-      toast.success("Thông tin hợp lệ!", {
-        description: "Đang chuyển sang bước thanh toán.",
-      });
+      toast.success("Thông tin hợp lệ!");
       navigate("/booking/payment", {
         state: { ...location.state, passengers: currentPassengers, formData },
       });
