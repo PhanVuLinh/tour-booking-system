@@ -1,5 +1,5 @@
 import { useLocation, Outlet, useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Breadcrumb } from "../../../shared";
@@ -29,12 +29,26 @@ function OrderBooking() {
   const [childCount, setChildCount] = useState(passengers.children || 0);
   const [infantCount, setInfantCount] = useState(passengers.infants || 0);
 
-  const [formData, setFormData] = useState(
-    location.state?.formData || {
-      contact: { fullName: "", phone: "", email: "", address: "" },
-      note: "",
-    },
-  );
+  //Mã giảm giá
+  const [promoCode, setPromoCode] = useState(location.state?.promoCode || "");
+  const [discountAmount, setDiscountAmount] = useState(location.state?.discountAmount || 0);
+
+  const initialPassengerDetails = {
+    adults: Array.from({ length: passengers.adults || 1 }).map(() => ({ fullName: "", dob: "", gender: "Nam", phone: "" })),
+    children: Array.from({ length: passengers.children || 0 }).map(() => ({ fullName: "", dob: "", gender: "Nam" })),
+    infants: Array.from({ length: passengers.infants || 0 }).map(() => ({ fullName: "", dob: "", gender: "Nam" })),
+  };
+
+  const [formData, setFormData] = useState(() => {
+    const existing = location.state?.formData;
+    // Nếu đã có passengerDetails trong state cũ thì dùng lại, nếu không thì khởi tạo mới
+    if (existing?.passengerDetails) return existing;
+    return {
+      contact: existing?.contact || { fullName: "", phone: "", email: "", address: "" },
+      note: existing?.note || "",
+      passengerDetails: initialPassengerDetails,
+    };
+  });
   const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
@@ -49,13 +63,12 @@ function OrderBooking() {
           infants: infantCount,
         },
         formData: formData,
+        promoCode: promoCode,
+        discountAmount: discountAmount,
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adultCount, childCount, infantCount, formData]);
-
-  const [promoCode, setPromoCode] = useState("");
-  const [discountAmount, setDiscountAmount] = useState(0);
+  }, [adultCount, childCount, infantCount, formData, promoCode, discountAmount]);
 
   const priceAdult = Number(selectedDate.newPriceAdult) || 0;
   const priceChild = Number(selectedDate.newPriceChildren) || 0;
@@ -63,20 +76,10 @@ function OrderBooking() {
 
   const formatPrice = (price) => price.toLocaleString("vi-VN") + " đ";
 
-  const subtotal = useMemo(() => {
-    return (
-      adultCount * priceAdult +
-      childCount * priceChild +
-      infantCount * priceInfant
-    );
-  }, [
-    adultCount,
-    childCount,
-    infantCount,
-    priceAdult,
-    priceChild,
-    priceInfant,
-  ]);
+  const subtotal =
+    adultCount * priceAdult +
+    childCount * priceChild +
+    infantCount * priceInfant;
 
   const finalPrice = Math.max(subtotal - discountAmount, 0);
 
@@ -87,19 +90,44 @@ function OrderBooking() {
       : 1;
 
   const updatePassenger = (type, action) => {
+    let groupKey = type === "adult" ? "adults" : type === "child" ? "children" : "infants";
+    let isAdd = action === "add";
+
     if (type === "adult") {
-      setAdultCount((prev) =>
-        action === "add" ? prev + 1 : Math.max(1, prev - 1),
-      );
+      if (!isAdd && adultCount <= 1) return;
+      setAdultCount((prev) => prev + (isAdd ? 1 : -1));
     } else if (type === "child") {
-      setChildCount((prev) =>
-        action === "add" ? prev + 1 : Math.max(0, prev - 1),
-      );
+      if (!isAdd && childCount <= 0) return;
+      setChildCount((prev) => prev + (isAdd ? 1 : -1));
     } else if (type === "infant") {
-      setInfantCount((prev) =>
-        action === "add" ? prev + 1 : Math.max(0, prev - 1),
-      );
+      if (!isAdd && infantCount <= 0) return;
+      setInfantCount((prev) => prev + (isAdd ? 1 : -1));
     }
+
+    setFormData((prev) => {
+      const currentList = prev.passengerDetails?.[groupKey] || [];
+      if (isAdd) {
+        const newPassenger =
+          type === "adult"
+            ? { fullName: "", dob: "", gender: "Nam", phone: "" }
+            : { fullName: "", dob: "", gender: "Nam" };
+        return {
+          ...prev,
+          passengerDetails: {
+            ...prev.passengerDetails,
+            [groupKey]: [...currentList, newPassenger],
+          },
+        };
+      } else {
+        return {
+          ...prev,
+          passengerDetails: {
+            ...prev.passengerDetails,
+            [groupKey]: currentList.slice(0, -1),
+          },
+        };
+      }
+    });
   };
 
   const handleApplyPromo = () => {
@@ -131,8 +159,18 @@ function OrderBooking() {
       const errors = validateBookingStep1(formData);
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
-        toast.error("Thông tin liên lạc chưa đầy đủ hoặc không hợp lệ.!");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        const contactErrors = Object.entries(errors).filter(([k]) => k.startsWith("contact."));
+        const passengerErrors = Object.entries(errors).filter(([k]) => k.startsWith("passengerDetails."));
+
+        if (contactErrors.length > 0) {
+          // Lấy message lỗi đầu tiên trong nhóm contact
+          toast.error(`Thông tin liên lạc: ${contactErrors[0][1]}`);
+        }
+        if (passengerErrors.length > 0) {
+          // Lấy message lỗi đầu tiên trong nhóm hành khách
+          toast.error(`Thông tin hành khách: ${passengerErrors[0][1]}`);
+        }
         return;
       }
       setFormErrors({});

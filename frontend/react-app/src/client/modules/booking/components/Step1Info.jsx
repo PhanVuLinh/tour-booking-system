@@ -1,4 +1,3 @@
-import React from "react";
 import PassengerCard from "./PassengerCard";
 import { useOutletContext } from "react-router-dom";
 
@@ -20,8 +19,22 @@ const Step1Info = () => {
     }));
   };
 
+  const handlePassengerChange = (groupKey, index, field, value) => {
+    setFormData((prev) => {
+      const newDetails = { ...prev.passengerDetails };
+      if (!newDetails[groupKey]) newDetails[groupKey] = [];
+      newDetails[groupKey][index] = {
+        ...newDetails[groupKey][index],
+        [field]: value,
+      };
+      return { ...prev, passengerDetails: newDetails };
+    });
+  };
+
   const renderPassengerGroup = (type, count, isAdult, subtitle) => {
     if (count === 0) return null;
+    
+    const groupKey = type === "Người lớn" ? "adults" : type === "Trẻ em" ? "children" : "infants";
 
     return (
       <div className="passenger-group" key={type}>
@@ -32,14 +45,22 @@ const Step1Info = () => {
         </div>
 
         <div className="pg-list">
-          {Array.from({ length: count }).map((_, i) => (
-            <PassengerCard
-              key={`${type}-${i}`}
-              type={type}
-              index={i + 1}
-              isAdult={isAdult}
-            />
-          ))}
+          {Array.from({ length: count }).map((_, i) => {
+            const passengerData = formData.passengerDetails?.[groupKey]?.[i] || {};
+            return (
+              <PassengerCard
+                key={`${type}-${i}`}
+                type={type}
+                index={i + 1}
+                isAdult={isAdult}
+                groupKey={groupKey}
+                passengerData={passengerData}
+                onDataChange={(field, value) => handlePassengerChange(groupKey, i, field, value)}
+                formErrors={formErrors}
+                arrayIndex={i}
+              />
+            );
+          })}
         </div>
       </div>
     );
