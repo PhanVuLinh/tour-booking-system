@@ -27,6 +27,11 @@ public class DepartureController {
         return ResponseEntity.ok(departureService.findById(id));
     }
 
+    @GetMapping("/trash")
+    public ResponseEntity<List<DepartureResponse>> getAllTrash() {
+        return ResponseEntity.ok(departureService.findAllTrash());
+    }
+
     @PostMapping
     public ResponseEntity<?> create(@RequestBody DepartureUpsertRequest request) {
         try{
@@ -43,8 +48,19 @@ public class DepartureController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Integer id) {
-        departureService.delete(id);
-        return ResponseEntity.ok("Đã xóa lịch khởi hành thành công!");
+    public ResponseEntity<?> delete(@PathVariable Integer id, @RequestParam Integer userId) {
+        departureService.delete(id, userId);
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<Void> restore(@PathVariable Integer id) {
+        departureService.restore(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/force")
+    public ResponseEntity<Void> hardDelete(@PathVariable Integer id) {
+        departureService.hardDelete(id);
+        return ResponseEntity.ok().build();
     }
 }

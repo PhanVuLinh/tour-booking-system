@@ -13,11 +13,11 @@ export default function TourForm() {
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
     category: "",
-    price: "",
     duration: "",
     description: "",
     image: "",
@@ -29,6 +29,18 @@ export default function TourForm() {
   ]);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await tourService.getCategories();
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
     if (!isEdit) return;
 
     const fetchTour = async () => {
@@ -38,7 +50,6 @@ export default function TourForm() {
         setFormData({
           name:        tour.title || tour.name || "",
           category:    tour.categoryId ? String(tour.categoryId) : "",
-          price:       tour.price || "",
           duration:    tour.time || tour.duration || "",
           description: tour.description || "",
           image:       tour.thumbnail || tour.image || "",
@@ -52,7 +63,7 @@ export default function TourForm() {
                 setItinerary(validSchedules);
             }
         } catch (scheduleErr) {
-            console.log("Tour này chưa có lộ trình hoặc lỗi lấy lộ trình.");
+            console.log(scheduleErr);
         }
 
       } catch (err) {
@@ -91,7 +102,7 @@ export default function TourForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.category || !formData.price) {
+    if (!formData.name || !formData.category) {
       alert("Vui lòng điền đầy đủ thông tin bắt buộc (*)");
       return;
     }
@@ -106,7 +117,6 @@ export default function TourForm() {
       categoryId:  Number(formData.category), 
       description: formData.description,
       status:      formData.status,
-      price:       Number(formData.price),
       thumbnail:   imageFile ? null : formData.image,
     };
 
@@ -131,17 +141,14 @@ export default function TourForm() {
       setSubmitting(false);
     }
   };
-
   const addItineraryDay = () =>
     setItinerary([...itinerary, { dayNumber: itinerary.length + 1, title: "", content: "", status: "active" }]);
-
   const removeItineraryDay = (indexToRemove) => {
     setItinerary(prev => {
       const newItinerary = prev.filter((_, index) => index !== indexToRemove);
       return newItinerary.map((item, i) => ({ ...item, dayNumber: i + 1 }));
     });
   };
-
   const updateItinerary = (index, field, value) => {
     setItinerary(prev => {
         const newItinerary = [...prev];
@@ -149,7 +156,6 @@ export default function TourForm() {
         return newItinerary;
     });
   };
-
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-64">
@@ -160,17 +166,14 @@ export default function TourForm() {
       </div>
     );
   }
-
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
       <button
         type="button"
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-medium mb-6"
-        onClick={() => navigate("/admin/tours")}
-      >
+        onClick={() => navigate("/admin/tours")}>
         <ArrowLeft className="w-4 h-4" /> Quay lại
       </button>
-
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
           {isEdit ? "Chỉnh sửa Tour" : "Thêm Tour mới"}
@@ -179,7 +182,6 @@ export default function TourForm() {
           {isEdit ? "Cập nhật thông tin chi tiết của tour" : "Điền thông tin để tạo tour du lịch mới"}
         </p>
       </div>
-
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
@@ -199,7 +201,6 @@ export default function TourForm() {
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
-
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -208,13 +209,13 @@ export default function TourForm() {
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none"
-                    >
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none">
                       <option value="" disabled>Chọn danh mục...</option>
-                      <option value="1">Du lịch Trong Tooi</option>
-                      <option value="30002">Du lịch Trong Nướcc</option>
-                      <option value="60001">Tour Trong Nước</option>
-                      <option value="60002">Tour Quốc Tế</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.title || cat.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -224,24 +225,9 @@ export default function TourForm() {
                       value={formData.duration}
                       onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                       placeholder="Ví dụ: 3N2Đ"
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"/>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Giá tour (VNĐ) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả chi tiết</label>
                   <textarea
@@ -253,15 +239,12 @@ export default function TourForm() {
                 </div>
               </div>
             </div>
-
             <TourItinerary
               itinerary={itinerary}
               onAddDay={addItineraryDay}
               onRemoveDay={removeItineraryDay}
-              onUpdateDay={updateItinerary}
-            />
+              onUpdateDay={updateItinerary}/>
           </div>
-
           <div className="space-y-8">
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100">
@@ -274,8 +257,7 @@ export default function TourForm() {
                       <img
                         src={formData.image}
                         alt="Preview"
-                        className="w-full h-52 object-cover"
-                      />
+                        className="w-full h-52 object-cover"/>
                       {imageFile && (
                         <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-3 py-1.5 flex items-center gap-2">
                           <ImageIcon className="w-3.5 h-3.5 text-white shrink-0" />
@@ -306,7 +288,6 @@ export default function TourForm() {
                     </label>
                   )}
                 </div>
-
                 {formData.image && (
                   <label className="w-full inline-flex items-center justify-center gap-2 py-2 px-4 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
                     <Upload className="w-4 h-4" />

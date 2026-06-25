@@ -65,12 +65,6 @@ export function TourDetailModal({ isOpen, onClose, selectedTour }) {
                 <p className="font-medium text-gray-900">{selectedTour.time || selectedTour.duration}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 mb-1">Giá Tour</p>
-                <p className="font-bold text-blue-600 text-xl">
-                  {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(selectedTour.price)}
-                </p>
-              </div>
-              <div>
                 <p className="text-sm text-gray-500 mb-1">Trạng thái</p>
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${

@@ -9,9 +9,8 @@ function mapTour(tour) {
     categoryId:  tour.categoryId,
     category:    "", 
     description: tour.description,
-    status:      tour.status,
-    price:       tour.price ?? 0,
-    
+    status:      tour.status,    
+    schedules:   tour.schedules,  
     createdAt:   tour.createdAt,
     updatedAt:   tour.updatedAt,
     createdBy:   tour.createdBy,
@@ -106,7 +105,8 @@ export const tourService = {
       const res = await apiClient.delete(`/tour/${id}`);
       return res.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Xóa tour thất bại");
+      const backendMessage = error.response?.data?.message || error.response?.data;
+      throw new Error(backendMessage || "Có lỗi xảy ra khi xóa Tour");
     }
   },
 
@@ -115,7 +115,8 @@ export const tourService = {
       const res = await apiClient.delete(`/tour/${id}`);
       return res.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Xóa tour thất bại");
+      const backendMessage = error.response?.data?.message || error.response?.data;
+      throw new Error(backendMessage || "Xóa tour thất bại");
     }
   },
 

@@ -10,5 +10,8 @@ public interface DepartureService {
     DepartureResponse findById(Integer id);
     DepartureResponse create(DepartureUpsertRequest request);
     DepartureResponse update(Integer id, DepartureUpsertRequest request);
-    void delete(Integer id);
+    void delete(Integer id, Integer userId);
+    void restore(Integer id);
+    void hardDelete(Integer id);
+    List<DepartureResponse> findAllTrash();
 }

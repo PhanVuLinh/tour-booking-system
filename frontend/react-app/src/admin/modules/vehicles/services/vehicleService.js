@@ -46,7 +46,7 @@ export const vehicleService = {
     }
   },
 
-  getTrash: async () => {
+  getAllTrash: async () => {
     try {
       const response = await apiClient.get('/vehicle/trash');
       return response.data;

@@ -1,6 +1,6 @@
-import { X, User, Calendar, DollarSign, Users, Percent, Info, Bus, Plane, Train, Ship } from "lucide-react";
+import { X, User, Calendar, DollarSign, Users, Percent, Info, Bus, Plane, Train, Ship, MapPin } from "lucide-react";
 
-export function DepartureDetailModal({ isOpen, onClose, departure }) {
+export function DepartureDetailModal({ isOpen, onClose, departure, accountList = [] }) {
   if (!isOpen || !departure) return null;
 
   const formatCurrency = (value) => {
@@ -11,7 +11,11 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
   const formatDate = (dateString) => {
     return dateString ? new Date(dateString).toLocaleString('vi-VN') : "—";
   };
-
+  const getAccountName = (id) => {
+    if (!id) return null;
+    const account = accountList.find(acc => acc.id === id);
+    return account ? account.fullName : null; 
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -28,18 +32,24 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
 
         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
           
-          {/* KHỐI 1: THÔNG TIN TỔNG QUAN */}
           <div className="bg-gray-50 rounded-xl p-4">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
               <Info className="w-4 h-4 text-blue-600" /> Thông tin tổng quan
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 text-sm">
               <div>
-                <p className="text-gray-500 text-xs">Mã lịch khởi hành (ID)</p>
+                <p className="text-gray-500 text-xs">Mã lịch</p>
                 <p className="font-semibold text-gray-900 mt-0.5">#{departure.id}</p>
               </div>
+
+              <div>
+                <p className="text-gray-500 text-xs">Điểm khởi hành</p>
+                <div className="flex items-center gap-1 mt-0.5 text-gray-900 font-semibold">
+                  <MapPin className="w-3.5 h-3.5 text-red-500" />
+                  <span className="truncate">{departure.departureFrom || "—"}</span>
+                </div>
+              </div>
               
-              {/* THÊM MỚI: TRƯỜNG HIỂN THỊ PHƯƠNG TIỆN */}
               <div>
                 <p className="text-gray-500 text-xs">Phương tiện di chuyển</p>
                 {departure.vehicleName ? (
@@ -48,7 +58,7 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
                      departure.vehicleType === 'TRAIN' ? <Train className="w-4 h-4" /> :
                      departure.vehicleType === 'SHIP' ? <Ship className="w-4 h-4" /> :
                      <Bus className="w-4 h-4" />}
-                    <span className="truncate max-w-[120px]">{departure.vehicleName}</span>
+                    <span className="truncate ">{departure.vehicleName}</span>
                   </div>
                 ) : (
                   <p className="font-semibold text-gray-400 mt-0.5">— Tự túc —</p>
@@ -56,15 +66,15 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
               </div>
               
               <div>
-                <p className="text-gray-500 text-xs">Trạng thái chuyến đi</p>
+                <p className="text-gray-500 text-xs">Trạng thái</p>
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mt-1 ${
-                  departure.status === "OPEN" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  departure.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                 }`}>
                   {departure.status}
                 </span>
               </div>
               
-              <div className="sm:col-span-3 border-t border-gray-200/60 pt-3">
+              <div className="sm:col-span-2 border-t border-gray-200/60 pt-3">
                 <p className="text-gray-500 text-xs">Thời gian bắt đầu khởi hành</p>
                 <p className="font-bold text-base mt-0.5 flex items-center gap-1.5 text-blue-600">
                   <Calendar className="w-4.5 h-4.5" /> {formatDate(departure.startTime)}
@@ -101,7 +111,6 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
             </div>
           </div>
 
-          {/* KHỐI 3: QUẢN LÝ SỐ CHỖ (STOCK) */}
           <div className="border border-gray-100 rounded-xl p-4">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-purple-600" /> Giới hạn số lượng chỗ nhận khách (Stock)
@@ -124,9 +133,7 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
 
           <div className="space-y-3 border-t border-gray-100 pt-4">
             <h3 className="text-sm font-bold text-gray-800">Nhật ký kiểm toán hệ thống (Audit Logs)</h3>
-            
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Nhật ký Tạo */}
               <div className="grid grid-cols-2 gap-2 bg-purple-50/30 border border-purple-100 rounded-xl p-3 text-sm">
                 <div className="col-span-2 border-b border-purple-100/60 pb-1.5 mb-1.5 flex items-center gap-1.5 font-semibold text-purple-800 text-xs uppercase tracking-wider">
                   <User className="w-3.5 h-3.5" /> Quy trình khởi tạo
@@ -138,7 +145,9 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
                 <div>
                   <p className="text-gray-400 text-[11px]">Mã nhân sự tạo</p>
                   <p className="font-bold text-gray-900 mt-0.5">
-                    {departure.createdBy ? `Nhân viên #${departure.createdBy}` : "Hệ thống / Seed"}
+                    {departure.createdBy 
+                      ? (getAccountName(departure.createdBy) || `Nhân viên #${departure.createdBy}`) 
+                      : "Hệ thống / Seed"}
                   </p>
                 </div>
               </div>
@@ -153,7 +162,9 @@ export function DepartureDetailModal({ isOpen, onClose, departure }) {
                 <div>
                   <p className="text-gray-400 text-[11px]">Mã nhân sự sửa</p>
                   <p className="font-bold text-gray-900 mt-0.5">
-                    {departure.updatedBy ? `Nhân viên #${departure.updatedBy}` : "Chưa chỉnh sửa"}
+                    {departure.updatedBy 
+                      ? (getAccountName(departure.updatedBy) || `Nhân viên #${departure.updatedBy}`) 
+                      : "Chưa chỉnh sửa"}
                   </p>
                 </div>
               </div>

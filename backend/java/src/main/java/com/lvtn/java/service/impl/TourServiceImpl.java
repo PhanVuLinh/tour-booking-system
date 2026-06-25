@@ -58,7 +58,6 @@ public class TourServiceImpl implements TourService {
                 .description(request.getDescription())
                 .time(request.getTime())
                 .thumbnail(imageUrl)
-                .price(request.getPrice())
                 .status(request.getStatus() != null ? request.getStatus() : "active")
                 .build();
 
@@ -97,8 +96,6 @@ public class TourServiceImpl implements TourService {
         existingTour.setTime(request.getTime());
         existingTour.setStatus(request.getStatus());
         existingTour.setUpdatedBy(request.getCreatedBy());
-        existingTour.setPrice(request.getPrice());
-
         Tour updatedTour = tourRepository.save(existingTour);
         return mapToResponse(updatedTour);
     }

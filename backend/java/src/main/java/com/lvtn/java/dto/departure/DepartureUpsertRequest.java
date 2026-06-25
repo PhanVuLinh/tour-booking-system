@@ -22,4 +22,12 @@ public class DepartureUpsertRequest {
     private int stockBaby;
     private Integer discount;
     private String status = "active";
+    private String departureFrom;
+    private LocalDateTime deletedAt;
+    private Integer createdBy;
+    private Integer updatedBy;
+    private Integer deletedBy;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
 }

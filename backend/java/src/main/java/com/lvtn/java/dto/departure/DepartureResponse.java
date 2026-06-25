@@ -19,7 +19,7 @@ public class DepartureResponse {
     private Integer vehicleId;
     private String vehicleName;
     private VehicleType vehicleType;
-
+    private String departureFrom;
     private LocalDateTime startTime;
     private BigDecimal priceAdult;
     private BigDecimal priceChildren;

@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -53,7 +54,7 @@ public class DepartureServiceImpl implements DepartureService {
     }
 
     public List<DepartureResponse> findAll() {
-        return departureRepository.findAll().stream()
+        return departureRepository.findAllActive().stream()
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -70,6 +71,7 @@ public class DepartureServiceImpl implements DepartureService {
         Tour tour = tourRepository.findById(request.getTourId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + request.getTourId()));
         departure.setTourId(tour);
+
         if (request.getVehicleId() != null) {
             Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy Phương tiện với ID: " + request.getVehicleId()));
@@ -84,6 +86,11 @@ public class DepartureServiceImpl implements DepartureService {
         Departure existing = departureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Lịch khởi hành với ID: " + id));
         mapper.map(request, existing);
+        if (request.getUpdatedBy() != null) {
+            existing.setUpdatedBy(request.getUpdatedBy());
+        }
+        existing.setUpdatedAt(LocalDateTime.now());
+
         if (request.getTourId() != null) {
             Tour tour = tourRepository.findById(request.getTourId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + request.getTourId()));
@@ -97,16 +104,39 @@ public class DepartureServiceImpl implements DepartureService {
         } else {
             existing.setVehicle(null);
         }
-
         Departure updated = departureRepository.save(existing);
         return mapToResponse(updated);
     }
 
-    public void delete(Integer id) {
+    public void delete(Integer id, Integer userId) {
         Departure existing = departureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Lịch khởi hành với ID: " + id));
         existing.setDeleted(true);
-        existing.setDeletedAt(java.time.LocalDateTime.now());
+        existing.setDeletedAt(LocalDateTime.now());
+        if (userId != null) {
+            existing.setDeletedBy(userId);
+        }
         departureRepository.save(existing);
+    }
+    public List<DepartureResponse> findAllTrash() {
+        return departureRepository.findAllTrash().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    public void restore(Integer id) {
+        Departure existing = departureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Lịch khởi hành với ID: " + id));
+
+        existing.setDeleted(false);
+        existing.setDeletedAt(null);
+        existing.setDeletedBy(null);
+
+        departureRepository.save(existing);
+    }
+    public void hardDelete(Integer id) {
+        Departure existing = departureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Lịch khởi hành với ID: " + id));
+
+        departureRepository.delete(existing);
     }
 }

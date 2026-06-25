@@ -19,7 +19,6 @@ public class TourResponse {
     private String slug;
     private List<ScheduleResponse> schedules;
     private String description;
-    private Double price;
     private String time;
     private String thumbnail;
     private String status;

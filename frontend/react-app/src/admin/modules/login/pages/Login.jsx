@@ -10,7 +10,6 @@ const LoginPage = () => {
         try {
             const data = await loginService(email, password);
             localStorage.setItem('accessToken', data.accessToken);
-            alert("Chào mừng bạn quay lại!");
             window.location.href = '/admin';
         } catch (err) {
             alert(err.response?.data?.message || "Lỗi đăng nhập");

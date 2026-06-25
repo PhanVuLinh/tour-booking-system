@@ -31,11 +31,7 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
   }, []);
 
   const handleSelectTour = (tour) => {
-    setFormData({
-      ...formData,
-      tourId: tour.id,
-      priceAdult: tour.price || 0 
-    });
+    setFormData({ ...formData, tourId: tour.id });
     setSearchTerm(getTourTitle(tour));
     setIsDropdownOpen(false);
   };
@@ -51,6 +47,10 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
       alert("Vui lòng chọn một Tour từ danh sách!");
       return;
     }
+    if (!formData.departureFrom) {
+      alert("Vui lòng nhập điểm khởi hành!");
+      return;
+    }
 
     const pAdult = parseFloat(formData.priceAdult || 0);
     const pChild = parseFloat(formData.priceChildren || 0);
@@ -63,12 +63,10 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
       alert("⚠️ Lỗi nhập liệu: Giá vé không được là số âm!");
       return;
     }
-    
     if (sAdult < 0 || sChild < 0 || sBaby < 0) {
       alert("⚠️ Lỗi nhập liệu: Số lượng chỗ không được là số âm!");
       return;
     }
-
     if (pAdult <= pChild) {
       alert("⚠️ Lỗi nhập liệu: Giá vé NGƯỜI LỚN phải LỚN HƠN giá vé TRẺ EM!");
       return;
@@ -97,7 +95,7 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
           </button>
         </div>
         
-        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
           <div className="space-y-2 relative" ref={dropdownRef}>
             <label className="text-sm font-medium text-gray-700">Tên Tour <span className="text-red-500">*</span></label>
             <div className="relative">
@@ -130,12 +128,6 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
                       <div className="font-bold text-gray-800">
                         {getTourTitle(tour) || "Tour chưa cập nhật tên (DB bị rỗng)"}
                       </div>
-                      <div className="text-xs text-gray-500 flex justify-between mt-1">
-                        <span>Mã Tour: #{tour.id}</span>
-                        <span className="text-blue-600 font-semibold">
-                          Giá mặc định: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tour.price || 0)}
-                        </span>
-                      </div>
                     </li>
                   ))
                 ) : (
@@ -144,9 +136,21 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
               </ul>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+
+          {/* KHỐI LAYOUT 3 CỘT ĐỂ CHỨA ĐIỂM KHỞI HÀNH, THỜI GIAN, PHƯƠNG TIỆN */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Thời gian khởi hành <span className="text-red-500">*</span></label>
+              <label className="text-sm font-medium text-gray-700">Điểm khởi hành <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                value={formData.departureFrom || ""}
+                onChange={(e) => setFormData({ ...formData, departureFrom: e.target.value })}
+                placeholder="VD: TP. Hồ Chí Minh"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Khởi hành <span className="text-red-500">*</span></label>
               <input
                 type="datetime-local"
                 value={formData.startTime || ""}
@@ -161,18 +165,18 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
                 onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value ? parseInt(e.target.value) : null })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
               >
-                <option value="">-- Tự túc / Không chọn --</option>
+                <option value="">-- Tự túc --</option>
                 {vehicles.map(v => (
                   <option key={v.id} value={v.id}>{v.name} ({v.vehicleType})</option>
                 ))}
               </select>
             </div>
           </div>
+
           <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
             <div className="space-y-2">
               <label className="text-sm font-bold text-gray-700">Người lớn</label>
-              {/* BẢO VỆ LỚP 1: Thêm min="0" vào tất cả input number */}
-              <input type="number" min="0" placeholder="Giá vé (VNĐ)" value={formData.priceAdult} onChange={(e) => setFormData({ ...formData, priceAdult: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white font-semibold text-green-600" />
+              <input type="number" min="0" placeholder="Giá vé (VNĐ)" value={formData.priceAdult} onChange={(e) => setFormData({ ...formData, priceAdult: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" />
               <input type="number" min="0" step="1" placeholder="Số chỗ" value={formData.stockAdult} onChange={(e) => setFormData({ ...formData, stockAdult: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-2" />
             </div>
             <div className="space-y-2">
@@ -186,6 +190,7 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
               <input type="number" min="0" step="1" placeholder="Số chỗ" value={formData.stockBaby} onChange={(e) => setFormData({ ...formData, stockBaby: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-2" />
             </div>
           </div>
+          
           <div className="w-1/2 pr-2">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Trạng thái</label>
@@ -200,6 +205,7 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
             </div>
           </div>
         </div>
+        
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
           <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
             Hủy

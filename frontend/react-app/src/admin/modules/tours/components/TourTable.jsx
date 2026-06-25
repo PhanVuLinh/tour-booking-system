@@ -1,5 +1,14 @@
 import { Edit, Trash2, RotateCcw, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
+function ShortenText({ text, maxLength = 50 }) {
+  if (!text) return "";
+  
+  return (
+    <span>
+      {text.length > maxLength ? text.substring(0, maxLength) + "..." : text}
+    </span>
+  );
+}
 
 export function TourTable({ tours, onView, onDelete }) {
   return (
@@ -11,7 +20,6 @@ export function TourTable({ tours, onView, onDelete }) {
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-16">Ảnh</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Tên Tour</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Danh mục</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Giá</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-28 text-right">Thao tác</th>
           </tr>
         </thead>
@@ -22,11 +30,8 @@ export function TourTable({ tours, onView, onDelete }) {
               <td className="py-3 px-4">
                 <img src={tour.thumbnail || tour.image} alt="tour" className="w-10 h-10 rounded-md object-cover border" />
               </td>
-              <td className="py-3 px-4 font-medium text-gray-900">{tour.title || tour.name}</td>
+              <td className="py-3 px-4 font-medium text-gray-900 truncate">{tour.name.length>100? tour.name.substring(0,50)+"...":tour.name}</td>
               <td className="py-3 px-4 text-sm text-gray-600">{tour.category}</td>
-              <td className="py-3 px-4 text-sm font-medium text-blue-600">
-                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.price)}
-              </td>
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
                   <button onClick={() => onView(tour)} className="p-2 text-gray-600 hover:bg-gray-200 rounded-md transition-colors" title="Xem chi tiết">

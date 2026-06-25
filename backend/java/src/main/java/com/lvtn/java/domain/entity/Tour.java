@@ -36,9 +36,6 @@ public class Tour extends AuditableEntity {
     @JsonIgnore
     private List<Departure> departures;
 
-    @Column(name = "price")
-    private Double price;
-
     @Column(length = 100, nullable = false)
     private String time;
 

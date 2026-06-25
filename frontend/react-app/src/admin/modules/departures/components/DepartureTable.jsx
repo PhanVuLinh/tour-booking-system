@@ -1,5 +1,5 @@
 import { useState, useMemo, Fragment } from "react";
-import { Edit, Trash2, ChevronDown, ChevronRight, CalendarDays, Eye, Bus, Plane, Train, Ship } from "lucide-react";
+import { Edit, Trash2, ChevronDown, ChevronRight, CalendarDays, Eye, Bus, Plane, Train, Ship, RotateCcw } from "lucide-react";
 
 export function DepartureTable({ departures, onView, onEdit, onDelete }) {
   
@@ -38,10 +38,12 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
 
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full text-left border-collapse min-w-[1000px]">
+      <table className="w-full text-left border-collapse min-w-[1050px]">
         <thead>
           <tr className="border-b bg-gray-50/50">
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Tên Tour / Thông tin</th>
+            {/* THÊM CỘT ĐIỂM ĐI TẠI ĐÂY */}
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Điểm đi</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Khởi hành & Xe</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Giá NL</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ NL</th>
@@ -60,7 +62,7 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
                   onClick={() => toggleGroup(tourTitle)}
                   className="bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group"
                 >
-                  <td colSpan={7} className="py-3 px-4">
+                  <td colSpan={8} className="py-3 px-4">
                     <div className="flex items-center gap-2">
                       <span className="text-gray-400 group-hover:text-blue-600 transition-colors">
                         {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -84,6 +86,13 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
                         </div>
                       </td>
                       
+                      {/* HIỂN THỊ DỮ LIỆU ĐIỂM ĐI TẠI ĐÂY */}
+                      <td className="py-3 px-4">
+                        <div className="text-sm font-medium text-gray-700 truncate max-w-[120px]" title={departure.departureFrom}>
+                          {departure.departureFrom || "—"}
+                        </div>
+                      </td>
+
                       <td className="py-3 px-4">
                         <div className="text-sm font-medium text-gray-900">{dateDisplay}</div>
                         {renderVehicle(departure.vehicleType, departure.vehicleName)}
@@ -124,8 +133,75 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
           
           {departures.length === 0 && (
             <tr>
-              <td colSpan={7} className="py-10 text-center text-gray-400 text-sm">
+              <td colSpan={8} className="py-10 text-center text-gray-400 text-sm">
                 Không có dữ liệu lịch khởi hành
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function DepartureTrashTable({ departures, onRestore, onPermanentDelete, getAccountName }) {
+  
+  const formatDate = (dateString) => {
+    return dateString ? new Date(dateString).toLocaleString('vi-VN') : "—";
+  };
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <table className="w-full text-left border-collapse min-w-[1000px]">
+        <thead>
+          <tr className="border-b bg-gray-50/50">
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Mã lịch</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Tên Tour</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-40">Khởi hành</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Người xóa</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-40">Thời gian xóa</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-28 text-right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {departures.map((departure) => (
+            <tr key={departure.id} className="hover:bg-red-50/30 transition-colors opacity-80">
+              <td className="py-3 px-4 text-sm text-gray-500 font-medium">#{departure.id}</td>
+              <td className="py-3 px-4 font-bold text-gray-700">{departure.tourTitle || "—"}</td>
+              <td className="py-3 px-4 text-sm text-gray-600">{formatDate(departure.startTime)}</td>
+              <td className="py-3 px-4 text-sm text-red-600 font-medium">
+                {departure.deletedBy 
+                  ? (getAccountName?.(departure.deletedBy) || `Nhân viên #${departure.deletedBy}`) 
+                  : "Hệ thống"}
+              </td>
+              <td className="py-3 px-4 text-sm text-gray-600">
+                {formatDate(departure.deletedAt)}
+              </td>
+              <td className="py-3 px-4 text-right">
+                <div className="flex justify-end gap-1">
+                  <button 
+                    onClick={() => onRestore(departure.id)} 
+                    className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" 
+                    title="Khôi phục"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => onPermanentDelete(departure.id)} 
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
+                    title="Xóa vĩnh viễn"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          
+          {departures.length === 0 && (
+            <tr>
+              <td colSpan={6} className="py-10 text-center text-gray-400 text-sm">
+                Thùng rác trống
               </td>
             </tr>
           )}

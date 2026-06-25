@@ -46,4 +46,7 @@ public class Departure extends AuditableEntity {
     @Column(name = "discountPercentage")
     private Integer discount;
 
+    @Column(name = "departureFrom")
+    private String departureFrom;
+
 }

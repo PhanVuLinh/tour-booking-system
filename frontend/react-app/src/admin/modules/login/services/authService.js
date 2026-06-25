@@ -25,6 +25,7 @@ export const loginService = async (email, password) => {
 export const getMeService = async () => {
     try {
         const response = await apiClient.get('/admin/auth/me');
+        localStorage.setItem("userId", response.data.id);
         return response.data;
     } catch (error) {
         throw error.response?.data || { message: "Lỗi lấy thông tin user" };
