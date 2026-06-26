@@ -13,6 +13,18 @@ apiClient.interceptors.request.use((config) => {
     return config;
 });
 
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            localStorage.clear();
+                        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                        window.location.href = "admin/login";
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const loginService = async (email, password) => {
     try {
         const response = await apiClient.post('/admin/auth/login', { email, password });

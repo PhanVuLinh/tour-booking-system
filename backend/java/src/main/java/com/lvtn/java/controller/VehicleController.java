@@ -28,7 +28,7 @@ public class VehicleController {
     @PostMapping
     public ResponseEntity<VehicleResponse> create(
             @RequestBody VehicleUpsertRequest request,
-            @RequestHeader(value = "X-User-Id", defaultValue = "1") Integer creatorId) {
+            @RequestHeader("X-User-Id") Integer creatorId) {
         return ResponseEntity.ok(vehicleService.create(request, creatorId));
     }
 
@@ -36,17 +36,18 @@ public class VehicleController {
     public ResponseEntity<VehicleResponse> update(
             @PathVariable Integer id,
             @RequestBody VehicleUpsertRequest request,
-            @RequestHeader(value = "X-User-Id", defaultValue = "1") Integer updaterId) {
+            @RequestHeader("X-User-Id") Integer updaterId) {
         return ResponseEntity.ok(vehicleService.update(id, request, updaterId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Integer id,
-            @RequestHeader(value = "X-User-Id", defaultValue = "1") Integer deleterId) {
+            @RequestHeader("X-User-Id") Integer deleterId) {
         vehicleService.delete(id, deleterId);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/trash")
     public ResponseEntity<List<VehicleResponse>> getTrash() {
         return ResponseEntity.ok(vehicleService.findDeleted());
@@ -55,7 +56,7 @@ public class VehicleController {
     @PutMapping("/{id}/restore")
     public ResponseEntity<VehicleResponse> restore(
             @PathVariable Integer id,
-            @RequestHeader(value = "X-User-Id", defaultValue = "1") Integer updaterId) {
+            @RequestHeader("X-User-Id") Integer updaterId) {
         return ResponseEntity.ok(vehicleService.restore(id, updaterId));
     }
 
