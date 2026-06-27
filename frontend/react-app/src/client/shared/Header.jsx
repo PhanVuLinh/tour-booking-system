@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
+import { getHeaderCategories } from "./services/sharedService";
 
 function Header() {
   const [categories, setCategories] = useState([]);
@@ -26,8 +27,7 @@ function Header() {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/categories`)
-      .then((res) => res.json())
+    getHeaderCategories()
       .then((result) => {
         if (result.success) {
           setCategories(result.data);
@@ -65,8 +65,8 @@ function Header() {
             <img className="logo__img" src={logoTravelGo} alt="TRAVELGO" />
           </Link>
 
-          <div 
-            className={`mobile-overlay ${isMobileMenuOpen ? "active" : ""}`} 
+          <div
+            className={`mobile-overlay ${isMobileMenuOpen ? "active" : ""}`}
             onClick={toggleMobileMenu}
           ></div>
 
@@ -84,8 +84,8 @@ function Header() {
 
               {categories.map((parent) => (
                 <li key={parent.id}>
-                  <Link 
-                    to={`/category/${parent.slug}`} 
+                  <Link
+                    to={`/category/${parent.slug}`}
                     onClick={(e) => {
                       if (window.innerWidth <= 992 && parent.children && parent.children.length > 0) {
                         toggleDropdown(e, parent.id);

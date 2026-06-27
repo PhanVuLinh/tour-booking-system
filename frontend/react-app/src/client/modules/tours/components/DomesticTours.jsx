@@ -1,13 +1,13 @@
 import TourCard from "./TourCard";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getDomesticTours } from "../../home/services/homeService";
 
 function DomesticTours() {
   const [tourDomesticTours, setTourDomesticTours] = useState([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/home/domestic-tours`)
-      .then((res) => res.json())
+    getDomesticTours()
       .then((result) => {
         if (result.success) {
           setTourDomesticTours(result.data);

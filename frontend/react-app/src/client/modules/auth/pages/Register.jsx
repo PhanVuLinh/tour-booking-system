@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { register } from "../services/authService";
 
 function Register() {
   const [name, setName] = useState("");
@@ -13,16 +14,7 @@ function Register() {
     console.log("Đang gửi dữ liệu:", { name, email, password });
 
     try {
-      // Thay URL này bằng endpoint Backend của bạn
-      const response = await fetch("http://localhost:3000/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await response.json();
+      const data = await register({ name, email, password });
 
       console.log("Kết quả từ Backend trả về:", data);
       alert("Đã gọi API! Bấm F12 mở tab Console để xem kết quả.");

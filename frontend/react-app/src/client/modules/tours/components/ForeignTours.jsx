@@ -1,13 +1,13 @@
 import TourCard from "../../tours/components/TourCard";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getForeignTours } from "../../home/services/homeService";
 
 function ForeignTours() {
   const [tourForeignTours, setTourForeignTours] = useState([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/home/foreign-tours`)
-      .then((res) => res.json())
+    getForeignTours()
       .then((result) => {
         if (result.success) {
           setTourForeignTours(result.data);

@@ -1,17 +1,11 @@
-// import axiosClient from "@/shared/services/axiosClient";
+import { get } from "../../../utils/request";
 
-// export const getTours = () => {
-//   return axiosClient.get("/tours");
-// };
+export const getToursByCategory = async (slug) => {
+    const result = await get(`/categories/${slug}`);
+    return result;
+};
 
-// export const getTourDetail = (id) => {
-//   return axiosClient.get(`/tours/${id}`);
-// };
-
-// export const getDomesticTours = () => {
-//   return axiosClient.get("/tours/domestic");
-// };
-
-// export const getForeignTours = () => {
-//   return axiosClient.get("/tours/foreign");
-// };
+export const getTourDetail = async (slug) => {
+    const result = await get(`/tours/detail/${slug}`);
+    return result;
+};

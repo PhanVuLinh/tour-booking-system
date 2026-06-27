@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Breadcrumb, Pagination } from "../../../shared";
 import { TourFilter, TourCard } from "../components";
 import { buildCategoryBreadcrumb } from "../../../utils/breadcrumb.helper";
+import { getToursByCategory } from "../services/tourService";
 
 function TourList() {
   const { slug } = useParams();
@@ -12,8 +13,7 @@ function TourList() {
   const [activeSort, setActiveSort] = useState(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/categories/${slug}`)
-      .then((res) => res.json())
+    getToursByCategory(slug)
       .then((result) => {
         if (result.success) {
           setCategoryInfo(result.data.category);

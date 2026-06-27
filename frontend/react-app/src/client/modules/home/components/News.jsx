@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import { getBlogs } from "../services/homeService";
 
 function News() {
   const [blogs, setBlogs] = useState([]);
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/home/blogs`)
-      .then((res) => res.json())
+    getBlogs()
       .then((result) => {
         if (result.success) {
           setBlogs(result.data);

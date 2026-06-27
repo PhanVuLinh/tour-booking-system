@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Breadcrumb } from "../../../shared";
 import { buildTourDetailBreadcrumb } from "../../../utils/breadcrumb.helper";
+import { getTourDetail } from "../services/tourService";
 
 import moment from "moment";
 
@@ -18,8 +19,7 @@ function TourDetail() {
   const [infants, setInfants] = useState(0);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/tours/detail/${slug}`)
-      .then((res) => res.json())
+    getTourDetail(slug)
       .then((result) => {
         if (result.success && result.data) {
           setTourData(result.data);

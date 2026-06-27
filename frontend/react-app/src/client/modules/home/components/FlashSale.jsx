@@ -1,13 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import { TourCard } from "../../tours";
+import { getFlashSales } from "../services/homeService";
 
 function FlashSale() {
   const trackRef = useRef(null);
   const [tourFlashSales, setTourFlashSales] = useState([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/home/flash-sales`)
-      .then((res) => res.json())
+    getFlashSales()
       .then((result) => {
         if (result.success) {
           setTourFlashSales(result.data);
