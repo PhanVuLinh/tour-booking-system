@@ -1,8 +1,41 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
+import { postCreateContact } from "./services/sharedService";
 
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 
 function Footer() {
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+
+    if (!email.trim()) {
+      toast.error("Vui lòng nhập email!");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Vui lòng nhập đúng định dạng email!");
+      return;
+    }
+
+    try {
+      const response = await postCreateContact(email);
+      if (response && response.success) {
+        toast.success("Đăng ký nhận bản tin thành công!");
+        setEmail("");
+      } else {
+        toast.error(response?.message || "Có lỗi xảy ra khi đăng ký!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi đăng ký nhận tin:", error);
+      toast.error("Lỗi kết nối máy chủ, vui lòng thử lại sau!");
+    }
+  };
+
   return (
     <footer className="footer">
       <div className="container">
@@ -12,8 +45,13 @@ function Footer() {
             Đăng Ký Ngay Để Không Bỏ Lỡ Các <br className="hide-on-mobile" />
             Chương Trình Của Chúng Tôi
           </h3>
-          <form className="newsletter-form">
-            <input type="email" placeholder="Nhập email của bạn..." required />
+          <form className="newsletter-form" onSubmit={handleSubscribe}>
+            <input
+              type="text"
+              placeholder="Nhập email của bạn..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
             <button type="submit">Đăng Ký Ngay</button>
           </form>
         </div>
