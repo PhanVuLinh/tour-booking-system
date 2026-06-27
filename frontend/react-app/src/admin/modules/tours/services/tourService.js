@@ -14,6 +14,7 @@ function mapTour(tour) {
     id:          tour.id,
     name:        tour.title,
     image:       tour.thumbnail,
+    images:      tour.images || [], 
     duration:    tour.time,
     categoryId:  tour.categoryId,
     category:    "", 
@@ -101,14 +102,32 @@ export const tourService = {
     }
   },
 
-  update: async (id, data) => {
-    try {
-      const res = await apiClient.put(`/tour/${id}`, data, getAuthHeaders());
-      return res.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Cập nhật tour thất bại");
+  update: async (id, payload, imageFile, galleryImages = []) => {
+  try {
+    const body = new FormData();
+    const { existingImages = [], ...restPayload } = payload;
+    body.append("data", new Blob([JSON.stringify(restPayload)], { type: "application/json" }));
+
+    if (imageFile) body.append("file", imageFile);
+
+    if (galleryImages && galleryImages.length > 0) {
+      galleryImages.forEach(img => body.append("images", img));
     }
-  },
+
+    if (existingImages.length > 0) {
+      existingImages.forEach(url => body.append("existingImageUrls", url));
+    }
+    const res = await apiClient.put(`/tour/${id}`, body, {
+      headers: {
+        ...getAuthHeaders().headers,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Cập nhật tour thất bại");
+  }
+},
 
   delete: async (id) => {
     try {

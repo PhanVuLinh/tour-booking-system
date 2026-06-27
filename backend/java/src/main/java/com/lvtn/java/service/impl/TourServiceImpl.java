@@ -1,9 +1,11 @@
 package com.lvtn.java.service.impl;
 
 import com.lvtn.java.domain.entity.Tour;
+import com.lvtn.java.domain.entity.TourImage;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
 import com.lvtn.java.repository.DepartureRepository;
+import com.lvtn.java.repository.TourImageRepository;
 import com.lvtn.java.repository.TourRepository;
 import com.lvtn.java.service.ScheduleService;
 import com.lvtn.java.service.TourService;
@@ -25,6 +27,7 @@ public class TourServiceImpl implements TourService {
     private final TourRepository tourRepository;
     private final DepartureRepository departureRepository;
     private final ScheduleService scheduleService;
+    private final TourImageRepository tourImageRepository;
     private final ModelMapper mapper;
 
     private String generateSlug(String title) {
@@ -42,12 +45,21 @@ public class TourServiceImpl implements TourService {
     }
 
     private TourResponse mapToResponse(Tour tour) {
-        return mapper.map(tour, TourResponse.class);
+        TourResponse response = mapper.map(tour, TourResponse.class);
+        response.setSchedules(scheduleService.getSchedulesByTourId(tour.getId()));
+
+        List<String> galleryUrls = tourImageRepository.findByTourIdAndDeletedFalse(tour.getId())
+                .stream()
+                .map(TourImage::getImageUrl)
+                .collect(Collectors.toList());
+        response.setImages(galleryUrls);
+
+        return response;
     }
 
     @Override
     @Transactional
-    public TourResponse createTour(TourCreateRequest request, String imageUrl, Integer creatorId) {
+    public TourResponse createTour(TourCreateRequest request, String imageUrl, List<String> galleryUrls, Integer creatorId) {
         String baseSlug = generateSlug(request.getTitle());
         String slug = baseSlug;
 
@@ -57,7 +69,10 @@ public class TourServiceImpl implements TourService {
 
         Tour tour = mapper.map(request, Tour.class);
         tour.setSlug(slug);
-        tour.setThumbnail(imageUrl);
+
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            tour.setThumbnail(imageUrl);
+        }
 
         if (tour.getStatus() == null) {
             tour.setStatus("active");
@@ -66,7 +81,22 @@ public class TourServiceImpl implements TourService {
         tour.setCreatedBy(creatorId);
         tour.setUpdatedBy(creatorId);
 
-        return mapToResponse(tourRepository.save(tour));
+        Tour savedTour = tourRepository.save(tour);
+
+        if (galleryUrls != null && !galleryUrls.isEmpty()) {
+            List<TourImage> tourImages = galleryUrls.stream().map(url -> {
+                TourImage img = TourImage.builder()
+                        .tourId(savedTour.getId())
+                        .imageUrl(url)
+                        .build();
+                img.setCreatedBy(creatorId);
+                img.setUpdatedBy(creatorId);
+                return img;
+            }).collect(Collectors.toList());
+            tourImageRepository.saveAll(tourImages);
+        }
+
+        return mapToResponse(savedTour);
     }
 
     @Override
@@ -74,10 +104,7 @@ public class TourServiceImpl implements TourService {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
 
-        TourResponse response = mapToResponse(tour);
-        response.setSchedules(scheduleService.getSchedulesByTourId(id));
-
-        return response;
+        return mapToResponse(tour);
     }
 
     @Override
@@ -89,19 +116,53 @@ public class TourServiceImpl implements TourService {
 
     @Override
     @Transactional
-    public TourResponse updateTour(Integer id, TourCreateRequest request, Integer updaterId) {
+    public TourResponse updateTour(
+            Integer id,
+            TourCreateRequest request,
+            String imageUrl,
+            List<String> galleryUrls,
+            List<String> existingImageUrls,
+            Integer updaterId) {
+
         Tour existingTour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
 
         mapper.map(request, existingTour);
 
-        if (request.getThumbnail() != null && !request.getThumbnail().isBlank()) {
-            existingTour.setThumbnail(request.getThumbnail());
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            existingTour.setThumbnail(imageUrl);
         }
 
         existingTour.setUpdatedBy(updaterId);
-
         Tour updatedTour = tourRepository.save(existingTour);
+        List<TourImage> currentImages = tourImageRepository
+                .findByTourIdAndDeletedFalse(updatedTour.getId());
+        List<String> keepUrls = (existingImageUrls != null) ? existingImageUrls : List.of();
+        List<TourImage> toDelete = currentImages.stream()
+                .filter(img -> !keepUrls.contains(img.getImageUrl()))
+                .collect(Collectors.toList());
+
+        toDelete.forEach(img -> {
+            img.setDeleted(true);
+            img.setDeletedBy(updaterId);
+            img.setDeletedAt(java.time.LocalDateTime.now());
+        });
+        if (!toDelete.isEmpty()) {
+            tourImageRepository.saveAll(toDelete);
+        }
+        if (galleryUrls != null && !galleryUrls.isEmpty()) {
+            List<TourImage> newImages = galleryUrls.stream().map(url -> {
+                TourImage img = TourImage.builder()
+                        .tourId(updatedTour.getId())
+                        .imageUrl(url)
+                        .build();
+                img.setCreatedBy(updaterId);
+                img.setUpdatedBy(updaterId);
+                return img;
+            }).collect(Collectors.toList());
+            tourImageRepository.saveAll(newImages);
+        }
+
         return mapToResponse(updatedTour);
     }
 

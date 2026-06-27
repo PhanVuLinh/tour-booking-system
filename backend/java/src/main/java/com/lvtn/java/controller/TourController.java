@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,16 +26,24 @@ public class TourController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TourResponse> createTour(
             @RequestPart("data") String dataJson,
-            @RequestPart("file") MultipartFile file,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @RequestHeader("X-User-Id") Integer creatorId) throws Exception {
 
         ObjectMapper objectMapper = new ObjectMapper();
         TourCreateRequest request = objectMapper.readValue(dataJson, TourCreateRequest.class);
 
-        String imageUrl = imageUploadService.uploadImage(file);
+        String imageUrl = (file != null) ? imageUploadService.uploadImage(file) : null;
+
+        List<String> galleryUrls = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile img : images) {
+                galleryUrls.add(imageUploadService.uploadImage(img));
+            }
+        }
 
         return new ResponseEntity<>(
-                tourService.createTour(request, imageUrl, creatorId),
+                tourService.createTour(request, imageUrl, galleryUrls, creatorId),
                 HttpStatus.CREATED
         );
     }
@@ -44,12 +53,28 @@ public class TourController {
         return ResponseEntity.ok(tourService.getTourById(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TourResponse> updateTour(
             @PathVariable Integer id,
-            @RequestBody TourCreateRequest request,
-            @RequestHeader("X-User-Id") Integer updaterId) {
-        return ResponseEntity.ok(tourService.updateTour(id, request, updaterId));
+            @RequestPart("data") String dataJson,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestParam(value = "existingImageUrls", required = false) List<String> existingImageUrls,
+            @RequestHeader("X-User-Id") Integer updaterId) throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        TourCreateRequest request = objectMapper.readValue(dataJson, TourCreateRequest.class);
+
+        String imageUrl = (file != null) ? imageUploadService.uploadImage(file) : null;
+
+        List<String> galleryUrls = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile img : images) {
+                galleryUrls.add(imageUploadService.uploadImage(img));
+            }
+        }
+
+        return ResponseEntity.ok(tourService.updateTour(id, request, imageUrl, galleryUrls,existingImageUrls, updaterId));
     }
 
     @DeleteMapping("/{id}")

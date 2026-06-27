@@ -22,6 +22,7 @@ public class TourResponse {
     private String time;
     private String thumbnail;
     private String status;
+    private List<String> images;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer createdBy;
