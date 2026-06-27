@@ -4,10 +4,12 @@ import { Plus, Search } from "lucide-react";
 import { TourTable, TourTrashTable } from "../components/TourTable";
 import { TourDetailModal } from "../components/TourDetailModal"; 
 import { tourService } from "../services/tourService";
+import { accountService } from "../../users/services/accountService";
 
 export function TourList() {
   const [tours, setTours] = useState([]);
   const [deletedTours, setDeletedTours] = useState([]);
+  const [accountList, setAccountList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,15 +24,19 @@ export function TourList() {
         setLoading(true);
         setError(null);
 
-        const [toursData, categoriesData, trashData] = await Promise.all([
+        const [toursData, categoriesData, trashData, accountsData] = await Promise.all([
           tourService.getAll().catch(() => []),       
           tourService.getCategories().catch(() => []),
-          tourService.getAllTrash().catch(() => [])
+          tourService.getAllTrash().catch(() => []),
+          accountService.getAllActive().catch(() => [])
         ]);
 
         const safeTours = Array.isArray(toursData) ? toursData : [];
         const safeCategories = Array.isArray(categoriesData) ? categoriesData : [];
         const safeTrash = Array.isArray(trashData) ? trashData : []; 
+        const safeAccounts = Array.isArray(accountsData) ? accountsData : [];
+
+        setAccountList(safeAccounts);
 
         const mapCategoryInfo = (tour) => {
           const foundCategory = safeCategories.find(
@@ -55,6 +61,12 @@ export function TourList() {
     loadData();
   }, []);
 
+  const getAccountName = (id) => {
+    if (!id) return null;
+    const account = accountList.find(acc => String(acc.id) === String(id));
+    return account ? account.fullName : null;
+  };
+
   const filteredTours = tours.filter((tour) =>
     (tour.title || tour.name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -76,7 +88,7 @@ export function TourList() {
       if (tour) {
         setDeletedTours([
           ...deletedTours,
-          { ...tour, deletedBy: "Admin User", deletedAt: new Date().toISOString() },
+          { ...tour, deletedBy: localStorage.getItem("userId"), deletedAt: new Date().toISOString() },
         ]);
         setTours(tours.filter((t) => t.id !== id));
       }
@@ -181,12 +193,13 @@ export function TourList() {
           </div>
 
           {activeTab === "active" ? (
-            <TourTable tours={filteredTours} onView={handleViewDetail} onDelete={handleDelete} />
+            <TourTable tours={filteredTours} onView={handleViewDetail} onDelete={handleDelete} getAccountName={getAccountName} />
           ) : (
             <TourTrashTable
               tours={filteredDeletedTours}
               onRestore={handleRestore}
               onPermanentDelete={handlePermanentDelete}
+              getAccountName={getAccountName}
             />
           )}
         </div>
@@ -196,6 +209,7 @@ export function TourList() {
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
         selectedTour={selectedTour}
+        getAccountName={getAccountName}
       />
     </div>
   );

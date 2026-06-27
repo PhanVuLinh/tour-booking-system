@@ -25,7 +25,8 @@ public class TourController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TourResponse> createTour(
             @RequestPart("data") String dataJson,
-            @RequestPart("file") MultipartFile file) throws Exception {
+            @RequestPart("file") MultipartFile file,
+            @RequestHeader("X-User-Id") Integer creatorId) throws Exception {
 
         ObjectMapper objectMapper = new ObjectMapper();
         TourCreateRequest request = objectMapper.readValue(dataJson, TourCreateRequest.class);
@@ -33,7 +34,7 @@ public class TourController {
         String imageUrl = imageUploadService.uploadImage(file);
 
         return new ResponseEntity<>(
-                tourService.createTour(request, imageUrl),
+                tourService.createTour(request, imageUrl, creatorId),
                 HttpStatus.CREATED
         );
     }
@@ -46,15 +47,17 @@ public class TourController {
     @PutMapping("/{id}")
     public ResponseEntity<TourResponse> updateTour(
             @PathVariable Integer id,
-            @RequestBody TourCreateRequest request) {
-        return ResponseEntity.ok(tourService.updateTour(id, request));
+            @RequestBody TourCreateRequest request,
+            @RequestHeader("X-User-Id") Integer updaterId) {
+        return ResponseEntity.ok(tourService.updateTour(id, request, updaterId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTour(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteTour(
+            @PathVariable Integer id,
+            @RequestHeader("X-User-Id") Integer deleterId) {
         try {
-            tourService.deleteTour(id);
-
+            tourService.deleteTour(id, deleterId);
             return ResponseEntity.ok("Đã chuyển Tour vào thùng rác thành công!");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -62,6 +65,7 @@ public class TourController {
             return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
         }
     }
+
     @GetMapping
     public ResponseEntity<?> getAllActiveTours() {
         try {
@@ -79,15 +83,19 @@ public class TourController {
             return ResponseEntity.internalServerError().body("Lỗi tải thùng rác: " + e.getMessage());
         }
     }
+
     @PutMapping("/{id}/restore")
-    public ResponseEntity<?> restoreTour(@PathVariable Integer id) {
+    public ResponseEntity<?> restoreTour(
+            @PathVariable Integer id,
+            @RequestHeader("X-User-Id") Integer restorerId) {
         try {
-            tourService.restore(id);
+            tourService.restore(id, restorerId);
             return ResponseEntity.ok("Khôi phục tour thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi khôi phục: " + e.getMessage());
         }
     }
+
     @DeleteMapping("/{id}/force")
     public ResponseEntity<?> hardDeleteTour(@PathVariable Integer id) {
         try {

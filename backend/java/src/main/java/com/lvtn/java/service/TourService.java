@@ -6,13 +6,13 @@ import com.lvtn.java.dto.tour.TourResponse;
 import java.util.List;
 
 public interface TourService {
-    TourResponse createTour(TourCreateRequest request, String imageUrl);
+    TourResponse createTour(TourCreateRequest request, String imageUrl, Integer creatorId);
     TourResponse getTourById(Integer id);
     List<TourResponse> getAllTours();
-    TourResponse updateTour(Integer id, TourCreateRequest request);
-    void deleteTour(Integer id);
+    TourResponse updateTour(Integer id, TourCreateRequest request, Integer updaterId);
+    void deleteTour(Integer id, Integer deleterId);
     List<TourResponse> findAllActive();
     List<TourResponse> findAllTrash();
-    void restore(Integer id);
+    void restore(Integer id, Integer restorerId);
     void hardDelete(Integer id);
 }

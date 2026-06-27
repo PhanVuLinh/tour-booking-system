@@ -1,6 +1,5 @@
 package com.lvtn.java.service.impl;
 
-import com.github.slugify.Slugify;
 import com.lvtn.java.domain.entity.Tour;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
@@ -8,9 +7,8 @@ import com.lvtn.java.repository.DepartureRepository;
 import com.lvtn.java.repository.TourRepository;
 import com.lvtn.java.service.ScheduleService;
 import com.lvtn.java.service.TourService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +25,7 @@ public class TourServiceImpl implements TourService {
     private final TourRepository tourRepository;
     private final DepartureRepository departureRepository;
     private final ScheduleService scheduleService;
+    private final ModelMapper mapper;
 
     private String generateSlug(String title) {
         if (title == null || title.isEmpty()) {
@@ -42,24 +41,30 @@ public class TourServiceImpl implements TourService {
         return slug;
     }
 
+    private TourResponse mapToResponse(Tour tour) {
+        return mapper.map(tour, TourResponse.class);
+    }
+
     @Override
     @Transactional
-    public TourResponse createTour(TourCreateRequest request, String imageUrl) {
+    public TourResponse createTour(TourCreateRequest request, String imageUrl, Integer creatorId) {
         String baseSlug = generateSlug(request.getTitle());
         String slug = baseSlug;
+
         if (tourRepository.existsBySlug(slug)) {
             slug = baseSlug + "-" + System.currentTimeMillis();
         }
 
-        Tour tour = Tour.builder()
-                .categoryId(request.getCategoryId())
-                .title(request.getTitle())
-                .slug(slug)
-                .description(request.getDescription())
-                .time(request.getTime())
-                .thumbnail(imageUrl)
-                .status(request.getStatus() != null ? request.getStatus() : "active")
-                .build();
+        Tour tour = mapper.map(request, Tour.class);
+        tour.setSlug(slug);
+        tour.setThumbnail(imageUrl);
+
+        if (tour.getStatus() == null) {
+            tour.setStatus("active");
+        }
+
+        tour.setCreatedBy(creatorId);
+        tour.setUpdatedBy(creatorId);
 
         return mapToResponse(tourRepository.save(tour));
     }
@@ -84,25 +89,25 @@ public class TourServiceImpl implements TourService {
 
     @Override
     @Transactional
-    public TourResponse updateTour(Integer id, TourCreateRequest request) {
+    public TourResponse updateTour(Integer id, TourCreateRequest request, Integer updaterId) {
         Tour existingTour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
+
+        mapper.map(request, existingTour);
+
         if (request.getThumbnail() != null && !request.getThumbnail().isBlank()) {
             existingTour.setThumbnail(request.getThumbnail());
         }
-        existingTour.setCategoryId(request.getCategoryId());
-        existingTour.setTitle(request.getTitle());
-        existingTour.setDescription(request.getDescription());
-        existingTour.setTime(request.getTime());
-        existingTour.setStatus(request.getStatus());
-        existingTour.setUpdatedBy(request.getCreatedBy());
+
+        existingTour.setUpdatedBy(updaterId);
+
         Tour updatedTour = tourRepository.save(existingTour);
         return mapToResponse(updatedTour);
     }
 
     @Override
     @Transactional
-    public void deleteTour(Integer id) {
+    public void deleteTour(Integer id, Integer deleterId) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
 
@@ -114,14 +119,9 @@ public class TourServiceImpl implements TourService {
 
         tour.setDeleted(true);
         tour.setDeletedAt(LocalDateTime.now());
+        tour.setDeletedBy(deleterId);
 
         tourRepository.save(tour);
-    }
-
-    private TourResponse mapToResponse(Tour tour) {
-        TourResponse response = new TourResponse();
-        BeanUtils.copyProperties(tour, response);
-        return response;
     }
 
     @Override
@@ -140,8 +140,8 @@ public class TourServiceImpl implements TourService {
 
     @Override
     @Transactional
-    public void restore(Integer id) {
-        tourRepository.restoreTourNative(id);
+    public void restore(Integer id, Integer restorerId) {
+        tourRepository.restoreTourNative(id, restorerId);
     }
 
     @Override

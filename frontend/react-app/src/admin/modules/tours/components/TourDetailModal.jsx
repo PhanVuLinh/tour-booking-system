@@ -2,7 +2,7 @@ import { X, Map, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getSchedulesByTourId } from "../services/scheduleService"; 
 
-export function TourDetailModal({ isOpen, onClose, selectedTour }) {
+export function TourDetailModal({ isOpen, onClose, selectedTour, getAccountName }) {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -122,9 +122,9 @@ export function TourDetailModal({ isOpen, onClose, selectedTour }) {
                 <p className="font-medium text-gray-900">{formatDate(selectedTour.createdAt)}</p>
               </div>
               <div>
-                <p className="text-gray-500 mb-1">Người tạo (ID)</p>
+                <p className="text-gray-500 mb-1">Người tạo</p>
                 <p className="font-medium text-gray-900">
-                    {selectedTour.createdBy ? `Account #${selectedTour.createdBy}` : "Hệ thống"}
+                  {selectedTour.createdBy ? (getAccountName ? getAccountName(selectedTour.createdBy) : `Account #${selectedTour.createdBy}`) : "Hệ thống"}
                 </p>
               </div>
               <div className="pt-2 border-t border-gray-200/60">
@@ -132,9 +132,9 @@ export function TourDetailModal({ isOpen, onClose, selectedTour }) {
                 <p className="font-medium text-gray-900">{formatDate(selectedTour.updatedAt)}</p>
               </div>
               <div className="pt-2 border-t border-gray-200/60">
-                <p className="text-gray-500 mb-1">Người cập nhật (ID)</p>
+                <p className="text-gray-500 mb-1">Người cập nhật</p>
                 <p className="font-medium text-gray-900">
-                    {selectedTour.updatedBy ? `Account #${selectedTour.updatedBy}` : "Chưa có lượt cập nhật"}
+                  {selectedTour.updatedBy ? (getAccountName ? getAccountName(selectedTour.updatedBy) : `Account #${selectedTour.updatedBy}`) : "Chưa có lượt cập nhật"}
                 </p>
               </div>
             </div>
