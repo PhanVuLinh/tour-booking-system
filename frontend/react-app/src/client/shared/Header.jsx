@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
@@ -7,6 +7,7 @@ import { getHeaderCategories } from "./services/sharedService";
 function Header() {
   const [categories, setCategories] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const [openDropdowns, setOpenDropdowns] = useState({});
 
@@ -77,7 +78,11 @@ function Header() {
 
             <ul className="nav-links">
               <li>
-                <Link to="/" className="active" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link 
+                  to="/" 
+                  className={location.pathname === "/" ? "active" : ""} 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   Trang Chủ
                 </Link>
               </li>
@@ -86,6 +91,12 @@ function Header() {
                 <li key={parent.id}>
                   <Link
                     to={`/category/${parent.slug}`}
+                    className={
+                      location.pathname === `/category/${parent.slug}` ||
+                      (parent.children && parent.children.some(child => location.pathname === `/category/${child.slug}`))
+                        ? "active" 
+                        : ""
+                    }
                     onClick={(e) => {
                       if (window.innerWidth <= 992 && parent.children && parent.children.length > 0) {
                         toggleDropdown(e, parent.id);
@@ -103,7 +114,12 @@ function Header() {
                   {parent.children && parent.children.length > 0 && (
                     <div className={`dropdown ${openDropdowns[parent.id] ? "active" : ""}`}>
                       {parent.children.map((child) => (
-                        <Link key={child.id} to={`/category/${child.slug}`} onClick={() => setIsMobileMenuOpen(false)}>
+                        <Link 
+                          key={child.id} 
+                          to={`/category/${child.slug}`} 
+                          className={location.pathname === `/category/${child.slug}` ? "active" : ""}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
                           {child.title}
                         </Link>
                       ))}
@@ -112,10 +128,22 @@ function Header() {
                 </li>
               ))}
               <li>
-                <Link to="/article" onClick={() => setIsMobileMenuOpen(false)}>Tin Tức</Link>
+                <Link 
+                  to="/article" 
+                  className={location.pathname.startsWith("/article") ? "active" : ""} 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Tin Tức
+                </Link>
               </li>
               <li>
-                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>Liên Hệ</Link>
+                <Link 
+                  to="/contact" 
+                  className={location.pathname.startsWith("/contact") ? "active" : ""} 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Liên Hệ
+                </Link>
               </li>
             </ul>
           </div>
