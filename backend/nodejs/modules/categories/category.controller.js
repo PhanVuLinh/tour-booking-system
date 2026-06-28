@@ -20,7 +20,10 @@ module.exports.getCategories = async (req, res) => {
 module.exports.getCategoryBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    const data = await categoryService.getCategoryAndToursBySlug(slug);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 9;
+
+    const data = await categoryService.getCategoryAndToursBySlug(slug, page, limit);
 
     if (!data.category) {
       return res.status(404).json({

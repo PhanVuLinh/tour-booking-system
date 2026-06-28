@@ -32,7 +32,7 @@ module.exports.getCategoryTree = async () => {
   return categoryTree;
 };
 
-module.exports.getCategoryAndToursBySlug = async (slug) => {
+module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9) => {
   const [categories] = await pool.query(
     `SELECT 
         c1.id, 
@@ -53,8 +53,7 @@ module.exports.getCategoryAndToursBySlug = async (slug) => {
 
   const category = categories[0];
 
-  const [tours] = await pool.query(
-    ` SELECT tours.id,
+  const sqlTours = ` SELECT tours.id,
         tours.slug,
         tours.title,
         tours.thumbnail,
@@ -74,11 +73,35 @@ module.exports.getCategoryAndToursBySlug = async (slug) => {
         AND tours.status = 'active'
         AND departures.deleted = 0
         AND departures.status = 'active'
-      `,
-    [category.id, category.id],
+      `;
+
+  const countSql = `
+    SELECT COUNT(tours.id) as total
+    FROM tours JOIN departures ON tours.id = departures.tour_id
+    WHERE (category_id = ? or Category_id IN (SELECT id FROM categories WHERE parent_id = ?))
+      AND tours.deleted = 0 
+      AND tours.status = 'active'
+      AND departures.deleted = 0
+      AND departures.status = 'active'
+  `;
+
+  const [countResult] = await pool.query(countSql, [category.id, category.id]);
+  const totalTours = countResult[0].total;
+  const totalPages = Math.ceil(totalTours / limit);
+  const offset = (page - 1) * limit;
+
+  const [tours] = await pool.query(
+    sqlTours + ` LIMIT ? OFFSET ?`,
+    [category.id, category.id, limit, offset],
   );
+  
   return {
     category: category,
     tours: tours,
+    pagination: {
+      currentPage: page,
+      totalPages: totalPages,
+      totalTours: totalTours
+    }
   };
 };

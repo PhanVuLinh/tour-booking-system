@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Breadcrumb, Pagination } from "../../../shared";
 import { TourFilter, TourCard } from "../components";
 import { buildCategoryBreadcrumb } from "../../../utils/breadcrumb.helper";
@@ -7,21 +7,28 @@ import { getToursByCategory } from "../services/tourService";
 
 function TourList() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get('page') || 1;
+
   const [tours, setTours] = useState([]);
   const [categoryInfo, setCategoryInfo] = useState(null);
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalTours: 0 });
 
   const [activeSort, setActiveSort] = useState(null);
 
   useEffect(() => {
-    getToursByCategory(slug)
+    getToursByCategory(slug, page)
       .then((result) => {
         if (result.success) {
           setCategoryInfo(result.data.category);
           setTours(result.data.tours);
+          if (result.data.pagination) {
+            setPagination(result.data.pagination);
+          }
         }
       })
       .catch((error) => console.log("Lỗi khi tải danh mục: ", error));
-  }, [slug]);
+  }, [slug, page]);
 
   const breadcrumbList = buildCategoryBreadcrumb(categoryInfo, slug);
 
@@ -45,11 +52,6 @@ function TourList() {
           <TourFilter />
           <main className="tour-list-content">
             <h2 className="tour-list-title">{breadcrumbData.title}</h2>
-
-            {/* <p className="tour-list-desc">
-              Du lịch Châu Á: là châu lục lớn và đông dân nhất thế giới... Hãy
-              cùng TravelGo du lịch Châu Á để tận hưởng những dịch vụ tốt nhất.
-            </p> */}
 
             <div className="sort-bar">
               <div className="sort-options">
@@ -82,7 +84,7 @@ function TourList() {
                 </button>
               </div>
               <div className="sort-total">
-                Tất cả: <strong>{tours.length} Tour</strong>
+                Tất cả: <strong>{pagination.totalTours} Tour</strong>
               </div>
             </div>
 
@@ -92,7 +94,10 @@ function TourList() {
               ))}
             </div>
 
-            <Pagination />
+            <Pagination
+              currentPage={Number(pagination.currentPage)}
+              totalPages={Number(pagination.totalPages)}
+            />
           </main>
         </div>
       </div>
