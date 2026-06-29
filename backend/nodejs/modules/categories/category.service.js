@@ -135,8 +135,6 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, dep
     sortQuery = "ORDER BY newPrice DESC";
   } else if (sort === "hot") {
     sortQuery = "ORDER BY departures.discountPercentage DESC";
-  } else if (sort === "view") {
-    sortQuery = "ORDER BY tours.id DESC";
   }
 
   const [tours] = await pool.query(

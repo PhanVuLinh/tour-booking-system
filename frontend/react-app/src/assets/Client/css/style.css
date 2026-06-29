@@ -3937,3 +3937,42 @@ input:checked + .slider:before {
     padding: 30px 20px;
   }
 }
+
+/* Tour List States */
+.tour-list-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 50px 0;
+  color: #666;
+}
+
+.tour-list-loading i {
+  color: #ff5722;
+  margin-bottom: 15px;
+}
+
+.tour-list-loading p {
+  font-size: 1.1rem;
+}
+
+.tour-list-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 0;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  border: 1px dashed #ccc;
+}
+
+.tour-list-empty img {
+  width: 120px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.tour-list-empty h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 10px;
+}

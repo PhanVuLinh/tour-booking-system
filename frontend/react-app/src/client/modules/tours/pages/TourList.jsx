@@ -8,25 +8,36 @@ import { getToursByCategory } from "../services/tourService";
 function TourList() {
   const { slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = searchParams.get('page') || 1;
-  const departureFrom = searchParams.get('departureFrom') || null;
-  const priceLevel = searchParams.get('priceLevel') || null;
-  const startDate = searchParams.get('startDate') || null;
-  const adults = parseInt(searchParams.get('adults')) || 0;
-  const children = parseInt(searchParams.get('children')) || 0;
-  const babies = parseInt(searchParams.get('babies')) || 0;
-  const sort = searchParams.get('sort') || null;
+  const page = searchParams.get("page") || 1;
+  const departureFrom = searchParams.get("departureFrom") || null;
+  const priceLevel = searchParams.get("priceLevel") || null;
+  const startDate = searchParams.get("startDate") || null;
+  const adults = parseInt(searchParams.get("adults")) || 0;
+  const children = parseInt(searchParams.get("children")) || 0;
+  const babies = parseInt(searchParams.get("babies")) || 0;
+  const sort = searchParams.get("sort") || null;
 
   const [tours, setTours] = useState([]);
   const [categoryInfo, setCategoryInfo] = useState(null);
-  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalTours: 0 });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalTours: 0,
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const [activeSort, setActiveSort] = useState(sort);
 
   useEffect(() => {
     setIsLoading(true);
-    const filterParams = { departureFrom, priceLevel, startDate, adults, children, babies };
+    const filterParams = {
+      departureFrom,
+      priceLevel,
+      startDate,
+      adults,
+      children,
+      babies,
+    };
     getToursByCategory(slug, page, filterParams, sort)
       .then((result) => {
         if (result.success) {
@@ -39,7 +50,17 @@ function TourList() {
       })
       .catch((error) => console.log("Lỗi khi tải danh mục: ", error))
       .finally(() => setIsLoading(false));
-  }, [slug, page, departureFrom, priceLevel, startDate, adults, children, babies, sort]);
+  }, [
+    slug,
+    page,
+    departureFrom,
+    priceLevel,
+    startDate,
+    adults,
+    children,
+    babies,
+    sort,
+  ]);
 
   const handleSort = (sortType) => {
     setActiveSort(sortType);
@@ -99,12 +120,6 @@ function TourList() {
                 >
                   Khuyến Mại Hot <i className="fa-solid fa-fire"></i>
                 </button>
-                <button
-                  className={`sort-btn ${activeSort === "view" ? "active" : ""}`}
-                  onClick={() => handleSort("view")}
-                >
-                  Xem Nhiều <i className="fa-solid fa-eye"></i>
-                </button>
                 {activeSort && (
                   <button
                     className="sort-btn reset-sort-btn"
@@ -121,23 +136,24 @@ function TourList() {
 
             <div className="tour-grid-3">
               {isLoading ? (
-                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "50px 0", color: "#666" }}>
-                  <i className="fa-solid fa-circle-notch fa-spin fa-3x" style={{ color: "#ff5722", marginBottom: "15px" }}></i>
-                  <p style={{ fontSize: "1.1rem" }}>Hệ thống đang tìm kiếm Tour tốt nhất cho bạn...</p>
+                <div className="tour-list-loading">
+                  <i className="fa-solid fa-circle-notch fa-spin fa-3x"></i>
+                  <p>Hệ thống đang tìm kiếm Tour tốt nhất cho bạn...</p>
                 </div>
               ) : tours.length > 0 ? (
-                tours.map((tour) => (
-                  <TourCard key={tour.id} tour={tour} />
-                ))
+                tours.map((tour) => <TourCard key={tour.id} tour={tour} />)
               ) : (
-                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 0", color: "#666", backgroundColor: "#f9f9f9", borderRadius: "12px", border: "1px dashed #ccc" }}>
+                <div className="tour-list-empty">
                   <img
                     src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png"
                     alt="No tours"
-                    style={{ width: "120px", marginBottom: "20px", opacity: 0.6 }}
                   />
-                  <h3 style={{ fontSize: "1.3rem", color: "#333", marginBottom: "10px" }}>Rất tiếc, không có Tour nào phù hợp!</h3>
-                  <p>Không tìm thấy Tour nào khớp với tiêu chí tìm kiếm của bạn.<br />Bạn hãy thử thay đổi Mức giá hoặc Điểm đi nhé.</p>
+                  <h3>Rất tiếc, không có Tour nào phù hợp!</h3>
+                  <p>
+                    Không tìm thấy Tour nào khớp với tiêu chí tìm kiếm của bạn.
+                    <br />
+                    Bạn hãy thử thay đổi Mức giá hoặc Điểm đi nhé.
+                  </p>
                 </div>
               )}
             </div>
