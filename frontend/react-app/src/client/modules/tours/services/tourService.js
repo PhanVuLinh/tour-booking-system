@@ -1,14 +1,22 @@
 import { get } from "../../../utils/request";
 
-export const getToursByCategory = async (slug, page = 1, filterParams = {}) => {
+export const getToursByCategory = async (slug, page = 1, filterParams = {}, sort = null) => {
     const queryParams = new URLSearchParams({ page });
 
-    if (filterParams.departureFrom) queryParams.append('departureFrom', filterParams.departureFrom);
-    if (filterParams.priceLevel) queryParams.append('priceLevel', filterParams.priceLevel);
-    if (filterParams.startDate) queryParams.append('startDate', filterParams.startDate);
-    if (filterParams.adults) queryParams.append('adults', filterParams.adults);
-    if (filterParams.children) queryParams.append('children', filterParams.children);
-    if (filterParams.babies) queryParams.append('babies', filterParams.babies);
+    if (filterParams.departureFrom)
+        queryParams.append('departureFrom', filterParams.departureFrom);
+    if (filterParams.priceLevel)
+        queryParams.append('priceLevel', filterParams.priceLevel);
+    if (filterParams.startDate)
+        queryParams.append('startDate', filterParams.startDate);
+    if (filterParams.adults)
+        queryParams.append('adults', filterParams.adults);
+    if (filterParams.children)
+        queryParams.append('children', filterParams.children);
+    if (filterParams.babies)
+        queryParams.append('babies', filterParams.babies);
+    if (sort)
+        queryParams.append('sort', sort);
 
     const result = await get(`/categories/${slug}?${queryParams.toString()}`);
     return result;

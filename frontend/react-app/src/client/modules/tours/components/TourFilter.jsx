@@ -5,7 +5,7 @@ import { getDepartureLocations } from "../services/tourService";
 function TourFilter() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [departureLocations, setDepartureLocations] = useState([]);
-  
+
   // Lấy danh sách điểm đi từ backend khi render lần đầu
   useEffect(() => {
     getDepartureLocations()
@@ -51,7 +51,7 @@ function TourFilter() {
   // Nút Áp Dụng: Đẩy filters lên URL
   const handleApply = () => {
     const params = new URLSearchParams(searchParams);
-    
+
     if (filters.departureFrom) {
       params.set("departureFrom", filters.departureFrom);
     } else {
@@ -90,7 +90,7 @@ function TourFilter() {
 
     // Reset về trang 1
     params.set("page", "1");
-    
+
     setSearchParams(params);
     setIsOpen(false);
   };
@@ -110,12 +110,12 @@ function TourFilter() {
   };
 
   // Kiểm tra xem có bất kỳ bộ lọc nào đang active trên URL không
-  const hasActiveFilter = 
-    searchParams.has("departureFrom") || 
-    searchParams.has("priceLevel") || 
-    searchParams.has("startDate") || 
-    searchParams.has("adults") || 
-    searchParams.has("children") || 
+  const hasActiveFilter =
+    searchParams.has("departureFrom") ||
+    searchParams.has("priceLevel") ||
+    searchParams.has("startDate") ||
+    searchParams.has("adults") ||
+    searchParams.has("children") ||
     searchParams.has("babies");
 
   // Hàm bật/tắt bộ lọc
@@ -136,8 +136,6 @@ function TourFilter() {
         onClick={toggleFilter}
       ></div>
 
-      {/* 3. KHỐI BỘ LỌC CHÍNH */}
-      {/* Thêm class "active" nếu state isOpen = true */}
       <aside className={`tour-filter ${isOpen ? "active" : ""}`}>
         <div className="filter-header">
           <h3>Bộ Lọc</h3>
@@ -147,16 +145,14 @@ function TourFilter() {
             <i className="fa-solid fa-xmark"></i>
           </button>
 
-          {/* Icon phễu mặc định (Chỉ hiện trên máy tính) */}
           <i className="fa-solid fa-filter desktop-filter-icon"></i>
         </div>
 
         <div className="filter-body">
-          {/* Điểm đi */}
           <div className="filter-group">
             <label className="filter-label">Điểm đi</label>
-            <select 
-              className="filter-select" 
+            <select
+              className="filter-select"
               name="departureFrom"
               value={filters.departureFrom}
               onChange={handleChange}
@@ -175,8 +171,8 @@ function TourFilter() {
           {/* Ngày khởi hành */}
           <div className="filter-group">
             <label className="filter-label">Ngày khởi hành</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               className="filter-input"
               name="startDate"
               value={filters.startDate}
@@ -227,8 +223,8 @@ function TourFilter() {
           {/* Mức giá */}
           <div className="filter-group">
             <label className="filter-label">Mức giá</label>
-            <select 
-              className="filter-select" 
+            <select
+              className="filter-select"
               name="priceLevel"
               value={filters.priceLevel}
               onChange={handleChange}
@@ -252,15 +248,15 @@ function TourFilter() {
             >
               Áp Dụng
             </button>
-            
+
             {hasActiveFilter && (
               <button
                 type="button"
                 className="btn-clear-filter"
-                style={{ 
-                  flex: 1, 
-                  backgroundColor: "#f4f4f4", 
-                  color: "#333", 
+                style={{
+                  flex: 1,
+                  backgroundColor: "#f4f4f4",
+                  color: "#333",
                   border: "1px solid #ccc",
                   borderRadius: "8px",
                   fontWeight: "600",

@@ -28,17 +28,19 @@ module.exports.getCategoryBySlug = async (req, res) => {
     const adults = parseInt(req.query.adults) || 0;
     const children = parseInt(req.query.children) || 0;
     const babies = parseInt(req.query.babies) || 0;
+    const sort = req.query.sort || null;
 
     const data = await categoryService.getCategoryAndToursBySlug(
-      slug, 
-      page, 
+      slug,
+      page,
       limit,
       departureFrom,
       priceLevel,
       startDate,
       adults,
       children,
-      babies
+      babies,
+      sort
     );
 
     if (!data.category) {

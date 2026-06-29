@@ -32,7 +32,7 @@ module.exports.getCategoryTree = async () => {
   return categoryTree;
 };
 
-module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, departureFrom = null, priceLevel = null, startDate = null, adults = 0, children = 0, babies = 0) => {
+module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, departureFrom = null, priceLevel = null, startDate = null, adults = 0, children = 0, babies = 0, sort = null) => {
   const [categories] = await pool.query(
     `SELECT 
         c1.id, 
@@ -128,8 +128,19 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, dep
   const totalPages = Math.ceil(totalTours / limit);
   const offset = (page - 1) * limit;
 
+  let sortQuery = "";
+  if (sort === "priceAsc") {
+    sortQuery = "ORDER BY newPrice ASC";
+  } else if (sort === "priceDesc") {
+    sortQuery = "ORDER BY newPrice DESC";
+  } else if (sort === "hot") {
+    sortQuery = "ORDER BY departures.discountPercentage DESC";
+  } else if (sort === "view") {
+    sortQuery = "ORDER BY tours.id DESC";
+  }
+
   const [tours] = await pool.query(
-    sqlTours + ` LIMIT ? OFFSET ?`,
+    sqlTours + ` ${sortQuery} LIMIT ? OFFSET ?`,
     [...queryParams, limit, offset],
   );
 
