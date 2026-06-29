@@ -170,6 +170,10 @@ function TourDetail() {
                   <strong>{selectedDate?.vehicleName || "Đang tải..."}</strong>
                 </li>
                 <li>
+                  <i className="fa-solid fa-map-location-dot"></i> Nơi Khởi Hành:{" "}
+                  <strong>{selectedDate?.departureFrom || "Chưa cập nhật"}</strong>
+                </li>
+                <li>
                   <i className="fa-regular fa-calendar"></i> Khởi Hành:{" "}
                   <strong>
                     {selectedDate

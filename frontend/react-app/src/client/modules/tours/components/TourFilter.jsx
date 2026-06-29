@@ -1,8 +1,122 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { getDepartureLocations } from "../services/tourService";
 
 function TourFilter() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [departureLocations, setDepartureLocations] = useState([]);
+  
+  // Lấy danh sách điểm đi từ backend khi render lần đầu
+  useEffect(() => {
+    getDepartureLocations()
+      .then(res => {
+        if (res.success) {
+          setDepartureLocations(res.data);
+        }
+      })
+      .catch(err => console.log("Lỗi tải điểm đi:", err));
+  }, []);
+
   // Trạng thái lưu trữ xem bộ lọc trên mobile đang mở hay đóng
   const [isOpen, setIsOpen] = useState(false);
+
+  // Trạng thái lưu các giá trị lọc cục bộ trước khi Áp Dụng
+  const [filters, setFilters] = useState({
+    departureFrom: searchParams.get("departureFrom") || "",
+    priceLevel: searchParams.get("priceLevel") || "",
+    startDate: searchParams.get("startDate") || "",
+    adults: searchParams.get("adults") || "0",
+    children: searchParams.get("children") || "0",
+    babies: searchParams.get("babies") || "0",
+  });
+
+  // Đồng bộ lại filters nếu URL thay đổi
+  useEffect(() => {
+    setFilters({
+      departureFrom: searchParams.get("departureFrom") || "",
+      priceLevel: searchParams.get("priceLevel") || "",
+      startDate: searchParams.get("startDate") || "",
+      adults: searchParams.get("adults") || "0",
+      children: searchParams.get("children") || "0",
+      babies: searchParams.get("babies") || "0",
+    });
+  }, [searchParams]);
+
+  // Xử lý thay đổi input
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Nút Áp Dụng: Đẩy filters lên URL
+  const handleApply = () => {
+    const params = new URLSearchParams(searchParams);
+    
+    if (filters.departureFrom) {
+      params.set("departureFrom", filters.departureFrom);
+    } else {
+      params.delete("departureFrom");
+    }
+
+    if (filters.priceLevel) {
+      params.set("priceLevel", filters.priceLevel);
+    } else {
+      params.delete("priceLevel");
+    }
+
+    if (filters.startDate) {
+      params.set("startDate", filters.startDate);
+    } else {
+      params.delete("startDate");
+    }
+
+    if (filters.adults && parseInt(filters.adults) > 0) {
+      params.set("adults", filters.adults);
+    } else {
+      params.delete("adults");
+    }
+
+    if (filters.children && parseInt(filters.children) > 0) {
+      params.set("children", filters.children);
+    } else {
+      params.delete("children");
+    }
+
+    if (filters.babies && parseInt(filters.babies) > 0) {
+      params.set("babies", filters.babies);
+    } else {
+      params.delete("babies");
+    }
+
+    // Reset về trang 1
+    params.set("page", "1");
+    
+    setSearchParams(params);
+    setIsOpen(false);
+  };
+
+  const handleClearFilter = () => {
+    setFilters({
+      departureFrom: "",
+      priceLevel: "",
+      startDate: "",
+      adults: "0",
+      children: "0",
+      babies: "0",
+    });
+
+    setSearchParams({ page: "1" });
+    setIsOpen(false);
+  };
+
+  // Kiểm tra xem có bất kỳ bộ lọc nào đang active trên URL không
+  const hasActiveFilter = 
+    searchParams.has("departureFrom") || 
+    searchParams.has("priceLevel") || 
+    searchParams.has("startDate") || 
+    searchParams.has("adults") || 
+    searchParams.has("children") || 
+    searchParams.has("babies");
 
   // Hàm bật/tắt bộ lọc
   const toggleFilter = () => {
@@ -41,31 +155,33 @@ function TourFilter() {
           {/* Điểm đi */}
           <div className="filter-group">
             <label className="filter-label">Điểm đi</label>
-            <select className="filter-select" defaultValue="">
-              <option value="" disabled>
-                -- Chọn điểm đi --
+            <select 
+              className="filter-select" 
+              name="departureFrom"
+              value={filters.departureFrom}
+              onChange={handleChange}
+            >
+              <option value="">
+                -- Tất cả điểm đi --
               </option>
-              <option value="hanoi">Hà Nội</option>
-              <option value="hcm">TP. Hồ Chí Minh</option>
-            </select>
-          </div>
-
-          {/* Điểm đến */}
-          <div className="filter-group">
-            <label className="filter-label">Điểm đến</label>
-            <select className="filter-select" defaultValue="">
-              <option value="" disabled>
-                -- Chọn điểm đến --
-              </option>
-              <option value="singapore">Singapore</option>
-              <option value="thailand">Thái Lan</option>
+              {departureLocations.map((loc, idx) => (
+                <option key={idx} value={loc}>
+                  {loc}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* Ngày khởi hành */}
           <div className="filter-group">
             <label className="filter-label">Ngày khởi hành</label>
-            <input type="date" className="filter-input" />
+            <input 
+              type="date" 
+              className="filter-input"
+              name="startDate"
+              value={filters.startDate}
+              onChange={handleChange}
+            />
           </div>
 
           {/* Số lượng hành khách */}
@@ -77,8 +193,10 @@ function TourFilter() {
                 <input
                   className="passenger-value"
                   type="number"
+                  name="adults"
                   min="0"
-                  defaultValue="0"
+                  value={filters.adults}
+                  onChange={handleChange}
                 />
               </div>
               <div className="passenger-item">
@@ -86,8 +204,10 @@ function TourFilter() {
                 <input
                   className="passenger-value"
                   type="number"
+                  name="children"
                   min="0"
-                  defaultValue="0"
+                  value={filters.children}
+                  onChange={handleChange}
                 />
               </div>
               <div className="passenger-item">
@@ -95,8 +215,10 @@ function TourFilter() {
                 <input
                   className="passenger-value"
                   type="number"
+                  name="babies"
                   min="0"
-                  defaultValue="0"
+                  value={filters.babies}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -105,9 +227,14 @@ function TourFilter() {
           {/* Mức giá */}
           <div className="filter-group">
             <label className="filter-label">Mức giá</label>
-            <select className="filter-select" defaultValue="">
-              <option value="" disabled>
-                -- Chọn khoảng giá --
+            <select 
+              className="filter-select" 
+              name="priceLevel"
+              value={filters.priceLevel}
+              onChange={handleChange}
+            >
+              <option value="">
+                -- Tất cả mức giá --
               </option>
               <option value="1">Dưới 5 triệu</option>
               <option value="2">5 - 10 triệu</option>
@@ -115,14 +242,36 @@ function TourFilter() {
             </select>
           </div>
 
-          {/* Nút áp dụng - Bấm vào thì tự động đóng menu trên mobile luôn cho xịn */}
-          <button
-            type="button"
-            className="btn-apply-filter"
-            onClick={toggleFilter}
-          >
-            Áp Dụng
-          </button>
+          {/* Nút tác vụ */}
+          <div className="filter-actions" style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+            <button
+              type="button"
+              className="btn-apply-filter"
+              style={{ flex: 1 }}
+              onClick={handleApply}
+            >
+              Áp Dụng
+            </button>
+            
+            {hasActiveFilter && (
+              <button
+                type="button"
+                className="btn-clear-filter"
+                style={{ 
+                  flex: 1, 
+                  backgroundColor: "#f4f4f4", 
+                  color: "#333", 
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+                onClick={handleClearFilter}
+              >
+                Xóa Lọc
+              </button>
+            )}
+          </div>
         </div>
       </aside>
     </>

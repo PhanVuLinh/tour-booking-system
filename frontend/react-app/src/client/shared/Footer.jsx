@@ -1,12 +1,23 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { postCreateContact } from "./services/sharedService";
+import { postCreateContact, getHeaderCategories } from "./services/sharedService";
 
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 
 function Footer() {
   const [email, setEmail] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    getHeaderCategories()
+      .then((result) => {
+        if (result.success) {
+          setCategories(result.data);
+        }
+      })
+      .catch((error) => console.error("Lỗi khi tải danh mục Footer:", error));
+  }, []);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -62,12 +73,11 @@ function Footer() {
             <li>
               <Link to="/">Trang Chủ</Link>
             </li>
-            <li>
-              <Link to="/category/tour-trong-nuoc">Tour Trong Nước</Link>
-            </li>
-            <li>
-              <Link to="/category/tour-nuoc-ngoai">Tour Nước Ngoài</Link>
-            </li>
+            {categories.map((parent) => (
+              <li key={parent.id}>
+                <Link to={`/category/${parent.slug}`}>{parent.title}</Link>
+              </li>
+            ))}
             <li>
               <Link to="/article">Tin Tức</Link>
             </li>

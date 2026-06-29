@@ -9,15 +9,24 @@ function TourList() {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
   const page = searchParams.get('page') || 1;
+  const departureFrom = searchParams.get('departureFrom') || null;
+  const priceLevel = searchParams.get('priceLevel') || null;
+  const startDate = searchParams.get('startDate') || null;
+  const adults = parseInt(searchParams.get('adults')) || 0;
+  const children = parseInt(searchParams.get('children')) || 0;
+  const babies = parseInt(searchParams.get('babies')) || 0;
 
   const [tours, setTours] = useState([]);
   const [categoryInfo, setCategoryInfo] = useState(null);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalTours: 0 });
+  const [isLoading, setIsLoading] = useState(false);
 
   const [activeSort, setActiveSort] = useState(null);
 
   useEffect(() => {
-    getToursByCategory(slug, page)
+    setIsLoading(true);
+    const filterParams = { departureFrom, priceLevel, startDate, adults, children, babies };
+    getToursByCategory(slug, page, filterParams)
       .then((result) => {
         if (result.success) {
           setCategoryInfo(result.data.category);
@@ -27,8 +36,9 @@ function TourList() {
           }
         }
       })
-      .catch((error) => console.log("Lỗi khi tải danh mục: ", error));
-  }, [slug, page]);
+      .catch((error) => console.log("Lỗi khi tải danh mục: ", error))
+      .finally(() => setIsLoading(false));
+  }, [slug, page, departureFrom, priceLevel, startDate, adults, children, babies]);
 
   const breadcrumbList = buildCategoryBreadcrumb(categoryInfo, slug);
 
@@ -89,9 +99,26 @@ function TourList() {
             </div>
 
             <div className="tour-grid-3">
-              {tours.map((tour) => (
-                <TourCard key={tour.id} tour={tour} />
-              ))}
+              {isLoading ? (
+                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "50px 0", color: "#666" }}>
+                  <i className="fa-solid fa-circle-notch fa-spin fa-3x" style={{ color: "#ff5722", marginBottom: "15px" }}></i>
+                  <p style={{ fontSize: "1.1rem" }}>Hệ thống đang tìm kiếm Tour tốt nhất cho bạn...</p>
+                </div>
+              ) : tours.length > 0 ? (
+                tours.map((tour) => (
+                  <TourCard key={tour.id} tour={tour} />
+                ))
+              ) : (
+                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 0", color: "#666", backgroundColor: "#f9f9f9", borderRadius: "12px", border: "1px dashed #ccc" }}>
+                  <img 
+                    src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" 
+                    alt="No tours" 
+                    style={{ width: "120px", marginBottom: "20px", opacity: 0.6 }} 
+                  />
+                  <h3 style={{ fontSize: "1.3rem", color: "#333", marginBottom: "10px" }}>Rất tiếc, không có Tour nào phù hợp!</h3>
+                  <p>Không tìm thấy Tour nào khớp với tiêu chí tìm kiếm của bạn.<br/>Bạn hãy thử thay đổi Mức giá hoặc Điểm đi nhé.</p>
+                </div>
+              )}
             </div>
 
             <Pagination

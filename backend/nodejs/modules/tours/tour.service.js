@@ -1,64 +1,3 @@
-// const { pool } = require("../../config/database");
-
-// module.exports.getTourDetailBySlug = async (slug) => {
-//   const sqlTour = `
-//     SELECT
-//         tours.id,
-//         tours.title,
-//         tours.slug,
-//         tours.thumbnail,
-//         tours.description,
-//         tours.time,
-//         categories.title AS categoryName,
-//         categories.slug AS categorySlug,
-//         categories.thumbnail as categoryThumbnail
-//     FROM tours
-//     LEFT JOIN categories ON tours.category_id = categories.id
-//     WHERE tours.slug = ?
-//       AND tours.deleted = 0
-//       AND tours.status = 'active'
-//   `;
-
-//   const [tours] = await pool.query(sqlTour, [slug]);
-
-//   if (tours.length === 0) {
-//     return null;
-//   }
-
-//   const tour = tours[0];
-
-//   const sqlDepartures = `
-//     SELECT
-//         departures.id AS departure_id,
-//         departures.startDate,
-//         departures.priceAdult,
-//         departures.priceChildren,
-//         departures.priceBaby,
-//         departures.discountPercentage,
-//         -- Tính giá mới sau khi giảm cho từng loại vé
-//         (departures.priceAdult - (departures.priceAdult * departures.discountPercentage / 100)) AS newPriceAdult,
-//         (departures.priceChildren - (departures.priceChildren * departures.discountPercentage / 100)) AS newPriceChildren,
-//         (departures.priceBaby - (departures.priceBaby * departures.discountPercentage / 100)) AS newPriceBaby,
-//         -- Tổng số chỗ còn nhận
-//         (departures.stockAdult + departures.stockChildren + departures.stockBaby) AS slots,
-//         vehicles.name AS vehicleName,
-//         vehicles.vehicleType AS vehicleType
-//     FROM departures
-//     LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
-//     WHERE departures.tour_id = ?
-//       AND departures.deleted = 0
-//       AND departures.status = 'active'
-//     ORDER BY departures.startDate ASC
-//   `;
-
-//   const [departures] = await pool.query(sqlDepartures, [tour.id]);
-
-//   return {
-//     ...tour,
-//     departures: departures,
-//   };
-// };
-
 const { pool } = require("../../config/database");
 
 module.exports.getTourDetailBySlug = async (slug) => {
@@ -114,6 +53,7 @@ module.exports.getTourDetailBySlug = async (slug) => {
   const sqlDepartures = `
     SELECT 
         departures.id AS departure_id,
+        departures.departureFrom,
         departures.startDate,
         departures.priceAdult,
         departures.priceChildren,

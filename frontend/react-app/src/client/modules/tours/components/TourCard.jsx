@@ -47,7 +47,11 @@ function TourCard({ tour }) {
             <i className="fa-solid fa-barcode"></i> Mã Tour: {tour.id}
           </li>
           <li>
-            <i className="fa-regular fa-calendar"></i> Khởi Hành:{" "}
+            <i className="fa-solid fa-map-location-dot"></i> Nơi Khởi Hành:{" "}
+            {tour.departureFrom || "Chưa cập nhật"}
+          </li>
+          <li>
+            <i className="fa-regular fa-calendar"></i> Ngày Khởi Hành:{" "}
             {moment(tour.startDate).format("DD/MM/YYYY")}
           </li>
           <li>

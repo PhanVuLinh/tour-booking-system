@@ -32,7 +32,7 @@ module.exports.getCategoryTree = async () => {
   return categoryTree;
 };
 
-module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9) => {
+module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, departureFrom = null, priceLevel = null, startDate = null, adults = 0, children = 0, babies = 0) => {
   const [categories] = await pool.query(
     `SELECT 
         c1.id, 
@@ -53,48 +53,86 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9) => 
 
   const category = categories[0];
 
+  let sqlConditions = `
+      WHERE (category_id = ? or Category_id IN (SELECT id FROM categories WHERE parent_id = ?))
+        AND tours.deleted = 0 
+        AND tours.status = 'active'
+        AND departures.deleted = 0
+        AND departures.status = 'active'
+  `;
+  const queryParams = [category.id, category.id];
+
+  if (departureFrom) {
+    sqlConditions += ` AND departures.departureFrom = ?`;
+    queryParams.push(departureFrom);
+  }
+
+  if (priceLevel) {
+    const priceCalc = `(departures.priceAdult - (departures.priceAdult * IFNULL(departures.discountPercentage, 0) / 100))`;
+    if (priceLevel === "1") {
+      sqlConditions += ` AND ${priceCalc} < 5000000`;
+    } else if (priceLevel === "2") {
+      sqlConditions += ` AND ${priceCalc} >= 5000000 AND ${priceCalc} <= 10000000`;
+    } else if (priceLevel === "3") {
+      sqlConditions += ` AND ${priceCalc} > 10000000`;
+    }
+  }
+
+  if (startDate) {
+    sqlConditions += ` AND DATE(departures.startDate) >= ?`;
+    queryParams.push(startDate);
+  }
+
+  if (adults > 0) {
+    sqlConditions += ` AND departures.stockAdult >= ?`;
+    queryParams.push(adults);
+  }
+
+  if (children > 0) {
+    sqlConditions += ` AND departures.stockChildren >= ?`;
+    queryParams.push(children);
+  }
+
+  if (babies > 0) {
+    sqlConditions += ` AND departures.stockBaby >= ?`;
+    queryParams.push(babies);
+  }
+
   const sqlTours = ` SELECT tours.id,
         tours.slug,
         tours.title,
         tours.thumbnail,
         tours.time AS time,
         departures.id AS departure_id,
+        departures.departureFrom,
         departures.startDate,
         departures.priceAdult AS oldPrice,
         departures.discountPercentage,
-        (departures.priceAdult - (departures.priceAdult * departures.discountPercentage / 100)) AS newPrice,
+        (departures.priceAdult - (departures.priceAdult * IFNULL(departures.discountPercentage, 0) / 100)) AS newPrice,
         (departures.stockAdult + departures.stockChildren + departures.stockBaby) AS slots,
         vehicles.name AS vehicleName,
         vehicles.vehicleType AS vehicleType
       FROM tours JOIN departures ON tours.id = departures.tour_id
       LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
-      WHERE (category_id = ? or Category_id IN (SELECT id FROM categories WHERE parent_id = ?))
-        AND tours.deleted = 0 
-        AND tours.status = 'active'
-        AND departures.deleted = 0
-        AND departures.status = 'active'
+      ${sqlConditions}
       `;
 
   const countSql = `
     SELECT COUNT(tours.id) as total
     FROM tours JOIN departures ON tours.id = departures.tour_id
-    WHERE (category_id = ? or Category_id IN (SELECT id FROM categories WHERE parent_id = ?))
-      AND tours.deleted = 0 
-      AND tours.status = 'active'
-      AND departures.deleted = 0
-      AND departures.status = 'active'
+    ${sqlConditions}
   `;
 
-  const [countResult] = await pool.query(countSql, [category.id, category.id]);
+  const [countResult] = await pool.query(countSql, queryParams);
   const totalTours = countResult[0].total;
   const totalPages = Math.ceil(totalTours / limit);
   const offset = (page - 1) * limit;
 
   const [tours] = await pool.query(
     sqlTours + ` LIMIT ? OFFSET ?`,
-    [category.id, category.id, limit, offset],
+    [...queryParams, limit, offset],
   );
-  
+
   return {
     category: category,
     tours: tours,
@@ -104,4 +142,14 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9) => 
       totalTours: totalTours
     }
   };
+};
+
+module.exports.getDepartureLocations = async () => {
+  const sql = `
+    SELECT DISTINCT departureFrom 
+    FROM departures 
+    WHERE deleted = 0 AND status = 'active' AND departureFrom IS NOT NULL AND departureFrom != ''
+  `;
+  const [rows] = await pool.query(sql);
+  return rows.map(row => row.departureFrom);
 };

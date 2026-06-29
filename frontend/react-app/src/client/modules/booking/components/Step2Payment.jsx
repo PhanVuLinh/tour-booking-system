@@ -131,7 +131,7 @@ const Step2Payment = () => {
               <span className="custom-radio"></span>
             </div>
             <img
-              src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418123690.png"
+              src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg"
               alt="VNPAY"
               className="mi-logo vnpay-logo"
             />
@@ -158,7 +158,7 @@ const Step2Payment = () => {
               <span className="custom-radio"></span>
             </div>
             <img
-              src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+              src="https://developers.momo.vn/v3/assets/images/MOMO-Logo-App-6262c3743a290ef02396a24ea2b66c35.png"
               alt="MoMo"
               className="mi-logo momo-logo"
             />
@@ -184,9 +184,14 @@ const Step2Payment = () => {
               />
               <span className="custom-radio"></span>
             </div>
-            <div className="mi-logo bank-logo">
+            {/* <div className="mi-logo bank-logo">
               <i className="fa-solid fa-building-columns"></i>
-            </div>
+            </div> */}
+            <img
+              src="https://png.pngtree.com/png-vector/20220821/ourmid/pngtree-bank-transfer-icon-house-selected-transfer-vector-png-image_19626578.png"
+              alt="Bank"
+              className="mi-logo bank-logo"
+            />
             <div className="mi-info">
               <span className="mi-name">Chuyển khoản ngân hàng</span>
               <span className="mi-desc">

@@ -249,8 +249,7 @@ function OrderBooking() {
             tourTitle={tour.title}
             tourCode={tour.id}
             transport={selectedDate.vehicleName || "Đang cập nhật"}
-            // departure={tour.departure}
-            departure="Theo lịch trình"
+            departure={selectedDate.departureFrom || "Chưa cập nhật"}
             selectedDate={selectedDate.startDate}
             adultCount={adultCount}
             childCount={childCount}
