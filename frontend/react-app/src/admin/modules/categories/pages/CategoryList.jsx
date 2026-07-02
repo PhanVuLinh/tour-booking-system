@@ -4,12 +4,15 @@ import { CategoryTable, CategoryTrashTable } from "../components/CategoryTable";
 import { CategoryModal } from "../components/CategoryModal";
 import { CategoryDetailModal } from "../components/CategoryDetailModal";
 import { categoryService } from "../services/categoryApi";
+import { accountService } from "../../users/services/accountService"; 
 
-const initialFormState = { title: "", description: "" };
+const initialFormState = { title: "", description: "", parentId: "" };
 
 export default function CategoryList() {
   const [categories, setCategories] = useState([]);
   const [deletedCategories, setDeletedCategories] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  
   const [isLoading, setIsLoading] = useState(true);
   const [viewCategory, setViewCategory] = useState(null);
   const [activeTab, setActiveTab] = useState("active");
@@ -20,7 +23,18 @@ export default function CategoryList() {
   const [editCategory, setEditCategory] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
 
-  // 1. ĐỊNH NGHĨA CÁC HÀM TRƯỚC (Tránh lỗi Hoisting)
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const accData = await accountService.getAllActive(); 
+        setAccounts(accData);
+      } catch (error) {
+        console.error("Lỗi tải danh sách tài khoản:", error);
+      }
+    };
+    fetchAccounts();
+  }, []);
+
   const fetchData = async () => {
     try {
       if (activeTab === "active") {
@@ -42,12 +56,10 @@ export default function CategoryList() {
     setEditCategory(null);
   };
 
-  // 2. GỌI EFFECT SAU (Chỉ chạy sau khi hàm đã khai báo)
   useEffect(() => {
     fetchData();
   }, [activeTab]);
 
-  // LỌC TÌM KIẾM (Đã chuyển đổi sang trường 'title' khớp với JSON của Java)
   const filteredCategories = categories.filter(cat =>
     cat.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -56,7 +68,6 @@ export default function CategoryList() {
     cat.title?.toLowerCase().includes(trashSearchTerm.toLowerCase())
   );
 
-  // XỬ LÝ THÊM HOẶC SỬA DANH MỤC
   const handleSubmit = async () => {
     if (!formData.title || !formData.title.trim()) {
       alert("Vui lòng nhập tên danh mục!");
@@ -67,7 +78,8 @@ export default function CategoryList() {
       const payload = {
         title: formData.title.trim(),
         description: formData.description ? formData.description.trim() : "",
-        status: "active"
+        status: formData.status || "active",
+        parentId: formData.parentId ? Number(formData.parentId) : null
       };
 
       if (editCategory) {
@@ -93,7 +105,9 @@ export default function CategoryList() {
     setEditCategory(category);
     setFormData({ 
       title: category.title || "", 
-      description: category.description || "" 
+      description: category.description || "",
+      parentId: category.parentId || "",
+      status: category.status || "active"
     });
     setIsDialogOpen(true);
   };
@@ -103,11 +117,8 @@ export default function CategoryList() {
     setIsDialogOpen(true);
   };
 
-  // CHUYỂN VÀO THÙNG RÁC (SOFT DELETE)
   const handleDelete = async (id) => {
     const category = categories.find(c => c.id === id);
-    
-    // Chặn nếu có ràng buộc logic (Ví dụ hệ thống có trường đếm số tour liên kết)
     if (category && category.tourCount > 0) {
       return alert("Không thể xóa danh mục đang chứa các tour hoạt động!");
     }
@@ -123,7 +134,6 @@ export default function CategoryList() {
     }
   };
 
-  // KHÔI PHỤC TỪ THÙNG RÁC
   const handleRestore = async (id) => {
     const category = deletedCategories.find(c => c.id === id);
     if (window.confirm(`Bạn muốn khôi phục danh mục "${category?.title}" về trạng thái hoạt động?`)) {
@@ -137,7 +147,6 @@ export default function CategoryList() {
     }
   };
 
-  // XÓA VĨNH VIỄN (HARD DELETE)
   const handlePermanentDelete = async (id) => {
     if (window.confirm("Hành động này sẽ xóa vĩnh viễn danh mục này và không thể hoàn tác. Bạn có chắc chắn không?")) {
       try {
@@ -152,21 +161,11 @@ export default function CategoryList() {
 
   return (
     <div className="w-full p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
-      
-      {/* TIÊU ĐỀ TRANG VÀ NÚT TÁC VỤ */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Danh mục</h1>
-          <p className="text-gray-500 mt-1">Cập nhật và đồng bộ dữ liệu thời gian thực với MySQL</p>
         </div>
         <div className="flex gap-2">
-          <button 
-            onClick={() => { setIsLoading(true); fetchData(); }} 
-            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" 
-            title="Tải lại dữ liệu"
-          >
-            <RefreshCw className={`w-5 h-5 text-gray-600 ${isLoading ? "animate-spin" : ""}`} />
-          </button>
           <button 
             onClick={openNewDialog} 
             className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm"
@@ -176,25 +175,23 @@ export default function CategoryList() {
         </div>
       </div>
 
-      {/* KHỐI CARD BẢNG VÀ TABS VIÊN THUỐC */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm w-full overflow-hidden">
         <div className="inline-flex bg-gray-100 rounded-xl p-1 m-6 mb-2">
           <button 
             onClick={() => { setIsLoading(true); setActiveTab("active"); }} 
             className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${activeTab === "active" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
           >
-            Danh mục hoạt động
+            Danh mục ({categories.length})
           </button>
           <button 
             onClick={() => { setIsLoading(true); setActiveTab("trash"); }} 
-            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${activeTab === "trash" ? "bg-red-100 text-red-700 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
           >
-            Thùng rác
+            Thùng rác ({deletedCategories.length})
           </button>
         </div>
 
         <div className="p-6 pt-2">
-          {/* THANH TÌM KIẾM */}
           <div className="relative max-w-sm mb-4">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <input 
@@ -206,7 +203,6 @@ export default function CategoryList() {
             />
           </div>
           
-          {/* HIỂN THỊ DỮ LIỆU HOẶC LOADER */}
           {isLoading ? (
             <div className="text-center py-10 text-gray-500 flex flex-col items-center justify-center gap-2">
               <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
@@ -215,12 +211,16 @@ export default function CategoryList() {
           ) : activeTab === "active" ? (
             <CategoryTable categories={filteredCategories} onView={(cat) => setViewCategory(cat)} onEdit={handleEdit} onDelete={handleDelete} />
           ) : (
-            <CategoryTrashTable categories={filteredDeletedCategories} onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} />
+            <CategoryTrashTable 
+              categories={filteredDeletedCategories} 
+              accounts={accounts} 
+              onRestore={handleRestore} 
+              onPermanentDelete={handlePermanentDelete} 
+            />
           )}
         </div>
       </div>
 
-      {/* POPUP MODAL NHẬP LIỆU */}
       <CategoryModal 
         isOpen={isDialogOpen} 
         onClose={() => setIsDialogOpen(false)} 
@@ -228,12 +228,16 @@ export default function CategoryList() {
         formData={formData} 
         setFormData={setFormData} 
         isEdit={!!editCategory} 
+        categories={categories}
+        currentCategoryId={editCategory?.id}
       />
       <CategoryDetailModal 
-    isOpen={!!viewCategory} 
-    category={viewCategory} 
-    onClose={() => setViewCategory(null)} 
-  />
+        isOpen={!!viewCategory} 
+        category={viewCategory} 
+        categories={categories}
+        accounts={accounts}
+        onClose={() => setViewCategory(null)} 
+      />
     </div>
   );
 }

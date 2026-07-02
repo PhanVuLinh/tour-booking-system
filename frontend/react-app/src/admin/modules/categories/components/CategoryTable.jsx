@@ -1,6 +1,6 @@
-import { Edit, Trash2, RotateCcw, Eye} from "lucide-react";
+import { Edit, Trash2, RotateCcw, Eye } from "lucide-react";
 
-export function CategoryTable({ categories,onView, onEdit, onDelete }) {
+export function CategoryTable({ categories, onView, onEdit, onDelete }) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[800px]">
@@ -26,7 +26,7 @@ export function CategoryTable({ categories,onView, onEdit, onDelete }) {
               
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
-                  <button onClick={()=>onView(category)}
+                  <button onClick={() => onView(category)}
                     className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md transition-colors"
                     title="Xem chi tiết">
                     <Eye className="w-4 h-4" />
@@ -55,7 +55,12 @@ export function CategoryTable({ categories,onView, onEdit, onDelete }) {
   );
 }
 
-export function CategoryTrashTable({ categories, onRestore, onPermanentDelete }) {
+export function CategoryTrashTable({ categories, onRestore, onPermanentDelete, accounts = [] }) {
+  const getFullName = (id) => {
+    const account = accounts.find(acc => acc.id === id);
+    return account ? account.fullName : `Account #${id}`;
+  };
+
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[800px]">
@@ -73,12 +78,13 @@ export function CategoryTrashTable({ categories, onRestore, onPermanentDelete })
             <tr key={category.id} className="hover:bg-gray-50 transition-colors opacity-75">
               <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
               <td className="py-3 px-4 font-medium text-gray-500">{category.title}</td>
-              <td className="py-3 px-4 text-sm text-gray-600">—</td> 
+              <td className="py-3 px-4 text-sm text-gray-600">
+                {category.deletedBy ? getFullName(category.deletedBy) : "—"}
+              </td> 
               <td className="py-3 px-4 text-sm text-gray-600">
                 {category.deletedAt ? new Date(category.deletedAt).toLocaleString('vi-VN') : "—"}
               </td>
               
-              {/* CÁC NÚT KHÔI PHỤC VÀ XÓA VĨNH VIỄN ĐÃ ĐƯỢC THÊM LẠI */}
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
                   <button 

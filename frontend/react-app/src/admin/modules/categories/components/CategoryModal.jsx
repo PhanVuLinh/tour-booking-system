@@ -1,5 +1,18 @@
-export function CategoryModal({ isOpen, onClose, onSubmit, formData, setFormData, isEdit }) {
+import React from 'react';
+
+export function CategoryModal({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  formData, 
+  setFormData, 
+  isEdit, 
+  categories = [], 
+  currentCategoryId 
+}) {
   if (!isOpen) return null;
+
+  const availableParents = categories.filter(cat => cat.id !== currentCategoryId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
@@ -15,20 +28,48 @@ export function CategoryModal({ isOpen, onClose, onSubmit, formData, setFormData
         
         <div className="p-6 space-y-4">
           <div className="space-y-2">
-    <label className="text-sm font-medium text-gray-700">Tên danh mục <span className="text-red-500">*</span></label>
-    <input
-      type="text"
-      // ĐỔI 'name' THÀNH 'title'
-      value={formData.title || ""} 
-      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-      placeholder="Ví dụ: Tour Miền Bắc"
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-    />
-  </div>
+            <label className="text-sm font-medium text-gray-700">Tên danh mục <span className="text-red-500">*</span></label>
+            <input
+              type="text"
+              value={formData.title || ""} 
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Ví dụ: Tour Miền Bắc"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Danh mục cha</label>
+              <select
+                value={formData.parentId || ""}
+                onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+              >
+                <option value="">-- Gốc --</option>
+                {availableParents.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.title}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Trạng thái</label>
+              <select
+                value={formData.status || "active"}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+              >
+                <option value="active">Hoạt động</option>
+                <option value="inactive">Tạm ẩn</option>
+              </select>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Mô tả</label>
             <textarea
-              value={formData.description}
+              value={formData.description || ""}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Mô tả về danh mục..."
               rows={3}

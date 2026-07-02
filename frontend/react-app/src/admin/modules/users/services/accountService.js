@@ -56,14 +56,26 @@ export const accountService = {
     }
   },
 
-  update: async (id, payload) => {
-    try {
-      const res = await apiClient.put(`/accounts/${id}`, payload);
-      return res.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || error.response?.data || "Cập nhật tài khoản thất bại");
+  update: async (id, payload, avatarFile = null) => {
+  try {
+    const userId = localStorage.getItem("userId");
+    const body = new FormData();
+    body.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+    if (avatarFile) {
+      body.append("file", avatarFile);
     }
-  },
+
+    const res = await apiClient.put(`/accounts/${id}`, body, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'X-User-Id': userId || "" 
+      }
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || error.response?.data || "Cập nhật tài khoản thất bại");
+  }
+},
 
   softDelete: async (id) => {
     try {

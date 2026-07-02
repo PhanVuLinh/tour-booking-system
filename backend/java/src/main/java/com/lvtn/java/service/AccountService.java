@@ -10,7 +10,7 @@ public interface AccountService {
     List<AccountResponse> findAllTrash();
     AccountResponse findById(Integer id);
     AccountResponse create(AccountRequest request, Integer creatorId);
-    AccountResponse update(Integer id, AccountRequest request, Integer updaterId);
+    AccountResponse update(Integer id, AccountRequest request, String avatarUrl, Integer updaterId);
     void delete(Integer id, Integer deleterId);
     void restore(Integer id);
     void hardDelete(Integer id);

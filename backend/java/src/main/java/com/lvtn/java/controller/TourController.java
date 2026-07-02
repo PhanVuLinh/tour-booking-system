@@ -3,12 +3,14 @@ package com.lvtn.java.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
+import com.lvtn.java.service.AccountService;
 import com.lvtn.java.service.TourService;
 import com.lvtn.java.service.impl.ImageUploadServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +24,7 @@ public class TourController {
 
     private final TourService tourService;
     private final ImageUploadServiceImpl imageUploadService;
+    private final AccountService accountService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TourResponse> createTour(
@@ -101,6 +104,7 @@ public class TourController {
     }
 
     @GetMapping("/trash")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllTrashTours() {
         try {
             return ResponseEntity.ok(tourService.findAllTrash());
@@ -110,6 +114,7 @@ public class TourController {
     }
 
     @PutMapping("/{id}/restore")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> restoreTour(
             @PathVariable Integer id,
             @RequestHeader("X-User-Id") Integer restorerId) {
@@ -122,6 +127,7 @@ public class TourController {
     }
 
     @DeleteMapping("/{id}/force")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> hardDeleteTour(@PathVariable Integer id) {
         try {
             tourService.hardDelete(id);

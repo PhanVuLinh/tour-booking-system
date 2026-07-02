@@ -18,8 +18,7 @@ apiClient.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             localStorage.clear();
-                        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-                        window.location.href = "admin/login";
+                        window.location.href = "/admin/login";
         }
         return Promise.reject(error);
     }

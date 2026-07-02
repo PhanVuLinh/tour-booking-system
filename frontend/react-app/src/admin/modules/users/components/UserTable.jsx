@@ -49,15 +49,6 @@ export function CustomerTable({ data, onView, onToggleLock, onDelete }) {
                   >
                     {customer.status === "active" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                   </button>
-                  {onDelete && (
-                    <button 
-                      onClick={() => onDelete(customer.id, "customer")} 
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
-                      title="Chuyển vào thùng rác"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
                 </div>
               </td>
             </tr>

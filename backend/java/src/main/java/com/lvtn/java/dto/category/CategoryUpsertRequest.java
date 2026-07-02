@@ -16,4 +16,7 @@ public class CategoryUpsertRequest {
     private String description;
     private String thumbnail;
     private String status = "active";
+    private Integer createdBy;
+    private Integer updatedBy;
+    private Integer deletedBy;
 }

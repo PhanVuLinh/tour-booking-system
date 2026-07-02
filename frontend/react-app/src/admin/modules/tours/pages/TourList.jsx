@@ -150,7 +150,6 @@ export function TourList() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Tour</h1>
-          <p className="text-gray-500 mt-1">Thêm mới, sửa và xóa các tour du lịch</p>
         </div>
         <Link
           to="/admin/tours/new"

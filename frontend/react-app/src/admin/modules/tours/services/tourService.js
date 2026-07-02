@@ -62,7 +62,7 @@ export const tourService = {
 
   getAllTrash: async () => {
     try {
-      const res = await apiClient.get('/tour/trash');
+      const res = await apiClient.get('/tour/trash',getAuthHeaders());
       return res.data.map(mapTour);
     } catch (error) {
       throw new Error(error.response?.data?.message || "Lấy danh sách thùng rác thất bại");

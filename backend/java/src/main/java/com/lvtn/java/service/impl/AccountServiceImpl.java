@@ -32,14 +32,13 @@ public class AccountServiceImpl implements AccountService {
         return response;
     }
 
-    private void checkAdminRole(Integer accountId) {
+    private boolean isAdmin(Integer accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thông tin người thực hiện"));
-        if (account.getRole() == null) {
-            throw new RuntimeException("Từ chối truy cập: Tài khoản chưa được phân quyền!");
-        }
-        String roleName = account.getRole().getName();
-        if (!roleName.toLowerCase().contains("admin")) {
+        return account.getRole() != null && account.getRole().getName().toLowerCase().contains("admin");
+    }
+    private void checkAdminRole(Integer accountId) {
+        if (!isAdmin(accountId)) {
             throw new RuntimeException("Từ chối truy cập: Chỉ Quản trị viên (Admin) mới có quyền thực hiện hành động này!");
         }
     }
@@ -88,36 +87,45 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountResponse update(Integer id, AccountRequest request, Integer updaterId) {
-        checkAdminRole(updaterId);
+    public AccountResponse update(Integer id, AccountRequest request, String avatarUrl, Integer updaterId) {
+        boolean isSelfUpdate = id.equals(updaterId);
+        boolean hasAdminRole = isAdmin(updaterId);
+
+        if (!isSelfUpdate && !hasAdminRole) {
+            throw new RuntimeException("Từ chối truy cập!");
+        }
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản với ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản"));
 
-        if (!account.getEmail().equals(request.getEmail()) && accountRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email này đã được sử dụng bởi người khác!");
+        if (request.getFullName() != null) account.setFullName(request.getFullName());
+        if (request.getEmail() != null) {
+            if (!account.getEmail().equals(request.getEmail())
+                    && accountRepository.existsByEmail(request.getEmail())) {
+                throw new RuntimeException("Email đã tồn tại!");
+            }
+            account.setEmail(request.getEmail());
+        }
+        if (request.getPhone() != null) account.setPhone(request.getPhone());
+        if (request.getJobTitle() != null) account.setJobTitle(request.getJobTitle());
+
+        // ✅ Dùng URL từ controller (đã upload xong), giữ ảnh cũ nếu không có file mới
+        if (avatarUrl != null && !avatarUrl.isBlank()) {
+            account.setAvatar(avatarUrl);
+        } else if (request.getAvatar() != null) {
+            account.setAvatar(request.getAvatar());
         }
 
-        account.setFullName(request.getFullName());
-        account.setEmail(request.getEmail());
-        account.setPhone(request.getPhone());
-        account.setAvatar(request.getAvatar());
-        account.setJobTitle(request.getJobTitle());
-
-        if (request.getRoleId() != null) {
-            Role role = roleRepository.findById(request.getRoleId())
-                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chức vụ (Role)"));
-            account.setRole(role);
-        }
-
-        if (request.getStatus() != null) account.setStatus(request.getStatus());
-
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            account.setPassword(request.getPassword()); // Todo: Dùng PasswordEncoder
+        if (hasAdminRole) {
+            if (request.getRoleId() != null) {
+                Role role = roleRepository.findById(request.getRoleId())
+                        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy role"));
+                account.setRole(role);
+            }
+            if (request.getStatus() != null) account.setStatus(request.getStatus());
         }
 
         account.setUpdatedBy(updaterId);
-
         return mapToResponse(accountRepository.save(account));
     }
 

@@ -5,6 +5,7 @@ import com.lvtn.java.dto.category.CategoryUpsertRequest;
 import com.lvtn.java.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,9 +25,11 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody CategoryUpsertRequest request) {
+    public ResponseEntity<?> save(
+            @RequestBody CategoryUpsertRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Integer creatorId) {
         try {
-            CategoryResponse response = categoryService.create(request);
+            CategoryResponse response = categoryService.create(request, creatorId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -34,9 +37,12 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody CategoryUpsertRequest request) {
+    public ResponseEntity<?> update(
+            @PathVariable Integer id,
+            @RequestBody CategoryUpsertRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) Integer updaterId) {
         try {
-            CategoryResponse response = categoryService.update(id, request);
+            CategoryResponse response = categoryService.update(id, request, updaterId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -44,15 +50,19 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteById(
+            @PathVariable Integer id,
+            @RequestHeader(value = "X-User-Id", required = false) Integer deleterId) {
         try {
-            categoryService.delete(id);
+            categoryService.delete(id, deleterId);
             return ResponseEntity.ok("Đã chuyển danh mục vào thùng rác thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi khi xóa: " + e.getMessage());
         }
     }
+
     @GetMapping("/trash")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findAllTrash() {
         try {
             return ResponseEntity.ok(categoryService.findAllTrash());
@@ -60,10 +70,14 @@ public class CategoryController {
             return ResponseEntity.internalServerError().body("Lỗi tải thùng rác: " + e.getMessage());
         }
     }
+
     @PutMapping("/{id}/restore")
-    public ResponseEntity<?> restore(@PathVariable Integer id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> restore(
+            @PathVariable Integer id,
+            @RequestHeader(value = "X-User-Id", required = false) Integer restorerId) {
         try {
-            categoryService.restore(id);
+            categoryService.restore(id, restorerId);
             return ResponseEntity.ok("Khôi phục danh mục thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi khi khôi phục: " + e.getMessage());
@@ -71,6 +85,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}/force")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> hardDelete(@PathVariable Integer id) {
         try {
             categoryService.hardDelete(id);

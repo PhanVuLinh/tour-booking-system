@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.lvtn.java.domain.entity.Category;
 import com.lvtn.java.dto.category.CategoryResponse;
@@ -31,9 +32,9 @@ public class CategoryServiceImpl implements CategoryService {
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         String slug = pattern.matcher(normalized).replaceAll("");
         return slug.toLowerCase()
-                   .replace("đ", "d")
-                   .replaceAll("[^a-z0-9]+", "-")
-                   .replaceAll("^-|-$", "");
+                .replace("đ", "d")
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-|-$", "");
     }
 
     private CategoryResponse mapToResponse(Category category) {
@@ -61,7 +62,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse create(CategoryUpsertRequest request) {
+    @Transactional
+    public CategoryResponse create(CategoryUpsertRequest request, Integer creatorId) {
         mapper.typeMap(CategoryUpsertRequest.class, Category.class)
                 .addMappings(m -> m.skip(Category::setParent));
 
@@ -73,12 +75,15 @@ public class CategoryServiceImpl implements CategoryService {
                     .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy danh mục cha với ID: " + request.getParentId()));
             category.setParent(parent);
         }
+        category.setCreatedBy(creatorId);
+        category.setUpdatedBy(creatorId);
 
         return mapToResponse(categoryRepository.save(category));
     }
 
     @Override
-    public CategoryResponse update(Integer id, CategoryUpsertRequest request) {
+    @Transactional
+    public CategoryResponse update(Integer id, CategoryUpsertRequest request, Integer updaterId) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy danh mục với ID: " + id));
 
@@ -95,12 +100,14 @@ public class CategoryServiceImpl implements CategoryService {
         } else {
             existingCategory.setParent(null);
         }
+        existingCategory.setUpdatedBy(updaterId);
 
         return mapToResponse(categoryRepository.save(existingCategory));
     }
 
     @Override
-    public void delete(Integer id) {
+    @Transactional
+    public void delete(Integer id, Integer deleterId) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy danh mục với ID: " + id));
         int tourCount = tourRepository.countByCategoryIdAndDeletedFalse(id);
@@ -109,8 +116,11 @@ public class CategoryServiceImpl implements CategoryService {
         }
         existingCategory.setDeleted(true);
         existingCategory.setDeletedAt(LocalDateTime.now());
+        existingCategory.setDeletedBy(deleterId);
+
         categoryRepository.save(existingCategory);
     }
+
     @Override
     public List<CategoryResponse> findAllActive() {
         return categoryRepository.findByDeletedFalse().stream()
@@ -124,21 +134,26 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
     @Override
-    public void restore(Integer id) {
+    @Transactional
+    public void restore(Integer id, Integer restorerId) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy danh mục với ID: " + id));
 
         existingCategory.setDeleted(false);
         existingCategory.setDeletedAt(null);
+        existingCategory.setDeletedBy(null);
+        existingCategory.setUpdatedBy(restorerId);
+
         categoryRepository.save(existingCategory);
     }
 
     @Override
+    @Transactional
     public void hardDelete(Integer id) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy danh mục với ID: " + id));
-
         categoryRepository.delete(existingCategory);
     }
 }
