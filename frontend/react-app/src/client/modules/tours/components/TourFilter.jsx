@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getDepartureLocations } from "../services/tourService";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, parseISO } from "date-fns";
 
 function TourFilter() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -169,14 +172,19 @@ function TourFilter() {
           </div>
 
           {/* Ngày khởi hành */}
-          <div className="filter-group">
+          <div className="filter-group custom-datepicker-wrapper">
             <label className="filter-label">Ngày khởi hành</label>
-            <input
-              type="date" 
+            <DatePicker
+              selected={filters.startDate ? parseISO(filters.startDate) : null}
+              onChange={(date) => {
+                setFilters((prev) => ({
+                  ...prev,
+                  startDate: date ? format(date, "yyyy-MM-dd") : "",
+                }));
+              }}
+              dateFormat="dd/MM/yyyy"
               className="filter-input"
-              name="startDate"
-              value={filters.startDate}
-              onChange={handleChange}
+              placeholderText="dd/mm/yyyy"
             />
           </div>
 

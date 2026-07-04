@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, parseISO } from "date-fns";
 
 const PassengerCard = ({ type, index, isAdult, groupKey, passengerData = {}, onDataChange, formErrors = {}, arrayIndex }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,15 +55,16 @@ const PassengerCard = ({ type, index, isAdult, groupKey, passengerData = {}, onD
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="form-group custom-datepicker-wrapper">
                 <label className="form-label">
                   Ngày sinh <span className="text-red">(*)</span>
                 </label>
-                <input 
-                  type="date" 
+                <DatePicker
+                  selected={passengerData.dob ? parseISO(passengerData.dob) : null}
+                  onChange={(date) => onDataChange("dob", date ? format(date, "yyyy-MM-dd") : "")}
+                  dateFormat="dd/MM/yyyy"
                   className={`b-input ${formErrors[`passengerDetails.${groupKey}.${arrayIndex}.dob`] ? "error-border" : ""}`}
-                  value={passengerData.dob || ""}
-                  onChange={(e) => onDataChange("dob", e.target.value)}
+                  placeholderText="dd/mm/yyyy"
                 />
                 {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.dob`] && (
                   <span className="error-text">
