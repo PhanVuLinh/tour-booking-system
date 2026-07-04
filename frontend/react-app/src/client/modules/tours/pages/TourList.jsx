@@ -145,14 +145,12 @@ function TourList() {
               ) : (
                 <div className="tour-list-empty">
                   <img
-                    src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png"
+                    src="https://cdn-icons-png.flaticon.com/512/11759/11759502.png"
                     alt="No tours"
                   />
                   <h3>Rất tiếc, không có Tour nào phù hợp!</h3>
                   <p>
-                    Không tìm thấy Tour nào khớp với tiêu chí tìm kiếm của bạn.
-                    <br />
-                    Bạn hãy thử thay đổi Mức giá hoặc Điểm đi nhé.
+                    Vui lòng thử thay đổi ngày khởi hành, điểm đi hoặc mức giá.
                   </p>
                 </div>
               )}

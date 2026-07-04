@@ -128,7 +128,7 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, dep
   const totalPages = Math.ceil(totalTours / limit);
   const offset = (page - 1) * limit;
 
-  let sortQuery = "";
+  let sortQuery = "ORDER BY tours.id DESC";
   if (sort === "priceAsc") {
     sortQuery = "ORDER BY newPrice ASC";
   } else if (sort === "priceDesc") {

@@ -172,7 +172,7 @@ function TourFilter() {
           <div className="filter-group">
             <label className="filter-label">Ngày khởi hành</label>
             <input
-              type="date"
+              type="date" 
               className="filter-input"
               name="startDate"
               value={filters.startDate}

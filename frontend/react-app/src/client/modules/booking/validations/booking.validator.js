@@ -1,70 +1,61 @@
-import Joi from "joi";
-
 export const validateBookingStep1 = (formData) => {
-  const basePassengerSchema = Joi.object({
-    fullName: Joi.string().trim().required().messages({
-      "string.empty": "Họ tên không được để trống",
-      "any.required": "Họ tên là bắt buộc",
-    }),
-    dob: Joi.string().required().messages({
-      "string.empty": "Ngày sinh là bắt buộc",
-      "any.required": "Ngày sinh là bắt buộc",
-    }),
-    gender: Joi.string().required(),
-    phone: Joi.string().allow("").optional(),
-  });
-
-  const schema = Joi.object({
-    contact: Joi.object({
-      fullName: Joi.string().trim().required().messages({
-        "string.empty": "Họ tên không được để trống",
-        "any.required": "Họ tên là bắt buộc",
-      }),
-      phone: Joi.string()
-        .pattern(/^(0|\+84)[3|5|7|8|9][0-9]{8}$/)
-        .required()
-        .messages({
-          "string.empty": "Số điện thoại không được để trống",
-          "string.pattern.base": "Số điện thoại không hợp lệ (phải đủ 10 số)",
-          "any.required": "Số điện thoại là bắt buộc",
-        }),
-      email: Joi.string()
-        .email({ tlds: { allow: false } })
-        .required()
-        .messages({
-          "string.empty": "Email không được để trống",
-          "string.email": "Email không đúng định dạng",
-          "any.required": "Email là bắt buộc",
-        }),
-      address: Joi.string().allow("").optional(),
-    }),
-    note: Joi.string().allow("").optional(),
-    passengerDetails: Joi.object({
-      adults: Joi.array().items(
-        basePassengerSchema.append({
-          phone: Joi.string()
-            .pattern(/^(0|\+84)[3|5|7|8|9][0-9]{8}$/)
-            .required()
-            .messages({
-              "string.empty": "Số điện thoại không được để trống",
-              "string.pattern.base": "Số điện thoại không hợp lệ (phải đủ 10 số)",
-              "any.required": "Số điện thoại là bắt buộc",
-            }),
-        })
-      ).required(),
-      children: Joi.array().items(basePassengerSchema).required(),
-      infants: Joi.array().items(basePassengerSchema).required(),
-    }).required(),
-  });
-
-  const { error } = schema.validate(formData, { abortEarly: false });
   const errors = {};
 
-  if (error) {
-    error.details.forEach((err) => {
-      const key = err.path.join(".");
-      errors[key] = err.message;
-    });
+  const contact = formData?.contact || {};
+
+  if (!contact.fullName || contact.fullName.trim() === "") {
+    errors["contact.fullName"] = "Họ tên không được để trống";
   }
+
+  const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+  if (!contact.phone || contact.phone.trim() === "") {
+    errors["contact.phone"] = "Số điện thoại không được để trống";
+  } else if (!phoneRegex.test(contact.phone)) {
+    errors["contact.phone"] = "Số điện thoại không hợp lệ (phải đủ 10 số)";
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!contact.email || contact.email.trim() === "") {
+    errors["contact.email"] = "Email không được để trống";
+  } else if (!emailRegex.test(contact.email)) {
+    errors["contact.email"] = "Email không đúng định dạng";
+  }
+
+  const passengerDetails = formData?.passengerDetails || {};
+
+  const validatePassenger = (passenger, type, index) => {
+    const prefix = `passengerDetails.${type}.${index}`;
+
+    if (!passenger.fullName || passenger.fullName.trim() === "") {
+      errors[`${prefix}.fullName`] = "Họ tên là bắt buộc";
+    }
+
+    if (!passenger.dob || passenger.dob.trim() === "") {
+      errors[`${prefix}.dob`] = "Ngày sinh là bắt buộc";
+    }
+
+    if (!passenger.gender || passenger.gender.trim() === "") {
+      errors[`${prefix}.gender`] = "Giới tính là bắt buộc";
+    }
+
+    if (type === "adults") {
+      if (!passenger.phone || passenger.phone.trim() === "") {
+        errors[`${prefix}.phone`] = "Số điện thoại không được để trống";
+      } else if (!phoneRegex.test(passenger.phone)) {
+        errors[`${prefix}.phone`] = "Số điện thoại không hợp lệ (phải đủ 10 số)";
+      }
+    }
+  };
+
+  const passengerTypes = ["adults", "children", "infants"];
+  passengerTypes.forEach((type) => {
+    const passengers = passengerDetails[type];
+    if (Array.isArray(passengers)) {
+      passengers.forEach((passenger, index) => {
+        validatePassenger(passenger, type, index);
+      });
+    }
+  });
+
   return errors;
 };
