@@ -38,6 +38,22 @@ export const validateBookingStep1 = (formData) => {
       errors[`${prefix}.gender`] = "Giới tính là bắt buộc";
     }
 
+    if (passenger.dob && passenger.dob.trim() !== "") {
+      const dobDate = new Date(passenger.dob);
+      const today = new Date();
+      let age = today.getFullYear() - dobDate.getFullYear();
+      const m = today.getMonth() - dobDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+        age--;
+      }
+      
+      if (age >= 14) {
+        if (!passenger.identity_card || passenger.identity_card.trim() === "") {
+          errors[`${prefix}.identity_card`] = "Hành khách từ 14 tuổi trở lên bắt buộc nhập CMND/CCCD/Passport";
+        }
+      }
+    }
+
     if (type === "adults") {
       if (!passenger.phone || passenger.phone.trim() === "") {
         errors[`${prefix}.phone`] = "Số điện thoại không được để trống";

@@ -14,7 +14,7 @@ database.connect();
 //cấu hình CORS
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.URL_FE_1 || process.env.URL_FE_2,
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),

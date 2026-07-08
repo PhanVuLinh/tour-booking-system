@@ -19,6 +19,9 @@ function BookingSidebar({
   subtotal,
   discountAmount,
   finalPrice,
+  payableAmount,
+  remainingAmount,
+  paymentType,
 
   promoCode,
   setPromoCode,
@@ -133,10 +136,20 @@ function BookingSidebar({
                   : formatPrice(0)}
               </strong>
             </div>
-            <div className="booking-total">
-              <span>Thanh toán:</span>
+            <div className="price-item">
+              <span>Tổng sau giảm:</span>
               <strong>{formatPrice(finalPrice)}</strong>
             </div>
+            <div className="booking-total">
+              <span>Cần thanh toán:</span>
+              <strong>{formatPrice(payableAmount)}</strong>
+            </div>
+            {paymentType === "50" && (
+              <div className="price-item remaining-payment">
+                <span>Còn lại:</span>
+                <strong>{formatPrice(remainingAmount)}</strong>
+              </div>
+            )}
           </div>
 
           {/* Chữ hiển thị nút bấm thay đổi linh động dựa theo Bước */}

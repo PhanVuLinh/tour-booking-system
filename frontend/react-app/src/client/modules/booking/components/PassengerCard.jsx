@@ -78,7 +78,7 @@ const PassengerCard = ({ type, index, isAdult, groupKey, passengerData = {}, onD
                 <label className="form-label">
                   Giới tính <span className="text-red">(*)</span>
                 </label>
-                <select 
+                <select
                   className={`b-input ${formErrors[`passengerDetails.${groupKey}.${arrayIndex}.gender`] ? "error-border" : ""}`}
                   value={passengerData.gender || "Nam"}
                   onChange={(e) => onDataChange("gender", e.target.value)}
@@ -90,6 +90,25 @@ const PassengerCard = ({ type, index, isAdult, groupKey, passengerData = {}, onD
                   <span className="error-text">
                     <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
                     {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.gender`]}
+                  </span>
+                )}
+              </div>
+
+              <div className="form-group full-width">
+                <label className="form-label">
+                  CMND/CCCD/Passport (Nếu có)
+                </label>
+                <input
+                  type="text"
+                  className={`b-input ${formErrors[`passengerDetails.${groupKey}.${arrayIndex}.identity_card`] ? "error-border" : ""}`}
+                  placeholder="Ví dụ: 079099123456"
+                  value={passengerData.identity_card || ""}
+                  onChange={(e) => onDataChange("identity_card", e.target.value)}
+                />
+                {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.identity_card`] && (
+                  <span className="error-text">
+                    <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
+                    {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.identity_card`]}
                   </span>
                 )}
               </div>

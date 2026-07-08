@@ -2723,6 +2723,18 @@ input:checked+.slider:before {
   color: #16a34a !important;
 }
 
+.remaining-payment {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff7ed;
+}
+
+.remaining-payment span,
+.remaining-payment strong {
+  color: #c2410c;
+}
+
 .booking-total {
   margin-top: 12px;
   padding-top: 14px;

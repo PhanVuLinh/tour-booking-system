@@ -1,22 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 const Step2Payment = () => {
   const navigate = useNavigate();
-
-  // State lưu tùy chọn thanh toán: "100" (Toàn bộ) hoặc "50" (Cọc)
-  const [paymentType, setPaymentType] = useState("100");
+  const { formData, paymentType, setPaymentType } = useOutletContext();
 
   // State lưu phương thức thanh toán
   const [paymentMethod, setPaymentMethod] = useState("vnpay");
 
-  // Giả lập dữ liệu liên hệ lấy từ Step 1 (Sau này bạn thay bằng dữ liệu từ context hoặc location.state)
-  const contactInfo = {
-    fullName: "Nguyễn Văn A",
-    phone: "0901234567",
-    email: "email@travelgo.com",
-    address: "190 Pasteur, Phường Xuân Hòa, TP.HCM",
-  };
+  const contactInfo = formData?.contact || {};
 
   return (
     <div className="step2-payment-wrapper">
@@ -36,20 +28,26 @@ const Step2Payment = () => {
         <div className="contact-info-grid">
           <div className="ci-item">
             <span className="ci-label">Họ và tên</span>
-            <strong className="ci-value">{contactInfo.fullName}</strong>
+            <strong className="ci-value">
+              {contactInfo.fullName || "Chưa cập nhật"}
+            </strong>
           </div>
           <div className="ci-item">
             <span className="ci-label">Số điện thoại</span>
-            <strong className="ci-value">{contactInfo.phone}</strong>
+            <strong className="ci-value">
+              {contactInfo.phone || "Chưa cập nhật"}
+            </strong>
           </div>
           <div className="ci-item">
             <span className="ci-label">Email</span>
-            <strong className="ci-value">{contactInfo.email}</strong>
+            <strong className="ci-value">
+              {contactInfo.email || "Chưa cập nhật"}
+            </strong>
           </div>
           <div className="ci-item">
             <span className="ci-label">Địa chỉ</span>
             <strong className="ci-value">
-              {contactInfo.address || "Chưa cung cấp"}
+              {contactInfo.address || "Chưa cập nhật"}
             </strong>
           </div>
         </div>
@@ -197,6 +195,33 @@ const Step2Payment = () => {
               <span className="mi-desc">
                 Chuyển khoản thủ công qua Internet Banking (Vietcombank,
                 MBBank...).
+              </span>
+            </div>
+          </label>
+
+          {/* Thanh toán trực tiếp tại quầy / COD */}
+          <label
+            className={`method-item ${paymentMethod === "cod" ? "active" : ""}`}
+          >
+            <div className="mi-radio">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cod"
+                checked={paymentMethod === "cod"}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              <span className="custom-radio"></span>
+            </div>
+            <img
+              src="https://scontent.subi.vn/cmsmedia/icon-thanh-to%C3%A1n-7651ec377ce85a4c35912fb6b92385e4.png"
+              alt="COD"
+              className="mi-logo"
+            />
+            <div className="mi-info">
+              <span className="mi-name">Thanh toán trực tiếp tại quầy (COD)</span>
+              <span className="mi-desc">
+                Quý khách vui lòng đến trực tiếp văn phòng TravelGo để thanh toán tiền mặt.
               </span>
             </div>
           </label>
