@@ -6,6 +6,7 @@ const tourRoutes = require("../modules/tours/tour.route");
 const categoryRoutes = require("../modules/categories/category.route");
 const contactRoutes = require("../modules/contacts/contact.route");
 const bookingRoutes = require("../modules/bookings/booking.route");
+const couponRoutes = require("../modules/coupons/coupon.route");
 
 // router.use("/auth", authRoutes);
 router.use("/", authRoutes);
@@ -19,5 +20,7 @@ router.use("/categories", categoryRoutes);
 router.use("/contacts", contactRoutes);
 
 router.use("/booking", bookingRoutes);
+
+router.use("/coupons", couponRoutes);
 
 module.exports = router;

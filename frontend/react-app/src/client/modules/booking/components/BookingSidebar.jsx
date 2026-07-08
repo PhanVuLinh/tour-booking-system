@@ -17,19 +17,21 @@ function BookingSidebar({
   priceInfant,
 
   subtotal,
-  discountAmount,
-  finalPrice,
+  discount,
+  total,
   payableAmount,
   remainingAmount,
   paymentType,
 
   promoCode,
   setPromoCode,
+  isPromoApplied,
 
   formatPrice,
   currentStep,
 
   handleApplyPromo,
+  handleRemovePromo,
   handleNextStep,
   handleBackStep,
 }) {
@@ -111,14 +113,15 @@ function BookingSidebar({
                 className="promo-input-coupon"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
+                readOnly={isPromoApplied}
                 placeholder="Nhập mã giảm giá"
               />
               <button
                 type="button"
                 className="btn-apply"
-                onClick={handleApplyPromo}
+                onClick={isPromoApplied ? handleRemovePromo : handleApplyPromo}
               >
-                Dùng mã
+                {isPromoApplied ? "Xóa mã" : "Dùng mã"}
               </button>
             </div>
           </div>
@@ -131,14 +134,12 @@ function BookingSidebar({
             <div className="price-item">
               <span>Giảm:</span>
               <strong className="discount-price">
-                {discountAmount > 0
-                  ? `- ${formatPrice(discountAmount)}`
-                  : formatPrice(0)}
+                {discount > 0 ? `- ${formatPrice(discount)}` : formatPrice(0)}
               </strong>
             </div>
             <div className="price-item">
               <span>Tổng sau giảm:</span>
-              <strong>{formatPrice(finalPrice)}</strong>
+              <strong>{formatPrice(total)}</strong>
             </div>
             <div className="booking-total">
               <span>Cần thanh toán:</span>

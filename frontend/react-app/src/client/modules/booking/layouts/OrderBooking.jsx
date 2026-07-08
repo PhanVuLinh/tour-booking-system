@@ -6,7 +6,7 @@ import { Breadcrumb } from "../../../shared";
 import { buildBookingBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { BookingStepper, BookingSidebar } from "../components";
 import { validateBookingStep1 } from "../validations/booking.validator";
-import { createBookingService } from "../services";
+import { createBookingService, checkCouponService } from "../services";
 
 function OrderBooking() {
   const location = useLocation();
@@ -35,9 +35,8 @@ function OrderBooking() {
 
   //Mã giảm giá
   const [promoCode, setPromoCode] = useState(location.state?.promoCode || "");
-  const [discountAmount, setDiscountAmount] = useState(
-    location.state?.discountAmount || 0,
-  );
+  const [discount, setDiscount] = useState(location.state?.discount || 0);
+  const [couponId, setCouponId] = useState(location.state?.couponId || null);
 
   const initialPassengerDetails = {
     adults: Array.from({ length: passengers.adults || 1 }).map(() => ({
@@ -91,18 +90,19 @@ function OrderBooking() {
         },
         formData: formData,
         promoCode: promoCode,
-        discountAmount: discountAmount,
+        discount: discount,
+        couponId: couponId,
         paymentType: paymentType,
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     adultCount,
     childCount,
     infantCount,
     formData,
     promoCode,
-    discountAmount,
+    discount,
+    couponId,
     paymentType,
   ]);
 
@@ -117,10 +117,10 @@ function OrderBooking() {
     childCount * priceChild +
     infantCount * priceInfant;
 
-  const finalPrice = Math.max(Math.round(subtotal - discountAmount), 0);
-  const payableAmount =
-    paymentType === "50" ? Math.ceil(finalPrice * 0.5) : finalPrice;
-  const remainingAmount = Math.max(finalPrice - payableAmount, 0);
+  const total = Math.max(Math.round(subtotal - discount), 0);
+
+  const payableAmount = paymentType === "50" ? Math.ceil(total * 0.5) : total;
+  const remainingAmount = Math.max(total - payableAmount, 0);
 
   const currentStep = location.pathname.includes("/success")
     ? 3
@@ -149,7 +149,13 @@ function OrderBooking() {
       if (isAdd) {
         const newPassenger =
           type === "adult"
-            ? { fullName: "", dob: "", gender: "Nam", phone: "", identity_card: "" }
+            ? {
+                fullName: "",
+                dob: "",
+                gender: "Nam",
+                phone: "",
+                identity_card: "",
+              }
             : { fullName: "", dob: "", gender: "Nam", identity_card: "" };
         return {
           ...prev,
@@ -170,22 +176,38 @@ function OrderBooking() {
     });
   };
 
-  const handleApplyPromo = () => {
+  const handleApplyPromo = async () => {
     const code = promoCode.trim().toUpperCase();
     if (!code) {
-      setDiscountAmount(0);
+      setDiscount(0);
+      setCouponId(null);
+      toast.error("Vui lòng nhập mã giảm giá!");
       return;
     }
-    if (code === "GIAM10") {
-      setDiscountAmount(Math.min(subtotal * 0.1, subtotal));
-      return;
+
+    try {
+      const response = await checkCouponService({ code, subTotal: subtotal });
+      if (response.success && response.data) {
+        setDiscount(response.data.discount);
+        setCouponId(response.data.coupon_id);
+        toast.success(response.message);
+      } else {
+        setDiscount(0);
+        setCouponId(null);
+        toast.error(response.message || "Mã giảm giá không hợp lệ");
+      }
+    } catch (error) {
+      setDiscount(0);
+      setCouponId(null);
+      toast.error(error.response?.data?.message || "Mã giảm giá không hợp lệ");
     }
-    if (code === "GIAM500K") {
-      setDiscountAmount(Math.min(500000, subtotal));
-      return;
-    }
-    setDiscountAmount(0);
-    alert("Mã giảm giá không hợp lệ");
+  };
+
+  const handleRemovePromo = () => {
+    setPromoCode("");
+    setDiscount(0);
+    setCouponId(null);
+    toast.success("Đã xóa mã giảm giá");
   };
 
   const handleNextStep = async () => {
@@ -244,9 +266,10 @@ function OrderBooking() {
         childrenPrice: priceChild,
         babyPrice: priceInfant,
         subTotal: subtotal,
-        total: finalPrice, // Tổng tiền booking là giá sau khi giảm giá, không bị ảnh hưởng bởi hình thức cọc
+        total: total, // Tổng tiền booking là giá sau khi giảm giá, không bị ảnh hưởng bởi hình thức cọc
         payableAmount: payableAmount, // Số tiền khách thanh toán thực tế (50% hoặc 100%)
-        discount_id: null,
+        coupon_id: couponId,
+        discount: discount,
         note: formData.note,
         paymentMethod: "cod",
         paymentType,
@@ -282,8 +305,9 @@ function OrderBooking() {
                 infants: infantCount,
               },
               subtotal,
-              discountAmount,
-              finalPrice,
+              couponId,
+              discount,
+              total,
               payableAmount,
               remainingAmount,
               paymentType,
@@ -366,16 +390,18 @@ function OrderBooking() {
             priceChild={priceChild}
             priceInfant={priceInfant}
             subtotal={subtotal}
-            discountAmount={discountAmount}
-            finalPrice={finalPrice}
+            discount={discount}
+            total={total}
             payableAmount={payableAmount}
             remainingAmount={remainingAmount}
             paymentType={paymentType}
             promoCode={promoCode}
             setPromoCode={setPromoCode}
+            isPromoApplied={Boolean(couponId)}
             formatPrice={formatPrice}
             currentStep={currentStep}
             handleApplyPromo={handleApplyPromo}
+            handleRemovePromo={handleRemovePromo}
             handleNextStep={handleNextStep}
             handleBackStep={handleBackStep}
           />
