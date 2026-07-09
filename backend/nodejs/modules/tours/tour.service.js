@@ -94,3 +94,63 @@ module.exports.getTourDetailBySlug = async (slug) => {
     schedules: schedules,
   };
 };
+
+module.exports.searchTours = async ({ locationFrom, quantity, date }) => {
+  let sql = `
+    SELECT 
+      tours.id,
+      tours.slug,
+      tours.title,
+      tours.thumbnail,
+      tours.time,
+      departures.id AS departure_id,
+      departures.departureFrom,
+      departures.startDate,
+      departures.priceAdult AS oldPrice,
+      departures.discountPercentage,
+      (
+        departures.priceAdult - (
+          departures.priceAdult * IFNULL(departures.discountPercentage, 0) / 100
+        )
+      ) AS newPrice,
+      (
+        departures.stockAdult + departures.stockChildren + departures.stockBaby
+      ) AS slots,
+      vehicles.name AS vehicleName,
+      vehicles.vehicleType AS vehicleType
+    FROM tours 
+    LEFT JOIN categories ON tours.category_id = categories.id
+    LEFT JOIN departures ON tours.id = departures.tour_id
+    LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
+    WHERE tours.deleted = 0
+      AND tours.status = 'active' 
+      AND departures.deleted = 0 
+      AND departures.status = 'active'
+  `;
+  const queryParams = [];
+
+  if (locationFrom) {
+    sql +=
+      " AND (tours.title LIKE ? OR categories.title LIKE ? OR departures.departureFrom LIKE ?)";
+    queryParams.push(`%${locationFrom}%`, `%${locationFrom}%`);
+    queryParams.push(`%${locationFrom}%`);
+  }
+
+  if (date) {
+    sql += ` AND DATE(departures.startDate) = ?`;
+    queryParams.push(date);
+  }
+
+  if (quantity) {
+    const num = parseInt(quantity, 10);
+    if (!isNaN(num)) {
+      sql += ` AND (departures.stockAdult + departures.stockChildren + departures.stockBaby) >= ?`;
+      queryParams.push(num);
+    }
+  }
+
+  sql += ` ORDER BY departures.startDate ASC, tours.createdAt DESC`;
+
+  const [tours] = await pool.query(sql, queryParams);
+  return tours;
+};

@@ -9,7 +9,7 @@ module.exports.createBooking = async (bookingData) => {
       fullName,
       phone,
       email,
-      address = null, // Dữ liệu người đặt
+      address = null,
       departure_id,
       coupon_id = null,
       quantityAdult = 0,
@@ -27,6 +27,7 @@ module.exports.createBooking = async (bookingData) => {
       paymentType = "100",
       payableAmount = 0,
     } = bookingData;
+
     // Tạo mã Booking (Ví dụ: BKG-1718001234)
     const bookingCode =
       "BKG-" +
@@ -118,7 +119,10 @@ module.exports.createBooking = async (bookingData) => {
   } catch (error) {
     await connection.rollback();
     console.error("Lỗi khi tạo booking:", error);
-    return { success: false, message: "Lỗi hệ thống: " + error.message };
+    return {
+      success: false,
+      message: "Lỗi hệ thống: " + error.message,
+    };
   } finally {
     connection.release();
   }

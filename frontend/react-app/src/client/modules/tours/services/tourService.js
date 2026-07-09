@@ -31,3 +31,17 @@ export const getTourDetail = async (slug) => {
     const result = await get(`/tours/detail/${slug}`);
     return result;
 };
+
+export const searchTours = async (filterParams = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (filterParams.locationFrom)
+        queryParams.append('locationFrom', filterParams.locationFrom);
+    if (filterParams.quantity)
+        queryParams.append('quantity', filterParams.quantity);
+    if (filterParams.date)
+        queryParams.append('date', filterParams.date);
+
+    const result = await get(`/tours/search?${queryParams.toString()}`);
+    return result;
+};

@@ -4,7 +4,7 @@ import { MainLayout } from "../layouts";
 
 import { Home } from "../modules/home";
 
-import { TourList, TourDetail } from "../modules/tours";
+import { TourList, TourDetail, SearchPage } from "../modules/tours";
 
 import { OrderBooking } from "../modules/booking/layouts";
 
@@ -33,7 +33,10 @@ export const clientRoutes = [
         index: true,
         element: <Home />,
       },
-
+      {
+        path: "search",
+        element: <SearchPage />
+      },
       {
         path: "login",
         element: <Login />,

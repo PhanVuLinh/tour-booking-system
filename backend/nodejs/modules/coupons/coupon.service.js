@@ -18,18 +18,21 @@ module.exports.checkCouponCode = async (code, subTotal) => {
     const coupon = rows[0];
     const now = new Date();
 
-    // 1. Kiểm tra hạn sử dụng
     if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) {
       return {
         success: false,
         message: "Mã giảm giá không nằm trong thời gian áp dụng!",
       };
     }
-    // 2. Kiểm tra số lượng
+
     if (coupon.usedCount >= coupon.quantity) {
-      return { success: false, message: "Mã giảm giá đã hết lượt sử dụng!" };
+      return {
+        success: false,
+        message: "Mã giảm giá đã hết lượt sử dụng!",
+      };
     }
-    // 3. Tính toán số tiền được giảm
+
+    //Tính số tiền được giảm
     let discount = (subTotal * coupon.discountPercentage) / 100;
 
     // Nếu vượt quá mức giảm tối đa thì chỉ lấy mức tối đa
@@ -47,6 +50,9 @@ module.exports.checkCouponCode = async (code, subTotal) => {
     };
   } catch (error) {
     console.error("Lỗi khi kiểm tra mã giảm giá:", error);
-    return { success: false, message: "Lỗi hệ thống: " + error.message };
+    return {
+      success: false,
+      message: "Lỗi hệ thống: " + error.message,
+    };
   }
 };

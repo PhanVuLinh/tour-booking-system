@@ -8,20 +8,40 @@ module.exports.getTourDetail = async (req, res) => {
     if (!tourDetail) {
       return res.status(404).json({
         success: false,
-        message: "Không tìm thấy thông tin tour yêu cầu!",
+        message: "Khong tim thay thong tin tour yeu cau!",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Lấy chi tiết tour thành công!",
+      message: "Lay chi tiet tour thanh cong!",
       data: tourDetail,
     });
   } catch (error) {
-    console.error("Lỗi Controller getDetail:", error);
+    console.error("Loi Controller getDetail:", error);
     return res.status(500).json({
       success: false,
-      message: "Đã xảy ra lỗi hệ thống bên Server!",
+      message: "Da xay ra loi he thong ben Server!",
+    });
+  }
+};
+
+module.exports.searchTours = async (req, res) => {
+  try {
+    const { locationFrom, quantity, date } = req.query;
+
+    const tours = await tourService.searchTours({ locationFrom, quantity, date });
+
+    return res.status(200).json({
+      success: true,
+      message: "Tim kiem tour thanh cong!",
+      data: tours,
+    });
+  } catch (error) {
+    console.error("Loi Controller searchTours:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Da xay ra loi he thong ben Server!",
     });
   }
 };

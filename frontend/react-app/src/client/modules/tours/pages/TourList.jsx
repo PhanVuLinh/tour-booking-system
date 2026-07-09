@@ -136,8 +136,8 @@ function TourList() {
 
             <div className="tour-grid-3">
               {isLoading ? (
-                <div className="tour-list-loading">
-                  <i className="fa-solid fa-circle-notch fa-spin fa-3x"></i>
+                <div className="client-loading-state">
+                  <div className="client-spinner"></div>
                   <p>Hệ thống đang tìm kiếm Tour tốt nhất cho bạn...</p>
                 </div>
               ) : tours.length > 0 ? (

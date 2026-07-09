@@ -1,14 +1,15 @@
 const bookingService = require("./booking.service");
 
-const createBooking = async (req, res) => {
+module.exports.createBooking = async (req, res) => {
   try {
     const bookingData = req.body;
 
-    // Validate cơ bản
     if (!bookingData.departure_id)
-      return res
-        .status(400)
-        .json({ success: false, message: "Thiếu departure_id" });
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu departure_id",
+      });
+
     if (!bookingData.fullName || !bookingData.phone || !bookingData.email) {
       return res.status(400).json({
         success: false,
@@ -16,7 +17,10 @@ const createBooking = async (req, res) => {
       });
     }
     if (!bookingData.total)
-      return res.status(400).json({ success: false, message: "Thiếu total" });
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu total",
+      });
 
     const result = await bookingService.createBooking(bookingData);
 
@@ -28,5 +32,3 @@ const createBooking = async (req, res) => {
       .json({ success: false, message: "Lỗi server nội bộ" });
   }
 };
-
-module.exports = { createBooking };

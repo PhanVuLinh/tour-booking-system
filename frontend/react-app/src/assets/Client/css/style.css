@@ -58,6 +58,35 @@ body {
   padding: 0 15px;
 }
 
+/* Common loading */
+.client-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  grid-column: 1 / -1;
+  padding: 80px 0;
+  color: #666;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.client-spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(69, 2, 199, 0.1);
+  border-left-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .top-bar__inner,
 .navbar__inner {
   width: 1184px;
@@ -129,11 +158,11 @@ body {
   display: flex;
 }
 
-.nav-links>li {
+.nav-links > li {
   position: relative;
 }
 
-.nav-links>li::after {
+.nav-links > li::after {
   content: "";
   position: absolute;
   top: 100%;
@@ -143,7 +172,7 @@ body {
   background-color: transparent;
 }
 
-.nav-links>li>a {
+.nav-links > li > a {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -155,13 +184,13 @@ body {
   transition: 0.25s;
 }
 
-.nav-links>li>a:hover,
-.nav-links>li>a.active {
+.nav-links > li > a:hover,
+.nav-links > li > a.active {
   color: var(--blue-dark);
 }
 
-.nav-links>li>a:hover .arrow,
-.nav-links>li>a.active .arrow {
+.nav-links > li > a:hover .arrow,
+.nav-links > li > a.active .arrow {
   color: var(--blue-dark);
 }
 
@@ -171,7 +200,7 @@ body {
   transition: 0.25s;
 }
 
-.nav-links>li:hover .arrow {
+.nav-links > li:hover .arrow {
   transform: rotate(180deg);
 }
 
@@ -191,7 +220,7 @@ body {
   border-top: 3px solid var(--blue-dark);
 }
 
-.nav-links>li:hover .dropdown {
+.nav-links > li:hover .dropdown {
   display: block;
   animation: dropdownFade 0.25s ease;
 }
@@ -1028,6 +1057,140 @@ body {
   gap: 20px;
 }
 
+/* =========================================
+   TRANG KẾT QUẢ TÌM KIẾM (SEARCH PAGE)
+   ========================================= */
+.search-page-wrapper {
+  padding: 40px 0 80px 0;
+}
+
+/* Header tìm kiếm */
+.search-page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.search-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 10px;
+}
+
+.search-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* Các thẻ Tags tóm tắt thông tin tìm kiếm */
+.search-summary-tags {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--white);
+  padding: 15px 25px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  display: inline-flex;
+}
+
+.summary-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  margin-right: 5px;
+}
+
+.search-summary-tags .tag {
+  background: rgba(69, 2, 199, 0.08); /* Màu tím nhạt */
+  color: var(--color-primary);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-summary-tags .tag i {
+  font-size: 14px;
+}
+
+.search-results-count {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.search-results-count strong {
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+.tour-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+/* --- TRẠNG THÁI LOADING (ĐANG TẢI) --- */
+/* --- TRẠNG THÁI TRỐNG (KHÔNG CÓ KẾT QUẢ) --- */
+.search-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  padding: 60px 30px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.search-empty-state img {
+  width: 120px;
+  opacity: 0.6;
+  margin-bottom: 20px;
+}
+
+.search-empty-state h3 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.search-empty-state p {
+  color: #777;
+  font-size: 15px;
+  max-width: 500px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.btn-reset-search {
+  background-color: var(--color-primary);
+  color: var(--white);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-reset-search:hover {
+  background-color: #31009c;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(69, 2, 199, 0.2);
+}
+
 .btn-view-all-wrap {
   display: flex;
   justify-content: center;
@@ -1128,10 +1291,12 @@ body {
   left: 0;
   width: 100%;
   padding: 30px 15px 15px 15px;
-  background: linear-gradient(to top,
-      rgba(69, 2, 199, 0.95) 0%,
-      rgba(69, 2, 199, 0.7) 40%,
-      transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba(69, 2, 199, 0.95) 0%,
+    rgba(69, 2, 199, 0.7) 40%,
+    transparent 100%
+  );
   color: var(--white);
   z-index: 2;
 }
@@ -1250,9 +1415,11 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom,
-      rgba(69, 2, 199, 0.2) 0%,
-      rgba(69, 2, 199, 0.85) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(69, 2, 199, 0.2) 0%,
+    rgba(69, 2, 199, 0.85) 100%
+  );
 }
 
 .box-breadcrumb .inner-content {
@@ -2468,7 +2635,6 @@ textarea.b-input::placeholder,
   width: 100%;
 }
 
-
 /* Khung form mở */
 .pc-expanded-header {
   display: flex;
@@ -2554,12 +2720,12 @@ textarea.b-input::placeholder,
   border-radius: 50%;
 }
 
-input:checked+.slider {
+input:checked + .slider {
   background-color: #007aff;
   /* Màu xanh active */
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
   transform: translateX(20px);
 }
 
@@ -2795,7 +2961,8 @@ input:checked+.slider:before {
 /* --- Cột trái: Hình ảnh --- */
 .login-left {
   width: 50%;
-  background: url("https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=80") center/cover no-repeat;
+  background: url("https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=80")
+    center/cover no-repeat;
   position: relative;
 }
 
@@ -3022,12 +3189,12 @@ input:checked+.slider:before {
   transition: 0.2s;
 }
 
-.remember-me input:checked~.checkmark {
+.remember-me input:checked ~ .checkmark {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
 
-.remember-me input:checked~.checkmark::after {
+.remember-me input:checked ~ .checkmark::after {
   content: "\f00c";
   font-weight: 900;
   color: white;
@@ -3509,12 +3676,12 @@ input:checked+.slider:before {
     flex-direction: column;
   }
 
-  .nav-links>li {
+  .nav-links > li {
     width: 100%;
     border-bottom: 1px solid #f0f0f0;
   }
 
-  .nav-links>li>a {
+  .nav-links > li > a {
     justify-content: space-between;
     padding: 16px 20px;
     height: auto;
@@ -3533,27 +3700,27 @@ input:checked+.slider:before {
     display: none;
   }
 
-  .nav-links>li:hover .dropdown {
+  .nav-links > li:hover .dropdown {
     display: none;
   }
 
-  .nav-links>li:hover .dropdown.active {
+  .nav-links > li:hover .dropdown.active {
     display: block;
   }
 
-  .nav-links>li:hover .arrow {
+  .nav-links > li:hover .arrow {
     transform: none;
   }
 
-  .nav-links>li:hover .arrow.active {
+  .nav-links > li:hover .arrow.active {
     transform: rotate(180deg);
   }
 
-  .nav-links>li>a .arrow {
+  .nav-links > li > a .arrow {
     transition: transform 0.3s ease;
   }
 
-  .nav-links>li>a .arrow.active {
+  .nav-links > li > a .arrow.active {
     transform: rotate(180deg);
   }
 
@@ -3951,23 +4118,6 @@ input:checked+.slider:before {
   .login-right {
     padding: 30px 20px;
   }
-}
-
-/* Tour List States */
-.tour-list-loading {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 50px 0;
-  color: #666;
-}
-
-.tour-list-loading i {
-  color: #ff5722;
-  margin-bottom: 15px;
-}
-
-.tour-list-loading p {
-  font-size: 1.1rem;
 }
 
 .tour-list-empty {
