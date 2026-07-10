@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Plus, RefreshCw } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Lock, RefreshCw } from "lucide-react"; 
 import { DepartureTable, DepartureTrashTable } from "../components/DepartureTable";
 import { DepartureModal } from "../components/DepartureModal";
 import { DepartureDetailModal } from "../components/DepartureDetailModal"; 
@@ -20,17 +20,28 @@ const getCurrentUserId = () => {
 };
 
 export default function DepartureList() {
+  const isAdmin = useMemo(() => {
+    const userString = localStorage.getItem("user");
+    if (!userString) return false;
+    
+    try {
+      const user = JSON.parse(userString);
+      return user.role && String(user.role).toLowerCase() === "admin";
+    } catch (e) {
+      return false;
+    }
+  }, []);
+
   const [departures, setDepartures] = useState([]);
   const [trashDepartures, setTrashDepartures] = useState([]);
   const [activeTab, setActiveTab] = useState("active");
-
   const [vehicles, setVehicles] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null); 
   const [tourList, setTourList] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editDeparture, setEditDeparture] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
-
   const [selectedDeparture, setSelectedDeparture] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [accountList, setAccountList] = useState([]);
@@ -43,20 +54,22 @@ export default function DepartureList() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const [depData, trashData, vehData, tourData, accData] = await Promise.all([
         departureService.getAll(),
-        departureService.getAllTrash(), 
+        isAdmin ? departureService.getAllTrash().catch(() => []) : Promise.resolve([]), 
         vehicleService.getAll(),
         tourService.getAll(),
-        accountService.getAllActive()
+        accountService.getAllActive().catch(() => [])
       ]);
+      
       setDepartures(depData);
       setTrashDepartures(trashData);
       setVehicles(vehData);
       setTourList(tourData);
       setAccountList(accData);
-    } catch (error) {
-      alert("Không thể kết nối đến máy chủ: " + error.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +77,7 @@ export default function DepartureList() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [isAdmin, activeTab]);
 
   const resetForm = () => {
     setFormData(initialFormState);
@@ -74,7 +87,6 @@ export default function DepartureList() {
   const handleSubmit = async () => {
     try {
       const userId = getCurrentUserId();
-
       const payload = {
         tourId: parseInt(formData.tourId),
         vehicleId: formData.vehicleId ? parseInt(formData.vehicleId) : null,
@@ -93,16 +105,15 @@ export default function DepartureList() {
 
       if (editDeparture) {
         await departureService.update(editDeparture.id, payload);
-        alert("Cập nhật lịch khởi hành thành công!");
+        alert("Cập nhật thành công!");
       } else {
         await departureService.create(payload);
-        alert("Thêm lịch khởi hành mới thành công!");
+        alert("Thêm mới thành công!");
       }
       
       setIsDialogOpen(false);
       resetForm();
       fetchData(); 
-      
     } catch (error) {
       alert("Lỗi: " + error.message);
     }
@@ -127,11 +138,10 @@ export default function DepartureList() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(`Bạn có chắc chắn muốn hủy chuyến đi này không?`)) {
+    if (window.confirm("Bạn có chắc chắn muốn hủy chuyến đi này?")) {
       try {
-        const userId = getCurrentUserId();
-        await departureService.delete(id, userId);
-        alert("Đã hủy lịch khởi hành thành công");
+        await departureService.delete(id);
+        alert("Đã hủy thành công");
         fetchData(); 
       } catch (error) {
         alert("Lỗi: " + error.message);
@@ -139,35 +149,29 @@ export default function DepartureList() {
     }
   };
 
-  const openNewDialog = () => {
-    resetForm();
-    setIsDialogOpen(true);
-  };
-
   const handleRestore = async (id) => {
     try {
       await departureService.restore(id);
-      alert("Khôi phục lịch khởi hành thành công!");
+      alert("Khôi phục thành công!");
       fetchData();
     } catch (error) {
-      alert("Lỗi khôi phục: " + error.message);
+      alert("Lỗi: " + error.message);
     }
   };
 
   const handlePermanentDelete = async (id) => {
-    if (window.confirm("Hành động này sẽ XÓA VĨNH VIỄN dữ liệu và không thể khôi phục. Bạn có chắc chắn?")) {
+    if (window.confirm("Xóa vĩnh viễn không thể khôi phục. Bạn có chắc chắn?")) {
       try {
         await departureService.hardDelete(id);
         alert("Đã xóa vĩnh viễn!");
         fetchData();
       } catch (error) {
-        alert("Lỗi xóa: " + error.message);
+        alert("Lỗi: " + error.message);
       }
     }
   };
 
   const getAccountName = (id) => {
-    if (!id) return null;
     const account = accountList.find(acc => acc.id === id);
     return account ? account.fullName : null; 
   };
@@ -180,52 +184,49 @@ export default function DepartureList() {
           <p className="text-gray-500 mt-1">Quản lý chuyến đi</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={fetchData} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50" title="Tải lại dữ liệu">
-            <RefreshCw className={`w-5 h-5 text-gray-600 ${isLoading ? "animate-spin" : ""}`} />
+          <button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm">
+            <Plus className="w-4 h-4" /> Thêm lịch
           </button>
-            <button onClick={openNewDialog} className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm">
-              <Plus className="w-4 h-4" /> Thêm lịch
-            </button>
         </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm w-full overflow-hidden">
-        
         <div className="inline-flex bg-gray-100 rounded-xl p-1 m-6 mb-2">
           <button 
             onClick={() => setActiveTab("active")} 
-            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${activeTab === "active" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all ${activeTab === "active" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
           >
             Lịch đang mở
           </button>
           <button 
-            onClick={() => setActiveTab("trash")} 
-            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => isAdmin && setActiveTab("trash")} 
+            disabled={!isAdmin}
+            title={!isAdmin ? "Cần quyền Admin để xem Thùng rác" : ""}
+            className={`flex items-center gap-1.5 py-2 px-6 font-medium text-sm rounded-lg transition-all ${
+              !isAdmin ? "opacity-50 cursor-not-allowed text-gray-400" : activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
           >
-            Thùng rác ({trashDepartures.length})
+            {!isAdmin && <Lock className="w-3.5 h-3.5" />}
+            Thùng rác {isAdmin && `(${trashDepartures.length})`}
           </button>
         </div>
 
-        <div className="p-6 pt-2">
+        {/* Cấu trúc wrapper cho bảng: Giữ nguyên min-h-64 để tránh co giật giao diện */}
+        <div className="p-6 pt-2 min-h-[300px] flex flex-col justify-start">
           {isLoading ? (
-            <div className="text-center py-10 text-gray-500 flex flex-col items-center justify-center gap-2">
-              <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
-              <span>Đang đồng bộ dữ liệu...</span>
+            <div className="flex-1 flex flex-col items-center justify-center py-12 gap-2">
+              <RefreshCw className="w-8 h-8 animate-spin text-gray-900" />
+              <p className="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
+            </div>
+          ) : error ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-12">
+              <p className="text-red-500 font-medium mb-1">Không thể tải dữ liệu</p>
+              <p className="text-gray-400 text-xs">{error}</p>
             </div>
           ) : activeTab === "active" ? (
-            <DepartureTable 
-              departures={departures} 
-              onView={handleViewDetail} 
-              onEdit={handleEdit} 
-              onDelete={handleDelete} 
-            />
+            <DepartureTable departures={departures} onView={handleViewDetail} onEdit={handleEdit} onDelete={handleDelete} />
           ) : (
-            <DepartureTrashTable 
-              departures={trashDepartures}
-              onRestore={handleRestore}
-              onPermanentDelete={handlePermanentDelete}
-              getAccountName={getAccountName}
-            />
+            <DepartureTrashTable departures={trashDepartures} onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} getAccountName={getAccountName} />
           )}
         </div>
       </div>
@@ -247,7 +248,6 @@ export default function DepartureList() {
         departure={selectedDeparture} 
         accountList={accountList}
       />
-      
     </div>
   );
 }

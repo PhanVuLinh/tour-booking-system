@@ -12,6 +12,7 @@ import { ReviewList } from "../modules/reviews";
 import { BannerList } from "../modules/banners";
 import TourForm from "../modules/tours/pages/TourForm";
 import { VehicleList } from "../modules/vehicles"
+import  {BlogForm}  from "../modules/blogs";
 
 import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
@@ -78,6 +79,14 @@ export const adminRoutes = [
           {
             path: "/admin/blogs",
             element: <BlogList />,
+          },
+          {
+            path: "/admin/blogs/new",
+            element: <BlogForm />,
+          },
+          {
+            path: "/admin/blogs/edit/:id",
+            element: <BlogForm />,
           },
           {
             path: "/admin/reviews",

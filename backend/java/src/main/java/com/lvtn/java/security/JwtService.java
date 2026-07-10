@@ -64,7 +64,14 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        return parseClaims(token).getSubject(); // Trả về Email
+        return parseClaims(token).getSubject();
+    }
+
+    public Integer extractAccountId(String token) {
+        Object accountId = parseClaims(token).get("accountId");
+        if (accountId instanceof Integer i) return i;
+        if (accountId instanceof Number n) return n.intValue();
+        return null;
     }
 
     public List<String> extractRoles(String token) {

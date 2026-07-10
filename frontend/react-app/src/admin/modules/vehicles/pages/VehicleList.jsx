@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Plus, Search, RefreshCw, Trash2, CheckCircle } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Search, RefreshCw, Trash2, Lock } from "lucide-react";
 import { VehicleTable, VehicleTrashTable } from "../components/VehicleTable";
 import { VehicleModal } from "../components/VehicleModal";
 import { vehicleService } from "../services/vehicleService";
@@ -11,6 +11,16 @@ const initialFormState = {
 };
 
 export default function VehicleList() {
+  // 1. Kiểm tra quyền Admin
+  const isAdmin = useMemo(() => {
+    try {
+      const userString = localStorage.getItem("user");
+      if (!userString) return false;
+      const user = JSON.parse(userString);
+      return user.role && String(user.role).toLowerCase() === "admin";
+    } catch (e) { return false; }
+  }, []);
+
   const [vehicles, setVehicles] = useState([]);
   const [deletedVehicles, setDeletedVehicles] = useState([]);
   const [accountList, setAccountList] = useState([]);
@@ -27,13 +37,14 @@ export default function VehicleList() {
     try {
       setIsLoading(true);
       const [vData, trashData, accData] = await Promise.all([
-        vehicleService.getAll(),
-        vehicleService.getAllTrash(),
-        accountService.getAllActive()
+        vehicleService.getAll().catch(() => []),
+        isAdmin ? vehicleService.getAllTrash().catch(() => []) : Promise.resolve([]),
+        accountService.getAllActive().catch(() => [])
       ]);
-      setVehicles(vData);
-      setDeletedVehicles(trashData);
-      setAccountList(accData);
+      
+      setVehicles(Array.isArray(vData) ? vData : []);
+      setDeletedVehicles(Array.isArray(trashData) ? trashData : []);
+      setAccountList(Array.isArray(accData) ? accData : []);
     } catch (error) {
       alert("Lỗi tải dữ liệu: " + error.message);
     } finally {
@@ -48,11 +59,11 @@ export default function VehicleList() {
 
   useEffect(() => {
     fetchVehicles();
-  }, [activeTab]);
+  }, [isAdmin,activeTab]);
 
   const getAccountName = (id) => {
     if (!id) return null;
-    const account = accountList.find(acc => acc.id === id);
+    const account = accountList.find(acc => String(acc.id) === String(id));
     return account ? account.fullName : null;
   };
 
@@ -169,14 +180,23 @@ export default function VehicleList() {
           <button 
             onClick={() => { setIsLoading(true); setActiveTab("active"); }} 
             className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${activeTab === "active" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
-          >
-            <CheckCircle className="w-4 h-4" /> Đang hoạt động
+          >Đang hoạt động
           </button>
+          
           <button 
-            onClick={() => { setIsLoading(true); setActiveTab("trash"); }} 
-            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => { if (isAdmin) { setIsLoading(true); setActiveTab("trash"); } }} 
+            disabled={!isAdmin}
+            title={!isAdmin ? "Bạn cần quyền Admin để xem Thùng rác" : ""}
+            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
+              !isAdmin 
+                ? "opacity-50 cursor-not-allowed text-gray-400"
+                : activeTab === "trash" 
+                ? "bg-white text-gray-900 shadow-sm" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
           >
-            <Trash2 className="w-4 h-4" /> Thùng rác
+            {!isAdmin ? <Lock className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+            Thùng rác {isAdmin && `(${deletedVehicles.length})`}
           </button>
         </div>
 

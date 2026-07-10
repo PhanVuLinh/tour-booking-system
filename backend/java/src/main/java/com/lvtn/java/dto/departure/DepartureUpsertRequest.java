@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 public class DepartureUpsertRequest {
     private Integer tourId;
     private Integer vehicleId;
+    private Integer guideId;
     private LocalDateTime startTime;
+    private LocalDateTime endDate;
     private BigDecimal priceAdult;
     private BigDecimal priceChildren;
     private BigDecimal priceBaby;

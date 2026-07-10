@@ -2,6 +2,7 @@ package com.lvtn.java.controller;
 
 import com.lvtn.java.dto.category.CategoryResponse;
 import com.lvtn.java.dto.category.CategoryUpsertRequest;
+import com.lvtn.java.security.SecurityUtils;
 import com.lvtn.java.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final SecurityUtils securityUtils;
 
     @GetMapping
     public ResponseEntity<?> findAllActive() {
@@ -25,10 +27,10 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> save(
-            @RequestBody CategoryUpsertRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) Integer creatorId) {
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<?> save(@RequestBody CategoryUpsertRequest request) {
         try {
+            Integer creatorId = securityUtils.getCurrentAccountId();
             CategoryResponse response = categoryService.create(request, creatorId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -37,11 +39,10 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(
-            @PathVariable Integer id,
-            @RequestBody CategoryUpsertRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) Integer updaterId) {
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody CategoryUpsertRequest request) {
         try {
+            Integer updaterId = securityUtils.getCurrentAccountId();
             CategoryResponse response = categoryService.update(id, request, updaterId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -50,10 +51,10 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(
-            @PathVariable Integer id,
-            @RequestHeader(value = "X-User-Id", required = false) Integer deleterId) {
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<String> deleteById(@PathVariable Integer id) {
         try {
+            Integer deleterId = securityUtils.getCurrentAccountId();
             categoryService.delete(id, deleterId);
             return ResponseEntity.ok("Đã chuyển danh mục vào thùng rác thành công");
         } catch (Exception e) {
@@ -73,10 +74,9 @@ public class CategoryController {
 
     @PutMapping("/{id}/restore")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> restore(
-            @PathVariable Integer id,
-            @RequestHeader(value = "X-User-Id", required = false) Integer restorerId) {
+    public ResponseEntity<?> restore(@PathVariable Integer id) {
         try {
+            Integer restorerId = securityUtils.getCurrentAccountId();
             categoryService.restore(id, restorerId);
             return ResponseEntity.ok("Khôi phục danh mục thành công");
         } catch (Exception e) {

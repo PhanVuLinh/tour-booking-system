@@ -19,8 +19,11 @@ public class DepartureResponse {
     private Integer vehicleId;
     private String vehicleName;
     private VehicleType vehicleType;
+    private Integer guideId;
+    private String guideName;
     private String departureFrom;
     private LocalDateTime startTime;
+    private LocalDateTime endDate;
     private BigDecimal priceAdult;
     private BigDecimal priceChildren;
     private BigDecimal priceBaby;

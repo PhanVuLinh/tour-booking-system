@@ -10,6 +10,7 @@ import com.lvtn.java.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +20,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
+
+    private static final String ADMIN_ROLE = "ADMIN";
+
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
     private final ModelMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     private AccountResponse mapToResponse(Account account) {
         AccountResponse response = mapper.map(account, AccountResponse.class);
@@ -35,9 +40,10 @@ public class AccountServiceImpl implements AccountService {
     private boolean isAdmin(Integer accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thông tin người thực hiện"));
-        return account.getRole() != null && account.getRole().getName().toLowerCase().contains("admin");
+        return account.getRole() != null && ADMIN_ROLE.equalsIgnoreCase(account.getRole().getName());
     }
-    private void checkAdminRole(Integer accountId) {
+
+    private void checkAdmin(Integer accountId) {
         if (!isAdmin(accountId)) {
             throw new RuntimeException("Từ chối truy cập: Chỉ Quản trị viên (Admin) mới có quyền thực hiện hành động này!");
         }
@@ -63,14 +69,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountResponse create(AccountRequest request, Integer creatorId) {
-        checkAdminRole(creatorId);
+        checkAdmin(creatorId);
 
         if (accountRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email này đã được sử dụng!");
         }
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new RuntimeException("Mật khẩu không được để trống!");
+        }
 
-        mapper.typeMap(AccountRequest.class, Account.class).addMappings(m -> m.skip(Account::setRole));
+        mapper.typeMap(AccountRequest.class, Account.class).addMappings(m -> {
+            m.skip(Account::setRole);
+            m.skip(Account::setPassword);
+        });
         Account account = mapper.map(request, Account.class);
+        account.setPassword(passwordEncoder.encode(request.getPassword()));
 
         if (request.getRoleId() != null) {
             Role role = roleRepository.findById(request.getRoleId())
@@ -89,9 +102,9 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountResponse update(Integer id, AccountRequest request, String avatarUrl, Integer updaterId) {
         boolean isSelfUpdate = id.equals(updaterId);
-        boolean hasAdminRole = isAdmin(updaterId);
+        boolean isAdmin = isAdmin(updaterId);
 
-        if (!isSelfUpdate && !hasAdminRole) {
+        if (!isSelfUpdate && !isAdmin) {
             throw new RuntimeException("Từ chối truy cập!");
         }
 
@@ -108,15 +121,17 @@ public class AccountServiceImpl implements AccountService {
         }
         if (request.getPhone() != null) account.setPhone(request.getPhone());
         if (request.getJobTitle() != null) account.setJobTitle(request.getJobTitle());
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            account.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
 
-        // ✅ Dùng URL từ controller (đã upload xong), giữ ảnh cũ nếu không có file mới
         if (avatarUrl != null && !avatarUrl.isBlank()) {
             account.setAvatar(avatarUrl);
         } else if (request.getAvatar() != null) {
             account.setAvatar(request.getAvatar());
         }
 
-        if (hasAdminRole) {
+        if (isAdmin) {
             if (request.getRoleId() != null) {
                 Role role = roleRepository.findById(request.getRoleId())
                         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy role"));
@@ -132,7 +147,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void delete(Integer id, Integer deleterId) {
-        checkAdminRole(deleterId);
+        checkAdmin(deleterId);
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản với ID: " + id));
@@ -145,7 +160,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void restore(Integer id) {
+    public void restore(Integer id, Integer restorerId) {
+        checkAdmin(restorerId);
+
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản với ID: " + id));
 
@@ -157,7 +174,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void hardDelete(Integer id) {
+    public void hardDelete(Integer id, Integer requesterId) {
+        checkAdmin(requesterId);
+
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản với ID: " + id));
         accountRepository.delete(account);

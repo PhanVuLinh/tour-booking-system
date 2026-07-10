@@ -8,10 +8,10 @@ import java.util.List;
 public interface DepartureService {
     List<DepartureResponse> findAll();
     DepartureResponse findById(Integer id);
-    DepartureResponse create(DepartureUpsertRequest request);
-    DepartureResponse update(Integer id, DepartureUpsertRequest request);
+    DepartureResponse create(DepartureUpsertRequest request, Integer creatorId);
+    DepartureResponse update(Integer id, DepartureUpsertRequest request, Integer updaterId);
     void delete(Integer id, Integer userId);
-    void restore(Integer id);
+    void restore(Integer id, Integer restorerId);
     void hardDelete(Integer id);
     List<DepartureResponse> findAllTrash();
 }

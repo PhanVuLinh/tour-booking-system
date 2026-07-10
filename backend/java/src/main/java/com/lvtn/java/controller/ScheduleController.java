@@ -4,6 +4,7 @@ import com.lvtn.java.dto.schedule.ScheduleResponse;
 import com.lvtn.java.dto.schedule.ScheduleUpsertRequest;
 import com.lvtn.java.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/tour/{tourId}")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<?> saveSchedules(@PathVariable Integer tourId, @RequestBody List<ScheduleUpsertRequest> requests) {
         try {
             scheduleService.saveAll(tourId, requests);

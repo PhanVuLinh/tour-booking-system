@@ -63,7 +63,7 @@ public class TourServiceImpl implements TourService {
         String baseSlug = generateSlug(request.getTitle());
         String slug = baseSlug;
 
-        if (tourRepository.existsBySlug(slug)) {
+        if (tourRepository.existsBySlugIncludingDeleted(slug)) {
             slug = baseSlug + "-" + System.currentTimeMillis();
         }
 

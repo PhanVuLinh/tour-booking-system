@@ -1,7 +1,33 @@
 import { X } from "lucide-react";
 
-export function EmployeeFormModal({ isOpen, onClose, formData, setFormData, onSubmit }) {
+export function EmployeeFormModal({ isOpen, onClose, formData, setFormData, onSubmit, roles = [] }) {
   if (!isOpen) return null;
+
+  const handleSubmit = () => {
+    if (!formData.fullName || !formData.fullName.trim()) {
+      alert("Vui lòng nhập họ và tên!");
+      return;
+    }
+    if (!formData.email || !formData.email.trim()) {
+      alert("Vui lòng nhập email đăng nhập!");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("Email không hợp lệ!");
+      return;
+    }
+    if (!formData.password || formData.password.length < 6) {
+      alert("Mật khẩu phải có ít nhất 6 ký tự!");
+      return;
+    }
+    if (!formData.roleId) {
+      alert("Vui lòng chọn phân quyền!");
+      return;
+    }
+
+    onSubmit();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
@@ -15,7 +41,7 @@ export function EmployeeFormModal({ isOpen, onClose, formData, setFormData, onSu
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Họ và tên <span className="text-red-500">*</span></label>
@@ -42,9 +68,21 @@ export function EmployeeFormModal({ isOpen, onClose, formData, setFormData, onSu
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Phân quyền</label>
-              <select value={formData.roleId} onChange={(e) => setFormData({ ...formData, roleId: Number(e.target.value) })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none">
-                <option value={1}>Admin (Toàn quyền)</option>
-                <option value={2}>Staff (Nhân viên)</option>
+              {/* ✅ Render động từ props.roles thay vì 3 option hardcode.
+                  Nếu roles chưa tải xong (mảng rỗng), hiện placeholder disable. */}
+              <select
+                value={formData.roleId || ""}
+                onChange={(e) => setFormData({ ...formData, roleId: Number(e.target.value) })}
+                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none"
+              >
+                {roles.length === 0 && (
+                  <option value="" disabled>Đang tải danh sách phân quyền...</option>
+                )}
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -54,7 +92,7 @@ export function EmployeeFormModal({ isOpen, onClose, formData, setFormData, onSu
           <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
             Hủy
           </button>
-          <button onClick={onSubmit} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+          <button onClick={handleSubmit} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
             Tạo tài khoản
           </button>
         </div>

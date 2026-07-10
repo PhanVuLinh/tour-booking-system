@@ -34,7 +34,8 @@ public class DepartureServiceImpl implements DepartureService {
                 .addMappings(m -> m.skip(DepartureResponse::setVehicleId));
         this.mapper.typeMap(DepartureUpsertRequest.class, Departure.class)
                 .addMappings(m -> m.skip(Departure::setTourId))
-                .addMappings(m -> m.skip(Departure::setVehicle));
+                .addMappings(m -> m.skip(Departure::setVehicle))
+                .addMappings(m -> m.skip(Departure::setUpdatedBy));
     }
 
     private DepartureResponse mapToResponse(Departure departure) {
@@ -65,7 +66,7 @@ public class DepartureServiceImpl implements DepartureService {
         return mapToResponse(departure);
     }
 
-    public DepartureResponse create(DepartureUpsertRequest request) {
+    public DepartureResponse create(DepartureUpsertRequest request, Integer creatorId) {
         Departure departure = mapper.map(request, Departure.class);
 
         Tour tour = tourRepository.findById(request.getTourId())
@@ -78,17 +79,18 @@ public class DepartureServiceImpl implements DepartureService {
             departure.setVehicle(vehicle);
         }
 
+        departure.setCreatedBy(creatorId);
+        departure.setUpdatedBy(creatorId);
+
         Departure savedDeparture = departureRepository.save(departure);
         return mapToResponse(savedDeparture);
     }
 
-    public DepartureResponse update(Integer id, DepartureUpsertRequest request) {
+    public DepartureResponse update(Integer id, DepartureUpsertRequest request, Integer updaterId) {
         Departure existing = departureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Lịch khởi hành với ID: " + id));
         mapper.map(request, existing);
-        if (request.getUpdatedBy() != null) {
-            existing.setUpdatedBy(request.getUpdatedBy());
-        }
+        existing.setUpdatedBy(updaterId);
         existing.setUpdatedAt(LocalDateTime.now());
 
         if (request.getTourId() != null) {
@@ -118,21 +120,25 @@ public class DepartureServiceImpl implements DepartureService {
         }
         departureRepository.save(existing);
     }
+
     public List<DepartureResponse> findAllTrash() {
         return departureRepository.findAllTrash().stream()
                 .map(this::mapToResponse)
                 .toList();
     }
-    public void restore(Integer id) {
+
+    public void restore(Integer id, Integer restorerId) {
         Departure existing = departureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Lịch khởi hành với ID: " + id));
 
         existing.setDeleted(false);
         existing.setDeletedAt(null);
         existing.setDeletedBy(null);
+        existing.setUpdatedBy(restorerId);
 
         departureRepository.save(existing);
     }
+
     public void hardDelete(Integer id) {
         Departure existing = departureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Lịch khởi hành với ID: " + id));

@@ -12,6 +12,6 @@ public interface AccountService {
     AccountResponse create(AccountRequest request, Integer creatorId);
     AccountResponse update(Integer id, AccountRequest request, String avatarUrl, Integer updaterId);
     void delete(Integer id, Integer deleterId);
-    void restore(Integer id);
-    void hardDelete(Integer id);
+    void restore(Integer id, Integer restorerId);
+    void hardDelete(Integer id, Integer requesterId);
 }

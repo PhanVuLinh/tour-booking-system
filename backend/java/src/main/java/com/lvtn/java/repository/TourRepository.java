@@ -11,6 +11,10 @@ import java.util.List;
 
 public interface TourRepository extends JpaRepository<Tour, Integer> {
     boolean existsBySlug(String slug);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM tours WHERE slug = :slug)", nativeQuery = true)
+    boolean existsBySlugIncludingDeleted(@Param("slug") String slug);
+
     int countByCategoryIdAndDeletedFalse(Integer categoryId);
     boolean existsByCategoryIdAndDeletedFalse(Integer categoryId);
 

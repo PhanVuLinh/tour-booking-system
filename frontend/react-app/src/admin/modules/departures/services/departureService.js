@@ -3,7 +3,7 @@ import { apiClient } from '../../login/services/authService';
 export const departureService = {
   getAll: async () => {
     try {
-      const response = await apiClient.get('/departure', { params: { status: 'active' } });
+      const response = await apiClient.get('/departure');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data || "Lấy danh sách lịch khởi hành thất bại");
@@ -28,11 +28,9 @@ export const departureService = {
     }
   },
 
-  delete: async (id, userId) => {
+  delete: async (id) => {
     try {
-      const response = await apiClient.delete(`/departure/${id}`, {
-        params: { userId } 
-      });
+      const response = await apiClient.delete(`/departure/${id}`);
       return response.data; 
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data || "Xóa lịch khởi hành thất bại");

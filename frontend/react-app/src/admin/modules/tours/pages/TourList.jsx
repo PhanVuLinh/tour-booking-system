@@ -1,12 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Lock } from "lucide-react";
 import { TourTable, TourTrashTable } from "../components/TourTable";
 import { TourDetailModal } from "../components/TourDetailModal"; 
 import { tourService } from "../services/tourService";
 import { accountService } from "../../users/services/accountService";
 
 export function TourList() {
+  const isAdmin = useMemo(() => {
+    try {
+      const userString = localStorage.getItem("user");
+      if (!userString) return false;
+      const user = JSON.parse(userString);
+      return user.role && String(user.role).toLowerCase() === "admin";
+    } catch (e) { return false; }
+  }, []);
+
   const [tours, setTours] = useState([]);
   const [deletedTours, setDeletedTours] = useState([]);
   const [accountList, setAccountList] = useState([]);
@@ -23,11 +32,10 @@ export function TourList() {
       try {
         setLoading(true);
         setError(null);
-
         const [toursData, categoriesData, trashData, accountsData] = await Promise.all([
-          tourService.getAll().catch(() => []),       
+          tourService.getAll().catch(() => []),      
           tourService.getCategories().catch(() => []),
-          tourService.getAllTrash().catch(() => []),
+          isAdmin ? tourService.getAllTrash().catch(() => []) : Promise.resolve([]),
           accountService.getAllActive().catch(() => [])
         ]);
 
@@ -59,7 +67,7 @@ export function TourList() {
     };
     
     loadData();
-  }, []);
+  }, [isAdmin,activeTab]);
 
   const getAccountName = (id) => {
     if (!id) return null;
@@ -169,13 +177,22 @@ export function TourList() {
           >
             Tour ({tours.length})
           </button>
+          
+          {/* 3. Logic UI Khóa Tab Thùng rác */}
           <button
-            onClick={() => setActiveTab("trash")}
-            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
-              activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            onClick={() => isAdmin && setActiveTab("trash")}
+            disabled={!isAdmin}
+            title={!isAdmin ? "Bạn cần quyền Admin để xem Thùng rác" : ""}
+            className={`flex items-center gap-1.5 py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
+              !isAdmin
+                ? "opacity-50 cursor-not-allowed text-gray-400" 
+                : activeTab === "trash"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            Thùng rác ({deletedTours.length})
+            {!isAdmin && <Lock className="w-3.5 h-3.5" />}
+            Thùng rác {isAdmin && `(${deletedTours.length})`}
           </button>
         </div>
 

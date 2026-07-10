@@ -2,9 +2,11 @@ package com.lvtn.java.controller;
 
 import com.lvtn.java.dto.user.UserRequest;
 import com.lvtn.java.dto.user.UserResponse;
+import com.lvtn.java.security.SecurityUtils;
 import com.lvtn.java.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final SecurityUtils securityUtils;
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllActive() {
@@ -21,6 +24,7 @@ public class UserController {
     }
 
     @GetMapping("/trash")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllTrash() {
         return ResponseEntity.ok(userService.findAllTrash());
     }
@@ -35,11 +39,9 @@ public class UserController {
     }
 
 //    @PostMapping
-//    public ResponseEntity<?> create(
-//            @RequestBody UserRequest request,
-//            @RequestHeader("X-User-Id") Integer accountId
-//    ) {
+//    public ResponseEntity<?> create(@RequestBody UserRequest request) {
 //        try {
+//            Integer accountId = securityUtils.getCurrentAccountId();
 //            return ResponseEntity.ok(userService.create(request, accountId));
 //        } catch (RuntimeException e) {
 //            return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,12 +49,10 @@ public class UserController {
 //    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(
-            @PathVariable Integer id,
-            @RequestBody UserRequest request,
-            @RequestHeader("X-User-Id") Integer accountId
-    ) {
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody UserRequest request) {
         try {
+            Integer accountId = securityUtils.getCurrentAccountId();
             return ResponseEntity.ok(userService.update(id, request, accountId));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -60,11 +60,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(
-            @PathVariable Integer id,
-            @RequestHeader("X-User-Id") Integer accountId
-    ) {
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
+            Integer accountId = securityUtils.getCurrentAccountId();
             userService.delete(id, accountId);
             return ResponseEntity.ok("Khóa tài khoản khách hàng thành công!");
         } catch (RuntimeException e) {
@@ -73,11 +72,10 @@ public class UserController {
     }
 
     @PutMapping("/{id}/restore")
-    public ResponseEntity<?> restore(
-            @PathVariable Integer id,
-            @RequestHeader("X-User-Id") Integer accountId
-    ) {
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<?> restore(@PathVariable Integer id) {
         try {
+            Integer accountId = securityUtils.getCurrentAccountId();
             userService.restore(id, accountId);
             return ResponseEntity.ok("Mở khóa khách hàng thành công!");
         } catch (RuntimeException e) {
@@ -86,11 +84,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/force")
-    public ResponseEntity<?> hardDelete(
-            @PathVariable Integer id,
-            @RequestHeader("X-User-Id") Integer accountId
-    ) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> hardDelete(@PathVariable Integer id) {
         try {
+            Integer accountId = securityUtils.getCurrentAccountId();
             userService.hardDelete(id, accountId);
             return ResponseEntity.ok("Xóa vĩnh viễn khách hàng!");
         } catch (RuntimeException e) {

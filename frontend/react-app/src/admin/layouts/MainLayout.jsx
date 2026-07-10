@@ -9,6 +9,8 @@ import {
 import { getMeService } from "../modules/login/services/authService"; 
 import UserProfileModal from "../modules/users/components/UserProfileModal";
 import { accountService } from "../modules/users/services/accountService";
+import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
+
 
 const navigation = [
   { name: "Tổng quan", href: "/admin", icon: LayoutDashboard },
@@ -81,14 +83,9 @@ export default function MainLayout() {
       
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full shrink-0 px-4">
         <div className="flex flex-col h-full relative">
-            
-          <div className="h-20 border-b border-gray-200 flex flex-col justify-center shrink-0">
-            <h1 className="font-bold text-xl text-blue-600">Tour Admin</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {user?.role === "ADMIN" ? "Quản trị viên" : "Nhân viên"}
-            </p>
-          </div>
-
+          <Link to="/admin" className="flex mt-4 w-full">
+            <img className="logo__img " src={logoTravelGo} alt="TRAVELGO" />
+          </Link>
           <nav className="flex-1 overflow-y-auto py-6">
             <ul className="flex flex-col gap-1">
               {navigation.map((item) => {

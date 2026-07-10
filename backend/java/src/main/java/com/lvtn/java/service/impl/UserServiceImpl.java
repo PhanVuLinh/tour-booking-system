@@ -10,6 +10,7 @@ import com.lvtn.java.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +23,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final ModelMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     private UserResponse mapToResponse(User user) {
         return mapper.map(user, UserResponse.class);
     }
+
 
     private void checkAdminOrStaffRole(Integer accountId) {
         Account account = accountRepository.findById(accountId)
@@ -66,8 +69,15 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email khách hàng đã tồn tại!");
         }
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new RuntimeException("Mật khẩu không được để trống!");
+        }
 
+        mapper.typeMap(UserRequest.class, User.class).addMappings(m -> m.skip(User::setPassword));
         User user = mapper.map(request, User.class);
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
         if (user.getStatus() == null) user.setStatus("active");
 
         return mapToResponse(userRepository.save(user));
@@ -89,8 +99,9 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
 
         if (request.getStatus() != null) user.setStatus(request.getStatus());
+
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(request.getPassword());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
         return mapToResponse(userRepository.save(user));

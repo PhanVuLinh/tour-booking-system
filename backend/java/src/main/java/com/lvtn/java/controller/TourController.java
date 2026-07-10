@@ -3,6 +3,7 @@ package com.lvtn.java.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
+import com.lvtn.java.security.SecurityUtils;
 import com.lvtn.java.service.AccountService;
 import com.lvtn.java.service.TourService;
 import com.lvtn.java.service.impl.ImageUploadServiceImpl;
@@ -25,16 +26,18 @@ public class TourController {
     private final TourService tourService;
     private final ImageUploadServiceImpl imageUploadService;
     private final AccountService accountService;
+    private final SecurityUtils securityUtils;
+    private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<TourResponse> createTour(
             @RequestPart("data") String dataJson,
             @RequestPart(value = "file", required = false) MultipartFile file,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
-            @RequestHeader("X-User-Id") Integer creatorId) throws Exception {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws Exception {
 
-        ObjectMapper objectMapper = new ObjectMapper();
         TourCreateRequest request = objectMapper.readValue(dataJson, TourCreateRequest.class);
+        Integer creatorId = securityUtils.getCurrentAccountId();
 
         String imageUrl = (file != null) ? imageUploadService.uploadImage(file) : null;
 
@@ -57,16 +60,16 @@ public class TourController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<TourResponse> updateTour(
             @PathVariable Integer id,
             @RequestPart("data") String dataJson,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
-            @RequestParam(value = "existingImageUrls", required = false) List<String> existingImageUrls,
-            @RequestHeader("X-User-Id") Integer updaterId) throws Exception {
+            @RequestParam(value = "existingImageUrls", required = false) List<String> existingImageUrls) throws Exception {
 
-        ObjectMapper objectMapper = new ObjectMapper();
         TourCreateRequest request = objectMapper.readValue(dataJson, TourCreateRequest.class);
+        Integer updaterId = securityUtils.getCurrentAccountId();
 
         String imageUrl = (file != null) ? imageUploadService.uploadImage(file) : null;
 
@@ -77,14 +80,14 @@ public class TourController {
             }
         }
 
-        return ResponseEntity.ok(tourService.updateTour(id, request, imageUrl, galleryUrls,existingImageUrls, updaterId));
+        return ResponseEntity.ok(tourService.updateTour(id, request, imageUrl, galleryUrls, existingImageUrls, updaterId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTour(
-            @PathVariable Integer id,
-            @RequestHeader("X-User-Id") Integer deleterId) {
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public ResponseEntity<?> deleteTour(@PathVariable Integer id) {
         try {
+            Integer deleterId = securityUtils.getCurrentAccountId();
             tourService.deleteTour(id, deleterId);
             return ResponseEntity.ok("Đã chuyển Tour vào thùng rác thành công!");
         } catch (RuntimeException e) {
@@ -115,10 +118,9 @@ public class TourController {
 
     @PutMapping("/{id}/restore")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> restoreTour(
-            @PathVariable Integer id,
-            @RequestHeader("X-User-Id") Integer restorerId) {
+    public ResponseEntity<?> restoreTour(@PathVariable Integer id) {
         try {
+            Integer restorerId = securityUtils.getCurrentAccountId();
             tourService.restore(id, restorerId);
             return ResponseEntity.ok("Khôi phục tour thành công");
         } catch (Exception e) {

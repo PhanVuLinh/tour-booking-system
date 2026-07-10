@@ -23,6 +23,7 @@ export const categoryService = {
       const response = await apiClient.get('/category/trash', getAuthHeaders());
       return response.data;
     } catch (error) {
+      if (error.response?.status === 403) return [];
       throw new Error(error.response?.data?.message || "Lỗi khi tải dữ liệu thùng rác");
     }
   },

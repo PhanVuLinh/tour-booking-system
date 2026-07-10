@@ -1,17 +1,22 @@
 import { useState, useEffect } from "react";
-import { Plus, Search } from "lucide-react";
-import { CustomerTable } from "../components/UserTable"; 
+import { Plus, Search, Lock } from "lucide-react";
+import { CustomerTable } from "../components/UserTable";
 import { EmployeeTable } from "../components/AccountTable";
 import { UserDetailModal } from "../components/UserDetailModal";
 import { EmployeeFormModal } from "../components/EmployeeFormModal";
-import { accountService } from "../services/accountService"; 
-import { userService } from "../services/userService"; 
-
-const currentUserRole = "admin"; 
+import { accountService } from "../services/accountService";
+import { userService } from "../services/userService";
+import { roleService } from "../services/roleService";
+import { apiClient } from "../../login/services/authService";
 
 export default function UserManagement() {
-  const [customers, setCustomers] = useState([]); 
-  const [employees, setEmployees] = useState([]); 
+
+  const [currentUserRole, setCurrentUserRole] = useState(null);
+  const isAdmin = (currentUserRole || "").toLowerCase() === "admin";
+
+  const [customers, setCustomers] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [customerSearch, setCustomerSearch] = useState("");
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [activeTab, setActiveTab] = useState("customers");
@@ -20,7 +25,7 @@ export default function UserManagement() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEmployeeFormOpen, setIsEmployeeFormOpen] = useState(false);
   const defaultEmployeeForm = {
-    fullName: "", email: "", phone: "", password: "", jobTitle: "", roleId: 2, status: "active"
+    fullName: "", email: "", phone: "", password: "", jobTitle: "", roleId: null, status: "active"
   };
   const [employeeFormData, setEmployeeFormData] = useState(defaultEmployeeForm);
 
@@ -48,12 +53,41 @@ export default function UserManagement() {
     }
   };
 
-  useEffect(() => {
-    loadCustomers();
-    if (currentUserRole === "admin") {
-      loadEmployees();
+  const loadRoles = async () => {
+    try {
+      const data = await roleService.getAll();
+      setRoles(data);
+      const defaultRole =
+        data.find((r) => r.name.toLowerCase() !== "admin") || data[0];
+      if (defaultRole) {
+        setEmployeeFormData((prev) => ({ ...prev, roleId: defaultRole.id }));
+      }
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      try {
+        const res = await apiClient.get("/admin/auth/me");
+        setCurrentUserRole(res.data.role);
+      } catch (error) {
+        setCurrentUserRole(null);
+      }
+    };
+    loadCurrentUser();
+    loadCustomers();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadEmployees();
+      loadRoles();
+    } else {
+      setActiveTab("customers");
+    }
+  }, [isAdmin]);
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
@@ -96,7 +130,7 @@ export default function UserManagement() {
 
   const handleDelete = async (id, userType) => {
     if (!window.confirm("Đưa tài khoản này vào thùng rác?")) return;
-    
+
     if (userType === "customer") {
       try {
         await userService.softDelete(id);
@@ -117,7 +151,7 @@ export default function UserManagement() {
   };
 
   const viewDetail = (user, type) => {
-    setSelectedUser({ ...user, role: type }); 
+    setSelectedUser({ ...user, role: type });
     setIsDetailOpen(true);
   };
 
@@ -142,6 +176,7 @@ export default function UserManagement() {
       setIsEmployeeFormOpen(false);
       setEmployeeFormData(defaultEmployeeForm);
       loadEmployees();
+      loadRoles();
     } catch (error) {
       alert(error.message || "Tạo tài khoản thất bại");
     }
@@ -157,28 +192,32 @@ export default function UserManagement() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden p-6">
-        {currentUserRole === "admin" && (
-          <div className="inline-flex bg-gray-100 rounded-xl p-1 mb-6">
-            <button
-              onClick={() => setActiveTab("customers")}
-              className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
-                activeTab === "customers" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Khách hàng ({customers.length})
-            </button>
-            <button
-              onClick={() => setActiveTab("employees")}
-              className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
-                activeTab === "employees" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Nhân viên ({employees.length})
-            </button>
-          </div>
-        )}
+        <div className="inline-flex bg-gray-100 rounded-xl p-1 mb-6">
+          <button
+            onClick={() => setActiveTab("customers")}
+            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
+              activeTab === "customers" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Khách hàng ({customers.length})
+          </button>
+          <button
+            onClick={() => isAdmin && setActiveTab("employees")}
+            disabled={!isAdmin}
+            className={`flex items-center gap-1.5 py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
+              !isAdmin
+                ? "opacity-50 cursor-not-allowed"
+                : activeTab === "employees"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {!isAdmin && <Lock className="w-3.5 h-3.5" />}
+            Nhân viên {isAdmin && `(${employees.length})`}
+          </button>
+        </div>
 
-        {activeTab === "customers" || currentUserRole !== "admin" ? (
+        {activeTab === "customers" || !isAdmin ? (
           <div className="animate-in fade-in duration-300">
             <div className="relative max-w-sm mb-6">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -193,11 +232,11 @@ export default function UserManagement() {
             {loading ? (
               <div className="text-center py-10 text-gray-500">Đang tải dữ liệu khách hàng...</div>
             ) : (
-              <CustomerTable 
-                data={filteredCustomers} 
-                onView={(user) => viewDetail(user, 'customer')} 
-                onToggleLock={handleToggleLock} 
-                onDelete={handleDelete} 
+              <CustomerTable
+                data={filteredCustomers}
+                onView={(user) => viewDetail(user, 'customer')}
+                onToggleLock={handleToggleLock}
+                onDelete={handleDelete}
               />
             )}
           </div>
@@ -214,42 +253,42 @@ export default function UserManagement() {
                   className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:bg-white focus:border-gray-300 focus:ring-2 focus:ring-gray-100 text-sm transition-all"
                 />
               </div>
-              <button 
+              <button
                 onClick={() => setIsEmployeeFormOpen(true)}
                 className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-colors font-medium shadow-sm"
               >
                 <Plus className="w-4 h-4" /> Tạo tài khoản nhân viên
               </button>
             </div>
-            
+
             {loading ? (
               <div className="text-center py-10 text-gray-500">Đang tải dữ liệu nhân viên...</div>
             ) : (
-              <EmployeeTable 
-                data={filteredEmployees} 
-                onView={(user) => viewDetail(user, 'employee')} 
-                onToggleLock={handleToggleLock} 
-                onDelete={handleDelete} 
+              <EmployeeTable
+                data={filteredEmployees}
+                onView={(user) => viewDetail(user, 'employee')}
+                onToggleLock={handleToggleLock}
+                onDelete={handleDelete}
               />
             )}
           </div>
         )}
       </div>
 
-      <UserDetailModal 
-        isOpen={isDetailOpen} 
-        onClose={() => setIsDetailOpen(false)} 
-        user={selectedUser} 
+      <UserDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        user={selectedUser}
       />
 
-      <EmployeeFormModal 
-        isOpen={isEmployeeFormOpen} 
-        onClose={() => setIsEmployeeFormOpen(false)} 
-        formData={employeeFormData} 
-        setFormData={setEmployeeFormData} 
-        onSubmit={handleCreateEmployee} 
+      <EmployeeFormModal
+        isOpen={isEmployeeFormOpen}
+        onClose={() => setIsEmployeeFormOpen(false)}
+        formData={employeeFormData}
+        setFormData={setEmployeeFormData}
+        onSubmit={handleCreateEmployee}
+        roles={roles}
       />
-
     </div>
   );
 }
