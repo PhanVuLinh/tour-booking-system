@@ -2,15 +2,22 @@ import { useState, useEffect } from "react";
 import { Upload, X, ImageIcon } from "lucide-react";
 
 export function TourImageUpload({
-  thumbnail,        
-  onThumbnailChange,  
-  onThumbnailRemove, 
-  imageFile,     
-  galleryFiles,     
-  galleryPreviews,    
-  onGalleryChange,   
-  onGalleryRemove,    
+  thumbnail,
+  onThumbnailChange,
+  onThumbnailRemove,
+  imageFile,
+  galleryFiles,
+  galleryPreviews,
+  onGalleryChange,
+  onGalleryRemove,
 }) {
+
+  const handleThumbnailInput = (e) => {
+    const file = e.target.files?.[0] || null;
+    onThumbnailChange(file);
+    e.target.value = "";
+  };
+
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
       <div className="p-6 border-b border-gray-100">
@@ -46,7 +53,7 @@ export function TourImageUpload({
                 </div>
                 <p className="text-sm font-semibold text-gray-700">Nhấn để chọn ảnh</p>
                 <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP · Tối đa 5MB</p>
-                <input type="file" accept="image/*" className="hidden" onChange={onThumbnailChange} />
+                <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailInput} />
               </label>
             )}
           </div>
@@ -54,7 +61,7 @@ export function TourImageUpload({
           {thumbnail && (
             <label className="w-full mt-3 inline-flex items-center justify-center gap-2 py-2 px-4 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
               <Upload className="w-4 h-4" /> Đổi ảnh đại diện
-              <input type="file" accept="image/*" className="hidden" onChange={onThumbnailChange} />
+              <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailInput} />
             </label>
           )}
 

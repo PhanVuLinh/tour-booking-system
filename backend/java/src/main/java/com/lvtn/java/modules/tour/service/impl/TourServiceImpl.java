@@ -127,6 +127,12 @@ public class TourServiceImpl implements TourService {
         Tour existingTour = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Tour với ID: " + id));
 
+        mapper.typeMap(TourCreateRequest.class, Tour.class)
+                .addMappings(m -> {
+                    m.skip(Tour::setCreatedBy);
+                    m.skip(Tour::setUpdatedBy);
+                    m.skip(Tour::setDeletedBy);
+                });
         mapper.map(request, existingTour);
 
         if (imageUrl != null && !imageUrl.isBlank()) {

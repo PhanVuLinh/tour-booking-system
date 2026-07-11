@@ -13,6 +13,7 @@ import { BannerList } from "../modules/banners";
 import TourForm from "../modules/tours/pages/TourForm";
 import { VehicleList } from "../modules/vehicles"
 import  {BlogForm}  from "../modules/blogs";
+import { ContactList } from "../modules/contacts";
 
 import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
@@ -96,6 +97,10 @@ export const adminRoutes = [
             path: "/admin/banners",
             element: <BannerList />,
           },
+          {
+            path: "/admin/contacts",
+            element: <ContactList />,
+          }
         ],
       },
     ],

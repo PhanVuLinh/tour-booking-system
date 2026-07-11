@@ -24,6 +24,7 @@ const navigation = [
   { name: "Bài viết", href: "/admin/blogs", icon: FileText },
   { name: "Đánh giá", href: "/admin/reviews", icon: MessageSquare },
   { name: "Banner", href: "/admin/banners", icon: ImageIcon },
+  { name: "Liên hệ", href: "/admin/contacts", icon: MessageSquare },
 ];
 
 export default function MainLayout() {
