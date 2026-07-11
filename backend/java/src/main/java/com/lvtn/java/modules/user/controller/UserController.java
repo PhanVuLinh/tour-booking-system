@@ -1,9 +1,9 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.user.controller;
 
 import com.lvtn.java.dto.user.UserRequest;
 import com.lvtn.java.dto.user.UserResponse;
 import com.lvtn.java.security.SecurityUtils;
-import com.lvtn.java.service.UserService;
+import com.lvtn.java.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

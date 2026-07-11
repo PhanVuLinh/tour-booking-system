@@ -1,14 +1,14 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.tour.service.impl;
 
-import com.lvtn.java.domain.entity.Tour;
-import com.lvtn.java.domain.entity.TourImage;
+import com.lvtn.java.modules.tour.entity.Tour;
+import com.lvtn.java.modules.tour.entity.TourImage;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
-import com.lvtn.java.repository.DepartureRepository;
-import com.lvtn.java.repository.TourImageRepository;
-import com.lvtn.java.repository.TourRepository;
-import com.lvtn.java.service.ScheduleService;
-import com.lvtn.java.service.TourService;
+import com.lvtn.java.modules.tripDetails.repository.DepartureRepository;
+import com.lvtn.java.modules.tour.repository.TourImageRepository;
+import com.lvtn.java.modules.tour.repository.TourRepository;
+import com.lvtn.java.modules.tripDetails.service.ScheduleService;
+import com.lvtn.java.modules.tour.service.TourService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

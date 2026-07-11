@@ -1,6 +1,6 @@
-package com.lvtn.java.repository;
+package com.lvtn.java.modules.coupon.repository;
 
-import com.lvtn.java.domain.entity.Coupon;
+import com.lvtn.java.modules.coupon.entity.Coupon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;

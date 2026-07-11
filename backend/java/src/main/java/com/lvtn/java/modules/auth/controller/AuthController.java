@@ -1,7 +1,7 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.auth.controller;
 
 import com.lvtn.java.dto.auth.*;
-import com.lvtn.java.service.AuthService;
+import com.lvtn.java.modules.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

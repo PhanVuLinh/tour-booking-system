@@ -1,6 +1,6 @@
-package com.lvtn.java.repository;
+package com.lvtn.java.modules.tripDetails.repository;
 
-import com.lvtn.java.domain.entity.Schedule;
+import com.lvtn.java.modules.tripDetails.entity.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -1,4 +1,4 @@
-package com.lvtn.java.service;
+package com.lvtn.java.modules.coupon.service;
 
 import com.lvtn.java.dto.coupon.CouponRequest;
 import com.lvtn.java.dto.coupon.CouponResponse;

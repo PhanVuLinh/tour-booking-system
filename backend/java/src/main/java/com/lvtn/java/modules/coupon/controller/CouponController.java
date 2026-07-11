@@ -1,9 +1,9 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.coupon.controller;
 
 import com.lvtn.java.dto.coupon.CouponRequest;
 import com.lvtn.java.dto.coupon.CouponResponse;
 import com.lvtn.java.security.SecurityUtils;
-import com.lvtn.java.service.CouponService;
+import com.lvtn.java.modules.coupon.service.CouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

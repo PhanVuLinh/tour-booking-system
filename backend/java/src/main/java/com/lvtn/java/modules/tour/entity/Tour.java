@@ -1,7 +1,8 @@
-package com.lvtn.java.domain.entity;
+package com.lvtn.java.modules.tour.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lvtn.java.domain.AuditableEntity;
+import com.lvtn.java.modules.tripDetails.entity.Departure;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;

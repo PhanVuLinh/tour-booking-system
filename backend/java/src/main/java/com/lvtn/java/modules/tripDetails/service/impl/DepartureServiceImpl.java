@@ -1,14 +1,14 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.tripDetails.service.impl;
 
-import com.lvtn.java.domain.entity.Departure;
+import com.lvtn.java.modules.tripDetails.entity.Departure;
 import com.lvtn.java.modules.tour.entity.Tour;
-import com.lvtn.java.domain.entity.Vehicle;
+import com.lvtn.java.modules.tripDetails.entity.Vehicle;
 import com.lvtn.java.dto.departure.DepartureResponse;
 import com.lvtn.java.dto.departure.DepartureUpsertRequest;
-import com.lvtn.java.repository.DepartureRepository;
+import com.lvtn.java.modules.tripDetails.repository.DepartureRepository;
 import com.lvtn.java.modules.tour.repository.TourRepository;
-import com.lvtn.java.repository.VehicleRepository;
-import com.lvtn.java.service.DepartureService;
+import com.lvtn.java.modules.tripDetails.repository.VehicleRepository;
+import com.lvtn.java.modules.tripDetails.service.DepartureService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

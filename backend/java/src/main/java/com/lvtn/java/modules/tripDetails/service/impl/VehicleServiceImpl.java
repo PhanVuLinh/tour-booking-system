@@ -1,10 +1,10 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.tripDetails.service.impl;
 
-import com.lvtn.java.domain.entity.Vehicle;
+import com.lvtn.java.modules.tripDetails.entity.Vehicle;
 import com.lvtn.java.dto.vehicle.VehicleResponse;
 import com.lvtn.java.dto.vehicle.VehicleUpsertRequest;
-import com.lvtn.java.repository.VehicleRepository;
-import com.lvtn.java.service.VehicleService;
+import com.lvtn.java.modules.tripDetails.repository.VehicleRepository;
+import com.lvtn.java.modules.tripDetails.service.VehicleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

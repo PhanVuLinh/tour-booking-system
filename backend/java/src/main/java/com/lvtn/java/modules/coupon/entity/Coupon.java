@@ -1,4 +1,4 @@
-package com.lvtn.java.domain.entity;
+package com.lvtn.java.modules.coupon.entity;
 
 import com.lvtn.java.domain.AuditableEntity;
 import jakarta.persistence.*;

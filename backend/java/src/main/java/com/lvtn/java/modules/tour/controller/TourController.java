@@ -1,12 +1,12 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.tour.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
 import com.lvtn.java.security.SecurityUtils;
-import com.lvtn.java.service.AccountService;
-import com.lvtn.java.service.TourService;
-import com.lvtn.java.service.impl.ImageUploadServiceImpl;
+import com.lvtn.java.modules.user.service.AccountService;
+import com.lvtn.java.modules.tour.service.TourService;
+import com.lvtn.java.modules.tour.service.impl.ImageUploadServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

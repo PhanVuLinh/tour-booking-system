@@ -1,4 +1,4 @@
-package com.lvtn.java.domain.entity;
+package com.lvtn.java.modules.tripDetails.entity;
 
 import com.lvtn.java.domain.AuditableEntity;
 import com.lvtn.java.domain.enums.VehicleType;

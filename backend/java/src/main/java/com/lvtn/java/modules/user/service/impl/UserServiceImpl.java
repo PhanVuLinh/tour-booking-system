@@ -1,12 +1,12 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.user.service.impl;
 
-import com.lvtn.java.domain.entity.Account;
-import com.lvtn.java.domain.entity.User;
+import com.lvtn.java.modules.user.entity.Account;
+import com.lvtn.java.modules.user.entity.User;
 import com.lvtn.java.dto.user.UserRequest;
 import com.lvtn.java.dto.user.UserResponse;
-import com.lvtn.java.repository.AccountRepository;
-import com.lvtn.java.repository.UserRepository;
-import com.lvtn.java.service.UserService;
+import com.lvtn.java.modules.user.repository.AccountRepository;
+import com.lvtn.java.modules.user.repository.UserRepository;
+import com.lvtn.java.modules.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

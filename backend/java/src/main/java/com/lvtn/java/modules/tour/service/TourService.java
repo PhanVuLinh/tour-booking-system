@@ -1,4 +1,4 @@
-package com.lvtn.java.service;
+package com.lvtn.java.modules.tour.service;
 
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;

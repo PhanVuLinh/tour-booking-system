@@ -1,6 +1,6 @@
-package com.lvtn.java.repository;
+package com.lvtn.java.modules.tour.repository;
 
-import com.lvtn.java.domain.entity.TourImage;
+import com.lvtn.java.modules.tour.entity.TourImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

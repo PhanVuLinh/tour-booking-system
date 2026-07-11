@@ -1,6 +1,6 @@
-package com.lvtn.java.repository;
+package com.lvtn.java.modules.tripDetails.repository;
 
-import com.lvtn.java.domain.entity.Vehicle;
+import com.lvtn.java.modules.tripDetails.entity.Vehicle;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

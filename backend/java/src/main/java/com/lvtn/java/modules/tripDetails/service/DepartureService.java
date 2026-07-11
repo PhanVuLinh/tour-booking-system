@@ -1,4 +1,4 @@
-package com.lvtn.java.service;
+package com.lvtn.java.modules.tripDetails.service;
 
 import com.lvtn.java.dto.departure.DepartureResponse;
 import com.lvtn.java.dto.departure.DepartureUpsertRequest;

@@ -1,4 +1,4 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.category.service.impl;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;
@@ -9,12 +9,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lvtn.java.domain.entity.Category;
+import com.lvtn.java.modules.category.entity.Category;
 import com.lvtn.java.dto.category.CategoryResponse;
 import com.lvtn.java.dto.category.CategoryUpsertRequest;
-import com.lvtn.java.repository.CategoryRepository;
-import com.lvtn.java.repository.TourRepository;
-import com.lvtn.java.service.CategoryService;
+import com.lvtn.java.modules.category.repository.CategoryRepository;
+import com.lvtn.java.modules.tour.repository.TourRepository;
+import com.lvtn.java.modules.category.service.CategoryService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,8 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.tripDetails.controller;
 
 import com.lvtn.java.dto.schedule.ScheduleResponse;
 import com.lvtn.java.dto.schedule.ScheduleUpsertRequest;
-import com.lvtn.java.service.ScheduleService;
+import com.lvtn.java.modules.tripDetails.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

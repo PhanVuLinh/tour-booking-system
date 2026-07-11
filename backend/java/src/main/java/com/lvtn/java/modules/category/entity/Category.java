@@ -1,8 +1,7 @@
-package com.lvtn.java.domain.entity;
+package com.lvtn.java.modules.category.entity;
 
 import com.lvtn.java.domain.AuditableEntity;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

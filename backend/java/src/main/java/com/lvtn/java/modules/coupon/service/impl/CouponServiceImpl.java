@@ -1,10 +1,10 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.coupon.service.impl;
 
-import com.lvtn.java.domain.entity.Coupon;
+import com.lvtn.java.modules.coupon.entity.Coupon;
 import com.lvtn.java.dto.coupon.CouponRequest;
 import com.lvtn.java.dto.coupon.CouponResponse;
-import com.lvtn.java.repository.CouponRepository;
-import com.lvtn.java.service.CouponService;
+import com.lvtn.java.modules.coupon.repository.CouponRepository;
+import com.lvtn.java.modules.coupon.service.CouponService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

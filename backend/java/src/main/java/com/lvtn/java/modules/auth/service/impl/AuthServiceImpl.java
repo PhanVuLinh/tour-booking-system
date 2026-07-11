@@ -1,11 +1,11 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.auth.service.impl;
 
 import com.lvtn.java.config.AppJwtProperties;
 import com.lvtn.java.modules.user.entity.Account;
 import com.lvtn.java.dto.auth.*;
 import com.lvtn.java.modules.user.repository.AccountRepository;
 import com.lvtn.java.security.JwtService;
-import com.lvtn.java.service.AuthService;
+import com.lvtn.java.modules.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;

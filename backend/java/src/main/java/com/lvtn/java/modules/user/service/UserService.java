@@ -1,4 +1,4 @@
-package com.lvtn.java.service;
+package com.lvtn.java.modules.user.service;
 
 import com.lvtn.java.dto.user.UserRequest;
 import com.lvtn.java.dto.user.UserResponse;

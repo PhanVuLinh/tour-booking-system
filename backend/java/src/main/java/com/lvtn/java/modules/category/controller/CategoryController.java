@@ -1,9 +1,9 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.category.controller;
 
 import com.lvtn.java.dto.category.CategoryResponse;
 import com.lvtn.java.dto.category.CategoryUpsertRequest;
 import com.lvtn.java.security.SecurityUtils;
-import com.lvtn.java.service.CategoryService;
+import com.lvtn.java.modules.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

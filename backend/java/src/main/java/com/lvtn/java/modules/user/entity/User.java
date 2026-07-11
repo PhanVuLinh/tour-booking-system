@@ -1,4 +1,4 @@
-package com.lvtn.java.domain.entity;
+package com.lvtn.java.modules.user.entity;
 
 import com.lvtn.java.domain.BaseEntity;
 import jakarta.persistence.Column;

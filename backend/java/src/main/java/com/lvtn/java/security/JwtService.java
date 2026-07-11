@@ -1,7 +1,7 @@
 package com.lvtn.java.security;
 
 import com.lvtn.java.config.AppJwtProperties;
-import com.lvtn.java.domain.entity.Account;
+import com.lvtn.java.modules.user.entity.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

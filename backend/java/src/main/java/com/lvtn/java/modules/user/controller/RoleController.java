@@ -1,8 +1,8 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.user.controller;
 
-import com.lvtn.java.domain.entity.Role;
+import com.lvtn.java.modules.user.entity.Role;
 import com.lvtn.java.dto.role.RoleResponse;
-import com.lvtn.java.repository.RoleRepository;
+import com.lvtn.java.modules.user.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

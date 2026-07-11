@@ -1,4 +1,4 @@
-package com.lvtn.java.service;
+package com.lvtn.java.modules.auth.service;
 
 import com.lvtn.java.dto.auth.*;
 

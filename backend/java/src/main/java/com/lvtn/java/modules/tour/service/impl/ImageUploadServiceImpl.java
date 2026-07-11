@@ -1,4 +1,4 @@
-package com.lvtn.java.service.impl;
+package com.lvtn.java.modules.tour.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

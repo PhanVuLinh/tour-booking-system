@@ -1,9 +1,9 @@
-package com.lvtn.java.controller;
+package com.lvtn.java.modules.tripDetails.controller;
 
 import com.lvtn.java.dto.vehicle.VehicleResponse;
 import com.lvtn.java.dto.vehicle.VehicleUpsertRequest;
 import com.lvtn.java.security.SecurityUtils;
-import com.lvtn.java.service.VehicleService;
+import com.lvtn.java.modules.tripDetails.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

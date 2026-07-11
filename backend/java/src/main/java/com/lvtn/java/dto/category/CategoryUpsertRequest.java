@@ -1,6 +1,5 @@
 package com.lvtn.java.dto.category;
 
-import com.lvtn.java.domain.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
