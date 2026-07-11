@@ -1,12 +1,12 @@
 package com.lvtn.java.service.impl;
 
 import com.lvtn.java.domain.entity.Departure;
-import com.lvtn.java.domain.entity.Tour;
+import com.lvtn.java.modules.tour.entity.Tour;
 import com.lvtn.java.domain.entity.Vehicle;
 import com.lvtn.java.dto.departure.DepartureResponse;
 import com.lvtn.java.dto.departure.DepartureUpsertRequest;
 import com.lvtn.java.repository.DepartureRepository;
-import com.lvtn.java.repository.TourRepository;
+import com.lvtn.java.modules.tour.repository.TourRepository;
 import com.lvtn.java.repository.VehicleRepository;
 import com.lvtn.java.service.DepartureService;
 import org.modelmapper.ModelMapper;

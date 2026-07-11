@@ -1,11 +1,11 @@
 package com.lvtn.java.service.impl;
 
 import com.lvtn.java.domain.entity.Schedule;
-import com.lvtn.java.domain.entity.Tour;
+import com.lvtn.java.modules.tour.entity.Tour;
 import com.lvtn.java.dto.schedule.ScheduleResponse;
 import com.lvtn.java.dto.schedule.ScheduleUpsertRequest;
 import com.lvtn.java.repository.ScheduleRepository;
-import com.lvtn.java.repository.TourRepository;
+import com.lvtn.java.modules.tour.repository.TourRepository;
 import com.lvtn.java.service.ScheduleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

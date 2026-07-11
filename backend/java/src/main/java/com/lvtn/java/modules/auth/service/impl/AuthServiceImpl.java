@@ -1,9 +1,9 @@
 package com.lvtn.java.service.impl;
 
 import com.lvtn.java.config.AppJwtProperties;
-import com.lvtn.java.domain.entity.Account;
+import com.lvtn.java.modules.user.entity.Account;
 import com.lvtn.java.dto.auth.*;
-import com.lvtn.java.repository.AccountRepository;
+import com.lvtn.java.modules.user.repository.AccountRepository;
 import com.lvtn.java.security.JwtService;
 import com.lvtn.java.service.AuthService;
 import lombok.RequiredArgsConstructor;
