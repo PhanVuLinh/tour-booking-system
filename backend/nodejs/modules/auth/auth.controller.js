@@ -1,7 +1,19 @@
 const authService = require("./auth.service");
 
 module.exports.register = async (req, res) => {
-  const result = await authService.register(req.body);
+  try {
+    const result = await authService.register(req.body);
 
-  res.json(result);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    res.status(201).json(result);
+  } catch (error) {
+    console.error("Lỗi Controller Register:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi Server. Vui lòng thử lại sau.",
+    });
+  }
 };

@@ -2,3 +2,4 @@ export * from "./pages";
 export * from "./services";
 export * from "./components";
 export * from "./layouts";
+export * from "./validations";

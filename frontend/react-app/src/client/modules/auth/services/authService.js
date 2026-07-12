@@ -1,6 +1,6 @@
 import { post } from "../../../utils/request";
 
-export const register = async (options) => {
-    const result = await post("/register", options);
-    return result;
+export const register = async (userData) => {
+  const result = await post("/register", userData);
+  return result;
 };

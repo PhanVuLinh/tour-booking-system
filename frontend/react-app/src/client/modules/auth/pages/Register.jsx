@@ -1,35 +1,51 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
 import { register } from "../services/authService";
+import { validateRegisterForm } from "../validations/auth.validator";
 
 function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  // Đang test nên để password dạng text luôn cho dễ nhìn
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const [userData, setUserData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    console.log("Đang gửi dữ liệu:", { name, email, password });
+    const validationErrors = validateRegisterForm(userData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast.error("Vui lòng kiểm tra lại thông tin nhập!");
+      return;
+    }
+    setErrors({});
 
     try {
-      const data = await register({ name, email, password });
-
-      console.log("Kết quả từ Backend trả về:", data);
-      alert("Đã gọi API! Bấm F12 mở tab Console để xem kết quả.");
+      const response = await register(userData);
+      if (response.success) {
+        const userName = response.data?.user?.fullName || "bạn";
+        toast.success(`Chúc mừng ${userName} đã đăng ký tài khoản thành công!`);
+        navigate("/login");
+      } else {
+        toast.error("Đăng ký thất bại: " + response.message);
+      }
     } catch (error) {
-      console.error("Lỗi không gọi được Backend:", error);
-      alert("Lỗi mạng hoặc Backend chưa chạy. Xem Console!");
+      toast.error(error.message || "Lỗi máy chủ. Vui lòng thử lại sau!");
     }
   };
-
-  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="login-wrapper">
       <div className="login-container">
-        {/* CỘT TRÁI: HÌNH ẢNH DU LỊCH (Dùng chung style với Login) */}
         <div className="login-right">
           <div className="login-right-inner">
             <div className="login-header">
@@ -44,12 +60,22 @@ function Register() {
                   <i className="fa-regular fa-user"></i>
                   <input
                     type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={userData.fullName}
+                    onChange={(e) =>
+                      setUserData({ ...userData, fullName: e.target.value })
+                    }
                     placeholder="Nhập họ tên của bạn"
-                    required
                   />
                 </div>
+                {errors.fullName && (
+                  <span className="error-text">
+                    <i
+                      className="fa-solid fa-circle-exclamation"
+                      style={{ marginRight: "4px" }}
+                    ></i>
+                    {errors.fullName}
+                  </span>
+                )}
               </div>
 
               <div className="form-group">
@@ -57,13 +83,24 @@ function Register() {
                 <div className="input-with-icon">
                   <i className="fa-regular fa-envelope"></i>
                   <input
-                    type="email"
+                    type="text"
                     placeholder="Nhập địa chỉ email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    value={userData.email}
+                    onChange={(e) =>
+                      setUserData({ ...userData, email: e.target.value })
+                    }
+                    autoComplete="email"
                   />
                 </div>
+                {errors.email && (
+                  <span className="error-text">
+                    <i
+                      className="fa-solid fa-circle-exclamation"
+                      style={{ marginRight: "4px" }}
+                    ></i>
+                    {errors.email}
+                  </span>
+                )}
               </div>
 
               <div className="form-group">
@@ -73,15 +110,26 @@ function Register() {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Tạo mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    value={userData.password}
+                    onChange={(e) =>
+                      setUserData({ ...userData, password: e.target.value })
+                    }
+                    autoComplete="new-password"
                   />
                   <i
                     className={`fa-regular ${showPassword ? "fa-eye" : "fa-eye-slash"} show-pass`}
                     onClick={() => setShowPassword(!showPassword)}
                   ></i>
                 </div>
+                {errors.password && (
+                  <span className="error-text">
+                    <i
+                      className="fa-solid fa-circle-exclamation"
+                      style={{ marginRight: "4px" }}
+                    ></i>
+                    {errors.password}
+                  </span>
+                )}
               </div>
 
               <div className="form-group">
@@ -91,9 +139,25 @@ function Register() {
                   <input
                     type="password"
                     placeholder="Nhập lại mật khẩu"
-                    required
+                    value={userData.confirmPassword}
+                    onChange={(e) =>
+                      setUserData({
+                        ...userData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    autoComplete="new-password"
                   />
                 </div>
+                {errors.confirmPassword && (
+                  <span className="error-text">
+                    <i
+                      className="fa-solid fa-circle-exclamation"
+                      style={{ marginRight: "4px" }}
+                    ></i>
+                    {errors.confirmPassword}
+                  </span>
+                )}
               </div>
 
               <button type="submit" className="btn-login-submit">
@@ -106,8 +170,6 @@ function Register() {
             </div>
           </div>
         </div>
-
-        {/* CỘT PHẢI: FORM ĐĂNG KÝ */}
 
         <div className="login-left">
           <div className="login-overlay">

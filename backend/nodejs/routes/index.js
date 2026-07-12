@@ -8,7 +8,8 @@ const contactRoutes = require("../modules/contacts/contact.route");
 const bookingRoutes = require("../modules/bookings/booking.route");
 const couponRoutes = require("../modules/coupons/coupon.route");
 
-// router.use("/auth", authRoutes);
+router.use("/auth", authRoutes);
+
 router.use("/", authRoutes);
 
 router.use("/home", homeRoutes);
