@@ -24,5 +24,17 @@ export const validateRegisterForm = (userData) => {
   ) {
     errors.confirmPassword = "Mật khẩu xác nhận không khớp";
   }
-  return errors;
+  return Object.keys(errors).length > 0 ? errors : null;
+};
+
+export const validateLoginForm = (userData) => {
+  const { email, password } = userData;
+  const errors = {};
+  if (!email || email.trim() === "") {
+    errors.email = "Vui lòng nhập email.";
+  }
+  if (!password || password.trim() === "") {
+    errors.password = "Vui lòng nhập mật khẩu.";
+  }
+  return Object.keys(errors).length > 0 ? errors : null;
 };

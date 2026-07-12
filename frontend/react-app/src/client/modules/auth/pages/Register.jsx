@@ -22,7 +22,7 @@ function Register() {
     e.preventDefault();
 
     const validationErrors = validateRegisterForm(userData);
-    if (Object.keys(validationErrors).length > 0) {
+    if (validationErrors) {
       setErrors(validationErrors);
       toast.error("Vui lòng kiểm tra lại thông tin nhập!");
       return;

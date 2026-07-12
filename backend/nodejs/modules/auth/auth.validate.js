@@ -32,3 +32,18 @@ module.exports.validateRegister = (req, res, next) => {
 
   next();
 };
+
+module.exports.validateLogin = (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || email.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Vui lòng nhập email." });
+  }
+  if (!password || password.trim() === "") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Vui lòng nhập mật khẩu." });
+  }
+  next();
+};
