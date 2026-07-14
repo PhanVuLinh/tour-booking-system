@@ -2,8 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { login } from "../services/authService";
+import { login, loginGoogle } from "../services/authService";
 import { validateLoginForm } from "../validations/auth.validator";
+import { GoogleLogin } from "@react-oauth/google";
 
 function Login() {
   const navigate = useNavigate();
@@ -41,6 +42,28 @@ function Login() {
       toast.error(error.message || "Lỗi máy chủ. Vui lòng thử lại sau!");
     }
   };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      if (!credentialResponse?.credential) {
+        toast.error("Google chưa trả token. Vui lòng kiểm tra cấu hình OAuth.");
+        return;
+      }
+
+      const response = await loginGoogle(credentialResponse.credential);
+
+      if (response.success) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        toast.success(`Chào mừng ${response.data.user.fullName} quay trở lại!`);
+        navigate("/");
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error("Lỗi kết nối máy chủ");
+    }
+  };
   return (
     <div className="login-wrapper">
       <div className="login-container">
@@ -62,10 +85,19 @@ function Login() {
             </div>
 
             <div className="social-login">
-              <button className="btn-social btn-google">
+              {/* <button className="btn-social btn-google">
                 <i className="fa-brands fa-google"></i>
                 Đăng nhập với Google
-              </button>
+              </button> */}
+              <div>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => {
+                    toast.error("Đăng nhập Google thất bại!");
+                  }}
+                  useOneTap // Tự động hiện popup hỏi tài khoản mà không cần click (siêu tiện)
+                />
+              </div>
               <button className="btn-social btn-facebook">
                 <i className="fa-brands fa-facebook-f"></i>
                 Đăng nhập với Facebook

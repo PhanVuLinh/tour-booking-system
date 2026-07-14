@@ -34,3 +34,16 @@ module.exports.login = async (req, res) => {
       .json({ success: false, message: "Lỗi Server. Vui lòng thử lại sau." });
   }
 };
+
+module.exports.loginGoogle = async (req, res) => {
+  try {
+    const token = req.body.token;
+
+    const result = await authService.loginGoogle(token);
+    if (!result.success) return res.status(400).json(result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Lỗi Controller Login Google:", error);
+    res.status(500).json({ success: false, message: "Lỗi Server: " });
+  }
+};

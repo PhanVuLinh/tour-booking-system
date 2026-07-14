@@ -7,6 +7,7 @@ const database = require("./config/database");
 
 const app = express();
 const port = process.env.PORT;
+const allowedOrigins = [process.env.URL_FE_1, process.env.URL_FE_2].filter(Boolean);
 
 //Kết nối đến DB;
 database.connect();
@@ -14,7 +15,7 @@ database.connect();
 //cấu hình CORS
 app.use(
   cors({
-    origin: process.env.URL_FE_1 || process.env.URL_FE_2,
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),

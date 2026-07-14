@@ -1,4 +1,5 @@
 const { pool } = require("../../config/database");
+const { OAuth2Client } = require("google-auth-library");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -65,15 +66,10 @@ module.exports.login = async (loginData) => {
 
     const user = users[0];
 
-    const checkPassword = await bcrypt.compare(
-      loginData.password,
-      user.password,
-    );
-
-    if (!checkPassword) {
+    if (user.deleted === 1) {
       return {
         success: false,
-        message: "Mật khẩu không chính xác.",
+        message: "Tài khoản của bạn đã bị xóa. Vui lòng liên hệ quản trị viên.",
       };
     }
 
@@ -85,10 +81,23 @@ module.exports.login = async (loginData) => {
       };
     }
 
-    if (user.deleted == 1) {
+    if (!user.password) {
       return {
         success: false,
-        message: "Tài khoản của bạn đã bị xóa. Vui lòng liên hệ quản trị viên.",
+        message:
+          "Tài khoản này được đăng ký bằng Google. Vui lòng đăng nhập bằng Google.",
+      };
+    }
+
+    const checkPassword = await bcrypt.compare(
+      loginData.password,
+      user.password,
+    );
+
+    if (!checkPassword) {
+      return {
+        success: false,
+        message: "Mật khẩu không chính xác.",
       };
     }
 
@@ -119,5 +128,96 @@ module.exports.login = async (loginData) => {
   } catch (error) {
     console.error("Lỗi ở auth.service.login:", error);
     throw new Error("Lỗi hệ thống khi đăng nhập. Vui lòng thử lại sau.");
+  }
+};
+
+module.exports.loginGoogle = async (token) => {
+  const googleClientId = process.env.GOOGLE_CLIENT_ID;
+  const jwtSecret = process.env.JWT_SECRET;
+
+  const googleClient = new OAuth2Client(googleClientId);
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: googleClientId,
+    });
+
+    const payload = ticket.getPayload();
+
+    const email = payload.email;
+    const fullName = payload.name;
+
+    if (!email) {
+      return {
+        success: false,
+        message: "Không lấy được email từ Google.",
+      };
+    }
+
+    const [users] = await pool.query(
+      "SELECT id, fullName, email, status, deleted FROM users WHERE email = ?",
+      [email],
+    );
+
+    let user = users[0];
+    if (!user) {
+      const [result] = await pool.query(
+        "INSERT INTO users (fullName, email, password, auth_provider, status, deleted) VALUES (?, ?, NULL, 'google', 'active', 0)",
+        [fullName, email],
+      );
+      user = {
+        id: result.insertId,
+        fullName: fullName,
+        email: email,
+        status: "active",
+        deleted: 0,
+      };
+    } else {
+      if (user.deleted === 1) {
+        return {
+          success: false,
+          message: "Tài khoản đã bị xóa.",
+        };
+      }
+
+      if (user.status !== "active") {
+        return {
+          success: false,
+          message: "Tài khoản bị khóa.",
+        };
+      }
+    }
+
+    const jwtToken = jwt.sign(
+      {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+      },
+      jwtSecret,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      },
+    );
+    return {
+      success: true,
+      message: "Đăng nhập Google thành công.",
+      data: {
+        token: jwtToken,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          status: user.status,
+          deleted: user.deleted,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Lỗi xác thực Google:", error.message);
+    return {
+      success: false,
+      message: "Xác thực Google thất bại.",
+    };
   }
 };
