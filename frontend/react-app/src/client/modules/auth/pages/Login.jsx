@@ -85,18 +85,27 @@ function Login() {
             </div>
 
             <div className="social-login">
-              {/* <button className="btn-social btn-google">
-                <i className="fa-brands fa-google"></i>
-                Đăng nhập với Google
-              </button> */}
-              <div>
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => {
-                    toast.error("Đăng nhập Google thất bại!");
-                  }}
-                  useOneTap // Tự động hiện popup hỏi tài khoản mà không cần click (siêu tiện)
-                />
+              <div className="google-login-wrapper">
+                {/* Nút CSS đẹp như cũ (giữ vai trò tạo layout chuẩn) */}
+                <button
+                  className="btn-social btn-google pointer-none"
+                >
+                  <i className="fa-brands fa-google"></i>
+                  Đăng nhập với Google
+                </button>
+
+                {/* Nút thật của thư viện, được phủ trong suốt lên trên cùng */}
+                <div className="google-login-overlay">
+                  <div className="google-login-overlay-inner">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => {
+                        toast.error("Đăng nhập Google thất bại!");
+                      }}
+                      useOneTap
+                    />
+                  </div>
+                </div>
               </div>
               <button className="btn-social btn-facebook">
                 <i className="fa-brands fa-facebook-f"></i>

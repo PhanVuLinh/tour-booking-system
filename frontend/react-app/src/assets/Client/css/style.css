@@ -3064,6 +3064,31 @@ input:checked + .slider:before {
   font-size: 18px;
 }
 
+.google-login-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.btn-google.pointer-none {
+  pointer-events: none;
+}
+
+.google-login-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.01;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.google-login-overlay-inner {
+  transform: scale(5);
+  transform-origin: top left;
+}
+
 .btn-facebook {
   background-color: #1877f2;
   color: #fff;
