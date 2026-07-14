@@ -7,6 +7,9 @@ import { getHeaderCategories } from "./services/sharedService";
 function Header() {
   const [categories, setCategories] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const [currentUser, setCurrentUser] = useState(null);
+
   const location = useLocation();
 
   const [openDropdowns, setOpenDropdowns] = useState({});
@@ -22,7 +25,7 @@ function Header() {
       e.stopPropagation();
       setOpenDropdowns((prev) => ({
         ...prev,
-        [id]: !prev[id]
+        [id]: !prev[id],
       }));
     }
   };
@@ -37,8 +40,29 @@ function Header() {
       .catch((error) => {
         console.error("Lỗi khi tải danh mục:", error);
       });
-  }, []);
 
+    //LocalStorage lấy user
+    const token = localStorage.getItem("token");
+    const userStr = localStorage.getItem("user");
+    if (token && userStr) {
+      try {
+        const parsedUser = JSON.parse(userStr);
+        setCurrentUser(parsedUser);
+      } catch (error) {
+        console.error("Lỗi parse thông tin user:", error);
+      }
+    } else {
+      setCurrentUser(null);
+    }
+  }, [location.pathname]);
+
+  // Đăng xuất
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setCurrentUser(null);
+    navigate("/");
+  };
   return (
     <header>
       <div className="top-bar">
@@ -71,16 +95,18 @@ function Header() {
             onClick={toggleMobileMenu}
           ></div>
 
-          <div className={`nav-menu-wrapper ${isMobileMenuOpen ? "active" : ""}`}>
+          <div
+            className={`nav-menu-wrapper ${isMobileMenuOpen ? "active" : ""}`}
+          >
             <button className="mobile-close-btn" onClick={toggleMobileMenu}>
               <i className="fa-solid fa-xmark"></i>
             </button>
 
             <ul className="nav-links">
               <li>
-                <Link 
-                  to="/" 
-                  className={location.pathname === "/" ? "active" : ""} 
+                <Link
+                  to="/"
+                  className={location.pathname === "/" ? "active" : ""}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Trang Chủ
@@ -93,12 +119,20 @@ function Header() {
                     to={`/category/${parent.slug}`}
                     className={
                       location.pathname === `/category/${parent.slug}` ||
-                      (parent.children && parent.children.some(child => location.pathname === `/category/${child.slug}`))
-                        ? "active" 
+                      (parent.children &&
+                        parent.children.some(
+                          (child) =>
+                            location.pathname === `/category/${child.slug}`,
+                        ))
+                        ? "active"
                         : ""
                     }
                     onClick={(e) => {
-                      if (window.innerWidth <= 992 && parent.children && parent.children.length > 0) {
+                      if (
+                        window.innerWidth <= 992 &&
+                        parent.children &&
+                        parent.children.length > 0
+                      ) {
                         toggleDropdown(e, parent.id);
                       } else {
                         setIsMobileMenuOpen(false);
@@ -107,17 +141,25 @@ function Header() {
                   >
                     {parent.title}
                     {parent.children && parent.children.length > 0 && (
-                      <i className={`fa-solid fa-chevron-down arrow ${openDropdowns[parent.id] ? "active" : ""}`}></i>
+                      <i
+                        className={`fa-solid fa-chevron-down arrow ${openDropdowns[parent.id] ? "active" : ""}`}
+                      ></i>
                     )}
                   </Link>
 
                   {parent.children && parent.children.length > 0 && (
-                    <div className={`dropdown ${openDropdowns[parent.id] ? "active" : ""}`}>
+                    <div
+                      className={`dropdown ${openDropdowns[parent.id] ? "active" : ""}`}
+                    >
                       {parent.children.map((child) => (
-                        <Link 
-                          key={child.id} 
-                          to={`/category/${child.slug}`} 
-                          className={location.pathname === `/category/${child.slug}` ? "active" : ""}
+                        <Link
+                          key={child.id}
+                          to={`/category/${child.slug}`}
+                          className={
+                            location.pathname === `/category/${child.slug}`
+                              ? "active"
+                              : ""
+                          }
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           {child.title}
@@ -128,18 +170,22 @@ function Header() {
                 </li>
               ))}
               <li>
-                <Link 
-                  to="/article" 
-                  className={location.pathname.startsWith("/article") ? "active" : ""} 
+                <Link
+                  to="/article"
+                  className={
+                    location.pathname.startsWith("/article") ? "active" : ""
+                  }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Tin Tức
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/contact" 
-                  className={location.pathname.startsWith("/contact") ? "active" : ""} 
+                <Link
+                  to="/contact"
+                  className={
+                    location.pathname.startsWith("/contact") ? "active" : ""
+                  }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Liên Hệ
@@ -147,23 +193,58 @@ function Header() {
               </li>
             </ul>
           </div>
+          <div className="nav-actions">
+            {currentUser ? (
+              <div className="user-dropdown-wrapper">
+                <button className="btn-login-header user-profile-btn">
+                  <i className="fa-solid fa-circle-user"></i>
+                  <span>{currentUser.fullName}</span>
+                  <i
+                    className="fa-solid fa-chevron-down"
+                    style={{ fontSize: "12px", marginLeft: "4px" }}
+                  ></i>
+                </button>
 
-          <div className="nav-actions">
-            <Link to="/login" className="action-btn">
-              <button className="btn-login-header">
-                <i className="fa-solid fa-circle-user"></i>
-                <span>Đăng nhập</span>
-              </button>
-            </Link>
-          </div>
-          {/* Xin miếng điều hướng:)) */}
-          <div className="nav-actions">
-            <Link to="/admin/login" className="action-btn">
-              <button className="btn-login-header">
-                <i className="fa-solid fa-user-shield"></i>
-                <span>Admin</span>
-              </button>
-            </Link>
+                <div className="user-dropdown-menu">
+                  <div className="ud-user-info">
+                    <strong>{currentUser.fullName}</strong>
+                    <span>{currentUser.email}</span>
+                  </div>
+                  <div className="ud-divider"></div>
+
+                  <Link to="/profile">
+                    <i className="fa-regular fa-id-card"></i> Thông tin cá nhân
+                  </Link>
+                  <Link to="/my-tours">
+                    <i className="fa-solid fa-clock-rotate-left"></i> Lịch sử
+                    đặt tour
+                  </Link>
+
+                  <div className="ud-divider"></div>
+                  <button onClick={handleLogout} className="btn-logout">
+                    <i className="fa-solid fa-arrow-right-from-bracket"></i>{" "}
+                    Đăng xuất
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link to="/login" className="action-btn">
+                <button className="btn-login-header">
+                  <i className="fa-solid fa-circle-user"></i>
+                  <span>Đăng nhập</span>
+                </button>
+              </Link>
+            )}
+
+            {/* Nút Admin */}
+            <div className="nav-actions">
+              <Link to="/admin/login" className="action-btn">
+                <button className="btn-login-header">
+                  <i className="fa-solid fa-user-shield"></i>
+                  <span>Admin</span>
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
