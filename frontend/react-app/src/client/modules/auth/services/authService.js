@@ -10,7 +10,12 @@ export const login = async (loginData) => {
   return result;
 };
 
-export const loginGoogle = async (token) => {
-  const result = await post("/login/google", { token: token });
+export const loginGoogle = async (idToken) => {
+  const result = await post("/login/google", { idToken });
+  return result;
+};
+
+export const loginFacebook = async (accessToken) => {
+  const result = await post("/login/facebook", { accessToken: accessToken });
   return result;
 };

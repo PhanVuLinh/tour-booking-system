@@ -13,4 +13,6 @@ router.post("/login", authValidate.validateLogin, authController.login);
 
 router.post("/login/google", authController.loginGoogle);
 
+router.post("/login/facebook", authController.loginFacebook);
+
 module.exports = router;

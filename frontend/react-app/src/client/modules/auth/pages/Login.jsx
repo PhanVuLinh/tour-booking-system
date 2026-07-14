@@ -2,9 +2,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { login, loginGoogle } from "../services/authService";
+import { login, loginGoogle, loginFacebook } from "../services/authService";
 import { validateLoginForm } from "../validations/auth.validator";
 import { GoogleLogin } from "@react-oauth/google";
+// import FacebookLogin from "@greatsumini/react-facebook-login";
 
 function Login() {
   const navigate = useNavigate();
@@ -64,6 +65,30 @@ function Login() {
       toast.error("Lỗi kết nối máy chủ");
     }
   };
+
+  const handleFacebookSuccess = async (response) => {
+    if (!response.accessToken) {
+      toast.error("Bạn đã hủy đăng nhập Facebook");
+      return;
+    }
+
+    try {
+      const apiResult = await loginFacebook(response.accessToken);
+
+      if (apiResult.success) {
+        localStorage.setItem("token", apiResult.data.token);
+        localStorage.setItem("user", JSON.stringify(apiResult.data.user));
+        toast.success(
+          `Chào mừng ${apiResult.data.user.fullName} quay trở lại!`,
+        );
+        navigate("/");
+      } else {
+        toast.error(apiResult.message);
+      }
+    } catch (error) {
+      toast.error("Lỗi kết nối máy chủ");
+    }
+  };
   return (
     <div className="login-wrapper">
       <div className="login-container">
@@ -87,9 +112,7 @@ function Login() {
             <div className="social-login">
               <div className="google-login-wrapper">
                 {/* Nút CSS đẹp như cũ (giữ vai trò tạo layout chuẩn) */}
-                <button
-                  className="btn-social btn-google pointer-none"
-                >
+                <button className="btn-social btn-google pointer-none">
                   <i className="fa-brands fa-google"></i>
                   Đăng nhập với Google
                 </button>
@@ -111,6 +134,23 @@ function Login() {
                 <i className="fa-brands fa-facebook-f"></i>
                 Đăng nhập với Facebook
               </button>
+              {/* <FacebookLogin
+                appId="MÃ_APP_ID_FACEBOOK_CỦA_BẠN"
+                onSuccess={handleFacebookSuccess}
+                onFail={(error) => {
+                  toast.error("Đăng nhập Facebook thất bại!");
+                }}
+                render={({ onClick }) => (
+                  <button
+                    type="button"
+                    className="btn-social btn-facebook"
+                    onClick={onClick}
+                  >
+                    <i className="fa-brands fa-facebook-f"></i>
+                    Đăng nhập với Facebook
+                  </button>
+                )}
+              /> */}
             </div>
 
             <div className="login-divider">

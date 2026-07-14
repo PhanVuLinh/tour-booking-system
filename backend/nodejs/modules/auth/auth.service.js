@@ -131,14 +131,14 @@ module.exports.login = async (loginData) => {
   }
 };
 
-module.exports.loginGoogle = async (token) => {
+module.exports.loginGoogle = async (idToken) => {
   const googleClientId = process.env.GOOGLE_CLIENT_ID;
   const jwtSecret = process.env.JWT_SECRET;
 
   const googleClient = new OAuth2Client(googleClientId);
   try {
     const ticket = await googleClient.verifyIdToken({
-      idToken: token,
+      idToken,
       audience: googleClientId,
     });
 
@@ -219,5 +219,71 @@ module.exports.loginGoogle = async (token) => {
       success: false,
       message: "Xác thực Google thất bại.",
     };
+  }
+};
+
+module.exports.loginFacebook = async (accessToken) => {
+  try {
+    const fbResponse = await fetch(
+      `https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`,
+    );
+
+    const data = await fbResponse.json();
+    if (data.error) {
+      return {
+        success: false,
+        message: "Xác thực Facebook không hợp lệ.",
+      };
+    }
+
+    const email = data.email || `${data.id}@facebook.com`;
+    const name = data.name;
+
+    const [users] = await pool.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
+    let user = users[0];
+
+    if (!user) {
+      const [result] = await pool.query(
+        "INSERT INTO users (fullName, email, password, auth_provider, status) VALUES (?, ?, NULL, 'facebook', 'active')",
+        [name, email],
+      );
+      user = {
+        id: result.insertId,
+        fullName: name,
+        email: email,
+        status: "active",
+      };
+    } else {
+      if (user.status !== "active")
+        return { success: false, message: "Tài khoản bị khóa" };
+      if (user.deleted === 1)
+        return { success: false, message: "Tài khoản đã bị xóa" };
+    }
+
+    const jwtSecret = process.env.JWT_SECRET;
+    const token = jwt.sign(
+      { id: user.id, fullName: user.fullName, email: user.email },
+      jwtSecret,
+      { expiresIn: process.env.JWT_EXPIRES_IN },
+    );
+    return {
+      success: true,
+      message: "Đăng nhập Facebook thành công.",
+      data: {
+        token: token,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          status: user.status,
+          deleted: user.deleted,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Lỗi Facebook Auth:", error.message);
+    throw new Error("Xác thực Facebook thất bại.");
   }
 };

@@ -37,13 +37,26 @@ module.exports.login = async (req, res) => {
 
 module.exports.loginGoogle = async (req, res) => {
   try {
-    const token = req.body.token;
+    const { idToken } = req.body;
 
-    const result = await authService.loginGoogle(token);
+    const result = await authService.loginGoogle(idToken);
     if (!result.success) return res.status(400).json(result);
     res.status(200).json(result);
   } catch (error) {
     console.error("Lỗi Controller Login Google:", error);
     res.status(500).json({ success: false, message: "Lỗi Server: " });
+  }
+};
+
+module.exports.loginFacebook = async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+
+    const result = await authService.loginFacebook(accessToken);
+    if (!result.success) return res.status(400).json(result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Lỗi Facebook Login:", error.message);
+    res.status(500).json({ success: false, message: "Lỗi Server" });
   }
 };
