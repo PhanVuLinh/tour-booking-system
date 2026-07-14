@@ -4,10 +4,8 @@ module.exports.getBlogs = async (page = 1, limit = 9, sort = "created_at") => {
   try {
     const offset = (page - 1) * limit;
 
-    // Xử lý Sắp xếp
     let orderBy = "ORDER BY createdAt DESC";
     if (sort === "oldest") orderBy = "ORDER BY createdAt ASC";
-    // if (sort === "popular") orderBy = "ORDER BY views DESC";
 
     const sql = `
     select id, title, slug, thumbnail, description, createdAt
@@ -38,5 +36,38 @@ module.exports.getBlogs = async (page = 1, limit = 9, sort = "created_at") => {
   } catch (error) {
     console.error("Lỗi getBlogs:", error);
     throw new Error("Lỗi Server khi lấy bài viết");
+  }
+};
+
+module.exports.getBlogDetailBySlug = async (slug) => {
+  try {
+    const sql = `
+      select id, title, slug, thumbnail, description, content, createdAt
+      from blogs
+      where slug = ? 
+        and status = 'active' 
+        and deleted = 0
+    `;
+    const [blogs] = await pool.query(sql, [slug]);
+
+    if (blogs.length === 0) {
+      return null;
+    }
+
+    const recentSql = `
+            select id, title, slug, thumbnail, createdAt
+            from blogs
+            where status = 'active' and deleted = 0 and slug != ?
+            ORDER BY createdAt DESC
+            LIMIT 5
+        `;
+    const [recentBlogs] = await pool.query(recentSql, [slug]);
+    return {
+      blog: blogs[0],
+      recentBlogs: recentBlogs,
+    };
+  } catch (error) {
+    console.error("Lỗi getBlogDetailBySlug:", error);
+    throw new Error("Lỗi Server khi lấy chi tiết bài viết");
   }
 };

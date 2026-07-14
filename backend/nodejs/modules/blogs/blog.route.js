@@ -4,4 +4,6 @@ const blogController = require("./blog.controller");
 
 router.get("/list", blogController.getBlogList);
 
+router.get("/detail/:slug", blogController.blogDetail);
+
 module.exports = router;

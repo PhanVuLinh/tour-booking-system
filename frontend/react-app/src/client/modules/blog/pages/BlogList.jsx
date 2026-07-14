@@ -6,7 +6,7 @@ import { getBlogList } from "../services/blogService";
 
 function BlogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = parseInt(searchParams.get("page"));
+  const page = parseInt(searchParams.get("page") || 1);
   const sort = searchParams.get("sort") || "newest";
 
   const [blogs, setBlogs] = useState([]);
@@ -60,7 +60,7 @@ function BlogPage() {
       />
 
       <div className="container blog-container">
-        <main className="blog-list-content" >
+        <main className="blog-list-content">
           <h2 className="tour-list-title">Tin tức & Cẩm nang du lịch</h2>
 
           <div className="sort-bar">
