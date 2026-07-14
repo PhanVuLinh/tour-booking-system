@@ -10,6 +10,8 @@ import { OrderBooking } from "../modules/booking/layouts";
 
 import { BlogList, BlogDetail } from "../modules/blog/pages";
 
+import { SupportPage } from "../modules/support/pages";
+
 import {
   Login,
   Register,
@@ -80,6 +82,11 @@ export const clientRoutes = [
       {
         path: "blog/detail/:slug",
         element: <BlogDetail />,
+      },
+
+      {
+        path: "support",
+        element: <SupportPage />,
       },
 
       {

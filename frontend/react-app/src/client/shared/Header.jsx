@@ -198,13 +198,13 @@ function Header() {
                 </li>
                 <li>
                   <Link
-                    to="/contact"
+                    to="/support"
                     className={
-                      location.pathname.startsWith("/contact") ? "active" : ""
+                      location.pathname.startsWith("/support") ? "active" : ""
                     }
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Liên Hệ
+                    Hỗ Trợ
                   </Link>
                 </li>
               </ul>
