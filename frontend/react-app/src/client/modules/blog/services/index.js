@@ -1,1 +1,1 @@
-// export * from "./tourService";
+export * from "./blogService";

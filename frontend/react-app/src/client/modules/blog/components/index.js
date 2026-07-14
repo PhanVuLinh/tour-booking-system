@@ -1,1 +1,2 @@
-// export { default as TourCard } from "./TourCard";
+export { default as BlogCard } from "./BlogCard";
+export { default as BlogSidebar } from "./BlogSidebar";

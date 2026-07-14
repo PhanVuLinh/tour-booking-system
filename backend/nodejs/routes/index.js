@@ -7,6 +7,7 @@ const categoryRoutes = require("../modules/categories/category.route");
 const contactRoutes = require("../modules/contacts/contact.route");
 const bookingRoutes = require("../modules/bookings/booking.route");
 const couponRoutes = require("../modules/coupons/coupon.route");
+const blogRoutes = require("../modules/blogs/blog.route");
 
 router.use("/auth", authRoutes);
 
@@ -23,5 +24,7 @@ router.use("/contacts", contactRoutes);
 router.use("/booking", bookingRoutes);
 
 router.use("/coupons", couponRoutes);
+
+router.use("/blog", blogRoutes);
 
 module.exports = router;

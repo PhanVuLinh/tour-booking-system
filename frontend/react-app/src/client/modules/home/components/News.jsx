@@ -34,7 +34,7 @@ function News() {
           <div className="news-col side-col">
             {left.map((item) => (
               <Link
-                to={`/blogs/detail/${item.slug}`}
+                to={`/blog/detail/${item.slug}`}
                 className="news-card-small"
                 key={item.id}
               >
@@ -51,7 +51,7 @@ function News() {
 
           <div className="news-col center-col">
             <Link
-              to={`/blogs/detail/${middle.slug}`}
+              to={`/blog/detail/${middle.slug}`}
               className="news-card-large"
               key={middle.id}
             >
@@ -71,7 +71,7 @@ function News() {
           <div className="news-col side-col">
             {right.map((item) => (
               <Link
-                to={`/blogs/detail/${item.slug}`}
+                to={`/blog/detail/${item.slug}`}
                 className="news-card-small"
                 key={item.id}
               >
@@ -88,7 +88,7 @@ function News() {
         </div>
 
         <div className="btn-view-all-wrap">
-          <a href="blogs/list" className="btn-view-all">
+          <a href="blog/list" className="btn-view-all">
             Xem tất cả
           </a>
         </div>
