@@ -135,11 +135,11 @@ function Header() {
                       to={`/category/${parent.slug}`}
                       className={
                         location.pathname === `/category/${parent.slug}` ||
-                          (parent.children &&
-                            parent.children.some(
-                              (child) =>
-                                location.pathname === `/category/${child.slug}`,
-                            ))
+                        (parent.children &&
+                          parent.children.some(
+                            (child) =>
+                              location.pathname === `/category/${child.slug}`,
+                          ))
                           ? "active"
                           : ""
                       }
@@ -187,9 +187,9 @@ function Header() {
                 ))}
                 <li>
                   <Link
-                    to="/article"
+                    to="/blog"
                     className={
-                      location.pathname.startsWith("/article") ? "active" : ""
+                      location.pathname.startsWith("/blog") ? "active" : ""
                     }
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -229,7 +229,8 @@ function Header() {
                     <div className="ud-divider"></div>
 
                     <Link to="/profile">
-                      <i className="fa-regular fa-id-card"></i> Thông tin cá nhân
+                      <i className="fa-regular fa-id-card"></i> Thông tin cá
+                      nhân
                     </Link>
                     <Link to="/my-tours">
                       <i className="fa-solid fa-clock-rotate-left"></i> Lịch sử

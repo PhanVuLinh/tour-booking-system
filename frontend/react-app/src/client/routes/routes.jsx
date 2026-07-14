@@ -8,6 +8,8 @@ import { TourList, TourDetail, SearchPage } from "../modules/tours";
 
 import { OrderBooking } from "../modules/booking/layouts";
 
+import { BlogList, BlogDetail } from "../modules/blog/pages";
+
 import {
   Login,
   Register,
@@ -35,7 +37,7 @@ export const clientRoutes = [
       },
       {
         path: "search",
-        element: <SearchPage />
+        element: <SearchPage />,
       },
       {
         path: "login",
@@ -68,6 +70,16 @@ export const clientRoutes = [
       {
         path: "tours/detail/:slug",
         element: <TourDetail />,
+      },
+
+      {
+        path: "blog",
+        element: <BlogList />,
+      },
+
+      {
+        path: "blog/detail/:slug",
+        element: <BlogDetail />,
       },
 
       {
