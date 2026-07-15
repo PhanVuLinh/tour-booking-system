@@ -28,8 +28,14 @@ export function DepartureDetailModal({ isOpen, onClose, departure, accountList =
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-lg font-bold text-gray-900">Chi tiết lịch khởi hành</h2>
-          <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${departure.status === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-            {departure.status === 'OPEN' ? 'Đang mở' : 'Đã đóng'}
+          <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+            (departure.status === 'OPEN' || String(departure.status).toUpperCase() === 'ACTIVE') 
+              ? 'bg-green-100 text-green-700' 
+              : 'bg-red-100 text-red-700'
+          }`}>
+            {(departure.status === 'OPEN' || String(departure.status).toUpperCase() === 'ACTIVE') 
+              ? 'Đang hoạt động' 
+              : 'Đã đóng'}
           </span>
         </div>
         
@@ -51,9 +57,23 @@ export function DepartureDetailModal({ isOpen, onClose, departure, accountList =
             <span className="col-span-2 font-medium text-blue-600">{formatDate(departure.startTime)}</span>
           </div>
 
+          {/* Đã bổ sung trường Ngày về */}
+          <div className="grid grid-cols-3 gap-2 border-b pb-3">
+            <span className="text-gray-500 font-medium">Thời gian về:</span>
+            <span className="col-span-2 font-medium text-blue-600">{formatDate(departure.endDate)}</span>
+          </div>
+
           <div className="grid grid-cols-3 gap-2 border-b pb-3">
             <span className="text-gray-500 font-medium">Phương tiện:</span>
             <span className="col-span-2">{departure.vehicleName || "Tự túc"}</span>
+          </div>
+
+          {/* Đã bổ sung trường Hướng dẫn viên */}
+          <div className="grid grid-cols-3 gap-2 border-b pb-3">
+            <span className="text-gray-500 font-medium">HDV phụ trách:</span>
+            <span className="col-span-2 font-medium text-gray-900">
+              {departure.guideName || <span className="text-gray-400 italic">Chưa phân công</span>}
+            </span>
           </div>
 
           <div className="grid grid-cols-3 gap-2 border-b pb-3">

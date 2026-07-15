@@ -9,7 +9,7 @@ import { tourService } from "../../tours/services/tourService";
 import { accountService } from "../../users/services/accountService"; 
 
 const initialFormState = {
-  tourId: "", vehicleId: "", startTime: "", departureFrom: "", 
+  tourId: "", vehicleId: "", guideId: "", startTime: "", departureFrom: "", 
   priceAdult: "", priceChildren: "", priceBaby: "",
   stockAdult: "", stockChildren: "", stockBaby: "", status: "OPEN"
 };
@@ -90,6 +90,7 @@ export default function DepartureList() {
       const payload = {
         tourId: parseInt(formData.tourId),
         vehicleId: formData.vehicleId ? parseInt(formData.vehicleId) : null,
+        guideId: formData.guideId ? parseInt(formData.guideId) : null,
         startTime: formData.startTime,
         departureFrom: formData.departureFrom,
         priceAdult: parseFloat(formData.priceAdult),
@@ -124,6 +125,7 @@ export default function DepartureList() {
     setFormData({
       tourId: departure.tourId || "", 
       vehicleId: departure.vehicleId || "", 
+      guideId: departure.guideId || "",
       startTime: departure.startTime,
       departureFrom: departure.departureFrom || "", 
       priceAdult: departure.priceAdult,
@@ -238,6 +240,7 @@ export default function DepartureList() {
         formData={formData} 
         setFormData={setFormData} 
         isEdit={!!editDeparture}
+        editDepartureId={editDeparture ? editDeparture.id : null}
         vehicles={vehicles}
         tourList={tourList}
       />

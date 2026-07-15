@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Lock } from "lucide-react";
 import { BlogTable } from "../components/BlogTable";
 import { BlogTrashTable } from "../components/BlogTrashTable";
 import { BlogDetailModal } from "../components/BlogDetailModal";
@@ -22,12 +22,23 @@ export function BlogList() {
 
   const [confirmState, setConfirmState] = useState({ open: false, type: null, id: null });
 
+  const isAdmin = useMemo(() => {
+    const userString = localStorage.getItem("user");
+    if (!userString) return false;
+    try {
+      const user = JSON.parse(userString);
+      return user.role && String(user.role).toLowerCase() === "admin";
+    } catch (e) {
+      return false;
+    }
+  }, []);
+
   const loadData = async () => {
     try {
       setLoading(true);
       const [active, trash, accounts] = await Promise.all([
         blogService.getAll(),
-        blogService.getAllTrash(),
+        isAdmin ? blogService.getAllTrash().catch(() => []) : Promise.resolve([]),
         accountService.getAllActive().catch(() => []),
       ]);
       setBlogs(active);
@@ -40,7 +51,7 @@ export function BlogList() {
     }
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [isAdmin, activeTab]);
 
   const getAccountName = (id) => {
     const acc = accountList.find(a => String(a.id) === String(id));
@@ -114,11 +125,18 @@ export function BlogList() {
           >
             Bài viết ({blogs.length})
           </button>
+          
           <button
-            onClick={() => setActiveTab("trash")}
-            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => isAdmin && setActiveTab("trash")}
+            disabled={!isAdmin}
+            title={!isAdmin ? "Cần quyền Admin để xem Thùng rác" : ""}
+            className={`flex items-center gap-1.5 py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
+              !isAdmin ? "opacity-50 cursor-not-allowed text-gray-400" : 
+              activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
           >
-            Thùng rác ({trashedBlogs.length})
+            {!isAdmin && <Lock className="w-3.5 h-3.5" />}
+            Thùng rác {isAdmin && `(${trashedBlogs.length})`}
           </button>
         </div>
 

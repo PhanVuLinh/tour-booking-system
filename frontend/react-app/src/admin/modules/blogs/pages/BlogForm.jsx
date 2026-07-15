@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Upload, X, ImageIcon } from "lucide-react";
+import { Editor } from '@tinymce/tinymce-react';
 import { blogService } from "../services/blogService";
+import { apiClient } from "../../login/services/authService";
 
 export default function BlogForm() {
   const navigate = useNavigate();
@@ -47,6 +49,7 @@ export default function BlogForm() {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) { alert("Ảnh không được vượt quá 5MB"); return; }
+    
     setThumbnailFile(file);
     setFormData(prev => ({ ...prev, thumbnail: URL.createObjectURL(file) }));
   };
@@ -58,19 +61,33 @@ export default function BlogForm() {
 
     try {
       setSubmitting(true);
+      
+      let finalImageUrl = formData.thumbnail;
+
+      if (thumbnailFile) {
+        const uploadData = new FormData();
+        uploadData.append("file", thumbnailFile);
+        
+        const uploadRes = await apiClient.post('/upload', uploadData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        finalImageUrl = uploadRes.data.url || uploadRes.data; 
+      }
+
       const payload = {
         title:       formData.title,
         description: formData.description,
         content:     formData.content,
-        thumbnail:   thumbnailFile ? null : formData.thumbnail,
+        thumbnail:   finalImageUrl,
         status:      formData.status,
       };
 
       if (isEdit) {
-        await blogService.update(id, payload, thumbnailFile);
+        await blogService.update(id, payload);
         alert("Cập nhật bài viết thành công!");
       } else {
-        await blogService.create(payload, thumbnailFile);
+        await blogService.create(payload);
         alert("Thêm bài viết thành công!");
       }
       navigate("/admin/blogs");
@@ -101,13 +118,11 @@ export default function BlogForm() {
 
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">{isEdit ? "Chỉnh sửa bài viết" : "Thêm bài viết mới"}</h1>
-        <p className="text-gray-500 mt-1">{isEdit ? "Cập nhật nội dung bài viết" : "Soạn thảo và đăng bài viết mới"}</p>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Cột trái - nội dung */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100">
@@ -136,26 +151,29 @@ export default function BlogForm() {
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
                   />
                 </div>
-                <div>
+                                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nội dung <span className="text-red-500">*</span>
                   </label>
-                  <textarea
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    rows={14}
-                    placeholder="Nội dung chi tiết bài viết..."
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
-                  />
+                  <div className="prose max-w-none border border-gray-200 rounded-xl overflow-hidden">
+                    <Editor
+                      apiKey='k5ysd87u5tqf2yutdbl7n3fcwvyjhwfuc32p5kzi50tytfb8'
+                      value={formData.content || ''} 
+                      init={{
+                        height: 300, 
+                        menubar: false,
+                        plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
+                        toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                      }}
+                      onEditorChange={(content) => setFormData({ ...formData, content: content })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Cột phải */}
           <div className="space-y-6">
-
-            {/* Ảnh thumbnail */}
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100">
                 <h2 className="text-lg font-bold text-gray-900">Ảnh bìa</h2>
@@ -197,7 +215,6 @@ export default function BlogForm() {
               </div>
             </div>
 
-            {/* Trạng thái */}
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100">
                 <h2 className="text-lg font-bold text-gray-900">Trạng thái</h2>
@@ -208,13 +225,12 @@ export default function BlogForm() {
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none font-medium"
                 >
-                  <option value="published">🟢 Đã đăng</option>
-                  <option value="draft">⚪ Nháp</option>
+                  <option value="published">Hoạt động</option>
+                  <option value="draft">Khóa</option>
                 </select>
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex flex-col gap-3">
               <button
                 type="submit"
