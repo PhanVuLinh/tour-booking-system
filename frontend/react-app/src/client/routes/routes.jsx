@@ -96,9 +96,18 @@ export const clientRoutes = [
             path: "booking",
             element: <OrderBooking />,
             children: [
-              { path: "info", element: <BookingInfo /> },
-              { path: "payment", element: <BookingPayment /> },
-              { path: "success", element: <BookingSuccess /> },
+              {
+                path: "info",
+                element: <BookingInfo />,
+              },
+              {
+                ath: "payment",
+                element: <BookingPayment />,
+              },
+              {
+                path: "success",
+                element: <BookingSuccess />,
+              },
             ],
           },
         ],
