@@ -55,7 +55,7 @@ function BlogDetail() {
         thumbnail="https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&h=550&q=85"
         list={[
           { title: "Trang chủ", url: "/" },
-          { title: "Tin tức", url: "/blogs" },
+          { title: "Tin tức", url: "/blog" },
           { title: blog.title, url: `/blog/detail/${blog.slug}` },
         ]}
       />

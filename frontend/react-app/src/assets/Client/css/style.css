@@ -2469,6 +2469,7 @@ body {
 }
 
 .promo-input-coupon {
+  flex: 1;
   height: 48px;
   padding: 0 20px;
   outline: none;
@@ -3905,8 +3906,7 @@ input:checked + .slider:before {
 .bc-readmore {
   font-size: 14px;
   font-weight: 700;
-  color: var(--color-primary);
-  background-color: white;
+  background: linear-gradient(135deg, #ff8a00, #ff5e3a);
   padding: 8px 16px;
   border-radius: 20px;
   display: inline-flex;
@@ -3915,11 +3915,15 @@ input:checked + .slider:before {
   transition: 0.3s;
   text-decoration: none;
   width: fit-content;
+  box-shadow: 0 4px 12px rgba(255, 94, 58, 0.35);
 }
 
 .bc-readmore:hover {
   gap: 12px;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #e67a00, #e6502d);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 94, 58, 0.5);
+  color: #ffffff;
 }
 
 .page-btn {
@@ -4285,6 +4289,34 @@ input:checked + .slider:before {
   }
 }
 
+@media (max-width: 1150px) and (min-width: 993px) {
+  .nav-links > li > a {
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  .nav-actions {
+    gap: 12px;
+  }
+
+  .action-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .btn-login-header {
+    font-size: 14px;
+  }
+
+  .logo__img {
+    height: 40px;
+  }
+
+  .top-bar__inner {
+    gap: 20px;
+  }
+}
+
 @media (max-width: 1024px) {
   .news-grid {
     grid-template-columns: 1fr 1fr;
@@ -4313,6 +4345,15 @@ input:checked + .slider:before {
   }
 
   .b-right {
+    width: 100%;
+    position: static;
+  }
+
+  .bd-layout {
+    flex-direction: column;
+  }
+
+  .bd-sidebar {
     width: 100%;
     position: static;
   }
@@ -4690,9 +4731,24 @@ input:checked + .slider:before {
   .blog-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .contact-layout {
     grid-template-columns: 1fr;
     gap: 40px;
+  }
+
+  .btn-login-header span {
+    display: none;
+  }
+
+  .user-profile-btn .fa-chevron-down {
+    display: none;
+  }
+  .action-btn {
+    padding: 10px 14px;
+  }
+  .logo__img {
+    height: 35px;
   }
 }
 
@@ -4817,14 +4873,6 @@ input:checked + .slider:before {
     grid-template-columns: 1fr;
   }
 
-  .promo-input-group {
-    flex-direction: column;
-  }
-
-  .btn-apply {
-    height: 45px;
-  }
-
   .pq-grid {
     grid-template-columns: 1fr;
   }
@@ -4832,9 +4880,40 @@ input:checked + .slider:before {
   .blog-grid {
     grid-template-columns: 1fr;
   }
+
+  .bd-article {
+    padding: 20px;
+  }
+
+  .bd-title {
+    font-size: 24px;
+  }
 }
 
 @media (max-width: 576px) {
+  .top-bar {
+    display: none;
+  }
+
+  .btn-login-header span {
+    display: none;
+  }
+
+  .nav-actions {
+    gap: 12px;
+  }
+
+  .action-btn {
+    padding: 10px 12px;
+  }
+
+  .user-profile-btn .fa-chevron-down {
+    display: none;
+  }
+
+  .logo__img {
+    height: 35px;
+  }
   .newsletter-form input {
     padding: 10px;
   }

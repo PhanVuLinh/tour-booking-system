@@ -228,11 +228,11 @@ function Header() {
                     </div>
                     <div className="ud-divider"></div>
 
-                    <Link to="/profile">
+                    <Link to="/profile/info">
                       <i className="fa-regular fa-id-card"></i> Thông tin cá
                       nhân
                     </Link>
-                    <Link to="/my-tours">
+                    <Link to="/my-tours/history">
                       <i className="fa-solid fa-clock-rotate-left"></i> Lịch sử
                       đặt tour
                     </Link>

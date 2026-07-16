@@ -78,12 +78,6 @@ function BlogPage() {
               >
                 Cũ nhất <i className="fa-solid fa-arrow-up-short-wide"></i>
               </button>
-              {/* <button
-                className={`sort-btn ${sort === "popular" ? "active" : ""}`}
-                onClick={() => handleSort("popular")}
-              >
-                Nổi bật <i className="fa-solid fa-fire"></i>
-              </button> */}
             </div>
             <div className="sort-count">
               Tất cả: <strong>{pagination.totalBlogs} Bài viết</strong>
