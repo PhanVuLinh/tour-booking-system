@@ -4,6 +4,9 @@ module.exports.createBooking = async (req, res) => {
   try {
     const bookingData = req.body;
 
+    const user_id = req.user ? req.user.id : null;
+    bookingData.user_id = user_id;
+
     if (!bookingData.departure_id)
       return res.status(400).json({
         success: false,

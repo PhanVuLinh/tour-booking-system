@@ -62,13 +62,17 @@ function OrderBooking() {
 
   const [formData, setFormData] = useState(() => {
     const existing = location.state?.formData;
-    // Nếu đã có passengerDetails trong state cũ thì dùng lại, nếu không thì khởi tạo mới
     if (existing?.passengerDetails) return existing;
+
+    //lấy thông tin user từ LOCAL STORAGE (Nếu đã đăng nhập)
+    const userStr = localStorage.getItem("user");
+    const loggedUser = userStr ? JSON.parse(userStr) : null;
+
     return {
       contact: existing?.contact || {
-        fullName: "",
-        phone: "",
-        email: "",
+        fullName: loggedUser?.fullName || "",
+        phone: loggedUser?.phone || "",
+        email: loggedUser?.email || "",
         address: "",
       },
       note: existing?.note || "",
@@ -78,7 +82,6 @@ function OrderBooking() {
   const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
-    // Đồng bộ lại state vào React Router history để khi F5 không bị mất dữ liệu
     navigate(location.pathname, {
       replace: true,
       state: {
@@ -359,7 +362,9 @@ function OrderBooking() {
           <BookingStepper currentStep={currentStep} />
         </div>
 
-        <div className="booking-layout">
+        <div
+          className={`booking-layout ${currentStep === 3 ? "booking-layout-success" : ""}`}
+        >
           <div className="b-left">
             <Outlet
               context={{
@@ -376,7 +381,8 @@ function OrderBooking() {
             />
           </div>
 
-          <BookingSidebar
+          {currentStep < 3 && (
+            <BookingSidebar
             tourImage={tour.thumbnail}
             tourTitle={tour.title}
             tourCode={tour.id}
@@ -404,7 +410,8 @@ function OrderBooking() {
             handleRemovePromo={handleRemovePromo}
             handleNextStep={handleNextStep}
             handleBackStep={handleBackStep}
-          />
+            />
+          )}
         </div>
       </div>
     </div>

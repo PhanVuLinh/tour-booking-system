@@ -1,5 +1,5 @@
 import PassengerCard from "./PassengerCard";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 
 const Step1Info = () => {
   const {
@@ -33,8 +33,13 @@ const Step1Info = () => {
 
   const renderPassengerGroup = (type, count, isAdult, subtitle) => {
     if (count === 0) return null;
-    
-    const groupKey = type === "Người lớn" ? "adults" : type === "Trẻ em" ? "children" : "infants";
+
+    const groupKey =
+      type === "Người lớn"
+        ? "adults"
+        : type === "Trẻ em"
+          ? "children"
+          : "infants";
 
     return (
       <div className="passenger-group" key={type}>
@@ -46,7 +51,8 @@ const Step1Info = () => {
 
         <div className="pg-list">
           {Array.from({ length: count }).map((_, i) => {
-            const passengerData = formData.passengerDetails?.[groupKey]?.[i] || {};
+            const passengerData =
+              formData.passengerDetails?.[groupKey]?.[i] || {};
             return (
               <PassengerCard
                 key={`${type}-${i}`}
@@ -55,7 +61,9 @@ const Step1Info = () => {
                 isAdult={isAdult}
                 groupKey={groupKey}
                 passengerData={passengerData}
-                onDataChange={(field, value) => handlePassengerChange(groupKey, i, field, value)}
+                onDataChange={(field, value) =>
+                  handlePassengerChange(groupKey, i, field, value)
+                }
                 formErrors={formErrors}
                 arrayIndex={i}
               />
@@ -71,7 +79,7 @@ const Step1Info = () => {
       {/* Khối Thông tin liên lạc */}
       <div className="b-box contact-box">
         <h3>Thông tin liên lạc</h3>
-        <div className="login-banner blue-banner">
+        {/* <div className="login-banner blue-banner">
           <i className="fa-solid fa-circle-user"></i>
           <span>
             <a href="#" className="login-link">
@@ -79,7 +87,25 @@ const Step1Info = () => {
             </a>{" "}
             để nhận ưu đãi và quản lý đơn hàng dễ dàng hơn!
           </span>
-        </div>
+        </div> */}
+        {localStorage.getItem("token") ? (
+          <div className="login-banner blue-banner">
+            <i className="fa-solid fa-circle-check"></i>
+            <span>
+              Tuyệt vời! Thông tin liên hệ của bạn đã được điền tự động.
+            </span>
+          </div>
+        ) : (
+          <div className="login-banner blue-banner">
+            <i className="fa-solid fa-circle-user"></i>
+            <span>
+              <Link to="/login" className="login-link">
+                Đăng nhập
+              </Link>{" "}
+              để nhận ưu đãi và quản lý đơn hàng dễ dàng hơn!
+            </span>
+          </div>
+        )}
         <div className="b-grid-2">
           <div className="form-group">
             <label className="form-label">
@@ -94,7 +120,10 @@ const Step1Info = () => {
             />
             {formErrors["contact.fullName"] && (
               <span className="error-text">
-                <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
+                <i
+                  className="fa-solid fa-circle-exclamation"
+                  style={{ marginRight: "4px" }}
+                ></i>
                 {formErrors["contact.fullName"]}
               </span>
             )}
@@ -112,7 +141,10 @@ const Step1Info = () => {
             />
             {formErrors["contact.phone"] && (
               <span className="error-text">
-                <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
+                <i
+                  className="fa-solid fa-circle-exclamation"
+                  style={{ marginRight: "4px" }}
+                ></i>
                 {formErrors["contact.phone"]}
               </span>
             )}
@@ -130,7 +162,10 @@ const Step1Info = () => {
             />
             {formErrors["contact.email"] && (
               <span className="error-text">
-                <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
+                <i
+                  className="fa-solid fa-circle-exclamation"
+                  style={{ marginRight: "4px" }}
+                ></i>
                 {formErrors["contact.email"]}
               </span>
             )}
@@ -260,7 +295,9 @@ const Step1Info = () => {
           rows="4"
           placeholder="Ví dụ: Bữa ăn chay, đến muộn,..."
           value={formData?.note || ""}
-          onChange={(e) => setFormData((prev) => ({ ...prev, note: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, note: e.target.value }))
+          }
         ></textarea>
       </div>
     </>
