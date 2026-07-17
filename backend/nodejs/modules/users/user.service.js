@@ -1,4 +1,5 @@
 const { pool } = require("../../config/database");
+const bcrypt = require("bcryptjs");
 
 module.exports.getProfile = async (userId) => {
   const sql = `select id, fullName, email, phone, auth_provider, createdAt from users where id = ?`;
@@ -22,4 +23,57 @@ module.exports.updateProfile = async (userId, data) => {
     console.error("Lỗi:", error);
     throw new Error("Lỗi Server khi cập nhật user");
   }
+};
+
+module.exports.changePassword = async (userId, data) => {
+  const [users] = await pool.query(
+    "select id, password, auth_provider from users where id = ? limit 1",
+    [userId],
+  );
+
+  if (users.length === 0) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: "Người dùng không tồn tại",
+    };
+  }
+
+  const user = users[0];
+
+  if (user.auth_provider && user.auth_provider !== "local") {
+    return {
+      success: false,
+      statusCode: 403,
+      message: "Tài khoản đăng nhập bằng mạng xã hội không thể đổi mật khẩu",
+    };
+  }
+
+  if (!user.password) {
+    return {
+      success: false,
+      statusCode: 403,
+      message: "Tài khoản này chưa có mật khẩu để thay đổi",
+    };
+  }
+
+  const isMatch = await bcrypt.compare(data.currentPassword, user.password);
+  if (!isMatch) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: "Mật khẩu hiện tại không đúng",
+    };
+  }
+
+  const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+  await pool.query("update users set password = ? where id = ?", [
+    hashedPassword,
+    userId,
+  ]);
+
+  return {
+    success: true,
+    message: "Đổi mật khẩu thành công",
+  };
 };

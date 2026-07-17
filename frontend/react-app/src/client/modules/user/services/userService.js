@@ -9,3 +9,8 @@ export const updateProfile = async (data) => {
     const result = await put("/user/profile/info", data);
     return result;
 };
+
+export const changePassword = async (data) => {
+    const result = await put("/user/profile/change-password", data);
+    return result;
+};

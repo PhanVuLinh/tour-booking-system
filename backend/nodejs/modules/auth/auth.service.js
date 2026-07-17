@@ -52,7 +52,7 @@ module.exports.login = async (loginData) => {
   try {
     const [users] = await pool.query(
       `
-        select id, fullName, email, password, status, deleted from users 
+        select id, fullName, email, password, auth_provider, status, deleted from users 
         where email = ?`,
       [loginData.email],
     );
@@ -121,6 +121,7 @@ module.exports.login = async (loginData) => {
           id: user.id,
           fullName: user.fullName,
           email: user.email,
+          auth_provider: user.auth_provider || null,
           status: user.status,
         },
       },
@@ -155,7 +156,7 @@ module.exports.loginGoogle = async (idToken) => {
     }
 
     const [users] = await pool.query(
-      "SELECT id, fullName, email, status, deleted FROM users WHERE email = ?",
+      "SELECT id, fullName, email, auth_provider, status, deleted FROM users WHERE email = ?",
       [email],
     );
 
@@ -169,6 +170,7 @@ module.exports.loginGoogle = async (idToken) => {
         id: result.insertId,
         fullName: fullName,
         email: email,
+        auth_provider: "google",
         status: "active",
         deleted: 0,
       };
@@ -208,6 +210,7 @@ module.exports.loginGoogle = async (idToken) => {
           id: user.id,
           fullName: user.fullName,
           email: user.email,
+          auth_provider: user.auth_provider || "google",
           status: user.status,
           deleted: user.deleted,
         },
@@ -253,6 +256,7 @@ module.exports.loginFacebook = async (accessToken) => {
         id: result.insertId,
         fullName: name,
         email: email,
+        auth_provider: "facebook",
         status: "active",
       };
     } else {
@@ -277,6 +281,7 @@ module.exports.loginFacebook = async (accessToken) => {
           id: user.id,
           fullName: user.fullName,
           email: user.email,
+          auth_provider: user.auth_provider || "facebook",
           status: user.status,
           deleted: user.deleted,
         },

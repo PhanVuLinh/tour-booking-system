@@ -16,6 +16,9 @@ function Header() {
   const location = useLocation();
 
   const [openDropdowns, setOpenDropdowns] = useState({});
+  const canCurrentUserChangePassword =
+    currentUser &&
+    (!currentUser.auth_provider || currentUser.auth_provider === "local");
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -228,14 +231,37 @@ function Header() {
                     </div>
                     <div className="ud-divider"></div>
 
-                    <Link to="/profile/info">
+                    <Link
+                      to="/profile/info"
+                      className={
+                        location.pathname === "/profile/info" ? "active" : ""
+                      }
+                    >
                       <i className="fa-regular fa-id-card"></i> Thông tin cá
                       nhân
                     </Link>
-                    <Link to="/my-tours/history">
+                    <Link
+                      to="/profile/history"
+                      className={
+                        location.pathname === "/profile/history" ? "active" : ""
+                      }
+                    >
                       <i className="fa-solid fa-clock-rotate-left"></i> Lịch sử
                       đặt tour
                     </Link>
+
+                    {canCurrentUserChangePassword && (
+                      <Link
+                        to="/profile/change-password"
+                        className={
+                          location.pathname === "/profile/change-password"
+                            ? "active"
+                            : ""
+                        }
+                      >
+                        <i className="fa-solid fa-lock"></i> Đổi mật khẩu
+                      </Link>
+                    )}
 
                     <div className="ud-divider"></div>
                     <button onClick={handleLogout} className="btn-logout">

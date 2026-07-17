@@ -2512,6 +2512,10 @@ textarea.b-input::placeholder,
   display: block;
 }
 
+.error-text i {
+  margin-right: 4px;
+}
+
 /* Banner hỗ trợ */
 .support-banner {
   background: #fff4ed;
@@ -3168,6 +3172,10 @@ input:checked+.slider:before {
   font-family: inherit;
 }
 
+.input-with-icon input.password-input {
+  padding-right: 45px;
+}
+
 .input-with-icon input:focus {
   border-color: var(--color-primary);
   background-color: #fff;
@@ -3619,10 +3627,10 @@ input:checked+.slider:before {
   position: absolute;
   top: 130%;
   right: 0;
-  width: 240px;
+  width: 270px;
   background: #ffffff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+  border-radius: 14px;
   padding: 10px 0;
   opacity: 0;
   visibility: hidden;
@@ -3668,17 +3676,20 @@ input:checked+.slider:before {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
+  margin: 3px 8px;
+  width: calc(100% - 16px);
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
   color: #444;
   text-decoration: none;
   font-size: 14.5px;
-  font-weight: 500;
-  width: 100%;
+  font-weight: 600;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
   font-family: inherit;
 }
 
@@ -3691,12 +3702,15 @@ input:checked+.slider:before {
   transition: 0.2s;
 }
 
-.user-dropdown-menu a:hover {
-  background-color: rgba(69, 2, 199, 0.05);
+.user-dropdown-menu a:hover,
+.user-dropdown-menu a.active {
+  background-color: rgba(69, 2, 199, 0.08);
   color: var(--color-primary);
+  transform: translateX(2px);
 }
 
-.user-dropdown-menu a:hover i {
+.user-dropdown-menu a:hover i,
+.user-dropdown-menu a.active i {
   color: var(--color-primary);
 }
 
@@ -3710,6 +3724,12 @@ input:checked+.slider:before {
 
 .btn-logout:hover {
   background-color: #fff0f0 !important;
+  color: #d32f2f !important;
+  transform: translateX(2px);
+}
+
+.btn-logout:hover i {
+  color: #d32f2f !important;
 }
 
 .admin-btn {

@@ -10,23 +10,41 @@ function ProfileLayout() {
     fullName: "",
     email: "",
     phone: "",
+    auth_provider: null,
   });
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
+  const canChangePassword =
+    isProfileLoaded && (!profile.auth_provider || profile.auth_provider === "local");
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await getProfile();
         if (response.success) {
-          setProfile({
+          const nextProfile = {
             fullName: response.data.fullName || "",
             email: response.data.email || "",
             phone: response.data.phone || "",
-          });
+            auth_provider: response.data.auth_provider || null,
+          };
+
+          setProfile(nextProfile);
+
+          const userStr = localStorage.getItem("user");
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            localStorage.setItem(
+              "user",
+              JSON.stringify({ ...user, ...nextProfile }),
+            );
+          }
         } else {
           toast.error(response.message);
         }
       } catch (error) {
         console.error("Lỗi lấy profile:", error);
+      } finally {
+        setIsProfileLoaded(true);
       }
     };
 
@@ -75,16 +93,18 @@ function ProfileLayout() {
                 <i className="fa-solid fa-clock-rotate-left"></i> Lịch sử đặt
                 tour
               </Link>
-              <Link
-                to="/profile/change-password"
-                className={`profile-nav-link ${
-                  location.pathname === "/profile/change-password"
-                    ? "active"
-                    : ""
-                }`}
-              >
-                <i className="fa-solid fa-lock"></i> Đổi mật khẩu
-              </Link>
+              {canChangePassword && (
+                <Link
+                  to="/profile/change-password"
+                  className={`profile-nav-link ${
+                    location.pathname === "/profile/change-password"
+                      ? "active"
+                      : ""
+                  }`}
+                >
+                  <i className="fa-solid fa-lock"></i> Đổi mật khẩu
+                </Link>
+              )}
               <button
                 className="profile-nav-link text-red"
                 onClick={() => {
@@ -104,7 +124,7 @@ function ProfileLayout() {
             </div>
           </aside>
 
-          <Outlet context={{ profile, setProfile }} />
+          <Outlet context={{ profile, setProfile, isProfileLoaded }} />
         </div>
       </div>
     </div>

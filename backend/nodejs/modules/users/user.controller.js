@@ -41,3 +41,28 @@ module.exports.updateProfile = async (req, res) => {
     });
   }
 };
+
+module.exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const result = await userService.changePassword(userId, req.body);
+
+    if (!result.success) {
+      return res.status(result.statusCode || 400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error("Lỗi changePassword:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi Server",
+    });
+  }
+};

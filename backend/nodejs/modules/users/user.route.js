@@ -16,4 +16,10 @@ router.put(
   userController.updateProfile,
 );
 
+router.put(
+  "/profile/change-password",
+  userValidate.changePassword,
+  userController.changePassword,
+);
+
 module.exports = router;
