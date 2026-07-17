@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PermissionService {
+public class PermissionCheckService {
 
     private final AccountRepository accountRepository;
 
@@ -15,7 +15,15 @@ public class PermissionService {
         if (accountId == null || permissionKey == null) return false;
 
         Account account = accountRepository.findById(accountId).orElse(null);
-        if (account == null || account.getRole() == null || account.getRole().getPermissions() == null) {
+
+        if (account == null || account.getRole() == null) {
+            return false;
+        }
+
+        if ("ADMIN".equalsIgnoreCase(account.getRole().getName())) {
+            return true;
+        }
+        if (account.getRole().getPermissions() == null) {
             return false;
         }
 

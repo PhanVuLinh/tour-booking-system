@@ -1,4 +1,4 @@
-package com.lvtn.java.modules.user.entity;
+package com.lvtn.java.modules.role.entity;
 
 import com.lvtn.java.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -20,8 +20,7 @@ public class Role extends BaseEntity {
     )
     private Set<Permission> permissions;
 
-    @Column(columnDefinition = "boolean default false")
-    private Boolean deleted = false;
+    private Integer deleted = 0;
 
     @Column(name = "deletedAt",nullable = true)
     private LocalDateTime deletedAt;
@@ -33,4 +32,5 @@ public class Role extends BaseEntity {
     @UpdateTimestamp
     @Column(name = "updatedAt",nullable = false)
     private LocalDateTime updatedAt;
+
 }
