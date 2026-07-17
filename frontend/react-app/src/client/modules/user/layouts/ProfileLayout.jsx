@@ -36,7 +36,7 @@ function ProfileLayout() {
   return (
     <div className="page-wrapper">
       <Breadcrumb
-        title="Tài khoản"
+        title="Tài khoản của tôi"
         thumbnail="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1920&q=80"
         list={[
           { title: "Trang chủ", url: "/" },

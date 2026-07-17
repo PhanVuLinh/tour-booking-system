@@ -12,6 +12,7 @@ function ProfileInfo() {
     phone: "",
   });
   const [errors, setErrors] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     setFormData({
@@ -46,6 +47,7 @@ function ProfileInfo() {
         };
 
         setProfile(nextProfile);
+        setIsEditing(false);
         toast.success("Cập nhật thông tin cá nhân thành công!");
 
         const userStr = localStorage.getItem("user");
@@ -62,13 +64,32 @@ function ProfileInfo() {
     }
   };
 
+  const handleCancelEdit = () => {
+    setFormData({
+      fullName: profile.fullName || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
+    });
+    setErrors({});
+    setIsEditing(false);
+  };
+
   return (
     <main className="profile-main b-box">
       <div className="profile-header">
-        <h2 className="profile-title">Hồ sơ của tôi</h2>
-        <p className="profile-desc">
-          Quản lý thông tin hồ sơ để bảo mật tài khoản
-        </p>
+        <div>
+          <h2 className="profile-title">Hồ sơ của tôi</h2>
+        </div>
+
+        {!isEditing && (
+          <button
+            type="button"
+            className="btn-edit-profile"
+            onClick={() => setIsEditing(true)}
+          >
+            <i className="fa-regular fa-pen-to-square"></i> Chỉnh sửa
+          </button>
+        )}
       </div>
 
       <div className="profile-form-wrapper">
@@ -111,6 +132,7 @@ function ProfileInfo() {
                 className="b-input"
                 name="fullName"
                 value={formData.fullName}
+                disabled={!isEditing}
                 onChange={(e) => {
                   setFormData({ ...formData, fullName: e.target.value });
                   setErrors({ ...errors, fullName: "" });
@@ -136,6 +158,7 @@ function ProfileInfo() {
                 className="b-input"
                 name="phone"
                 value={formData.phone}
+                disabled={!isEditing}
                 onChange={(e) => {
                   setFormData({ ...formData, phone: e.target.value });
                   setErrors({ ...errors, phone: "" });
@@ -154,11 +177,20 @@ function ProfileInfo() {
             </div>
           </div>
 
-          <div className="profile-actions">
-            <button type="submit" className="btn-save-profile">
-              Lưu thay đổi
-            </button>
-          </div>
+          {isEditing && (
+            <div className="profile-actions">
+              <button
+                type="button"
+                className="btn-cancel-profile"
+                onClick={handleCancelEdit}
+              >
+                Hủy
+              </button>
+              <button type="submit" className="btn-save-profile">
+                Lưu thay đổi
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </main>

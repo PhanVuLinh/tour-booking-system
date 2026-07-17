@@ -4386,6 +4386,10 @@ input:checked+.slider:before {
 }
 
 .profile-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
   border-bottom: 1px solid #f0f0f0;
   padding-bottom: 20px;
   margin-bottom: 30px;
@@ -4413,24 +4417,71 @@ input:checked+.slider:before {
 
 .profile-actions {
   margin-top: 35px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.btn-save-profile {
-  background-color: var(--color-primary);
-  color: #fff;
-  border: none;
+.btn-save-profile,
+.btn-edit-profile,
+.btn-cancel-profile {
+  min-height: 46px;
   border-radius: 8px;
-  padding: 14px 35px;
+  padding: 0 24px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  white-space: nowrap;
 }
 
-.btn-save-profile:hover {
+.btn-save-profile,
+.btn-edit-profile {
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+}
+
+.btn-cancel-profile {
+  background-color: #fff;
+  color: #555;
+  border: 1px solid #ddd;
+}
+
+.btn-save-profile:hover,
+.btn-edit-profile:hover {
   background-color: #31009c;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(69, 2, 199, 0.2);
+}
+
+.btn-cancel-profile:hover {
+  color: var(--red-main);
+  border-color: #ffd5d5;
+  background-color: #fff4f4;
+}
+
+.profile-form .b-input:disabled {
+  cursor: default;
+  background-color: #f8fafc;
+  color: #334155;
+  border-color: #eef2f7;
+  box-shadow: none;
+  opacity: 1;
+}
+
+.profile-form .b-input:disabled::placeholder {
+  color: #94a3b8;
+}
+
+.profile-form .input-with-icon:has(.b-input:disabled) i {
+  color: #94a3b8;
 }
 
 @media (max-width: 1200px) {
@@ -4910,6 +4961,24 @@ input:checked+.slider:before {
 
   .profile-main {
     padding: 25px 20px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-edit-profile {
+    width: 100%;
+  }
+
+  .profile-actions {
+    justify-content: stretch;
+  }
+
+  .profile-actions .btn-save-profile,
+  .profile-actions .btn-cancel-profile {
+    flex: 1;
   }
 }
 
