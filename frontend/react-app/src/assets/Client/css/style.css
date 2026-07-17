@@ -3623,6 +3623,11 @@ input:checked+.slider:before {
   text-overflow: ellipsis;
 }
 
+.user-profile-chevron {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
 .user-dropdown-menu {
   position: absolute;
   top: 130%;
@@ -4400,6 +4405,14 @@ input:checked+.slider:before {
   color: var(--red-main);
 }
 
+.profile-logout-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
 /* --- Main Form Cột Phải --- */
 .profile-main {
   padding: 30px 40px;
@@ -4433,6 +4446,19 @@ input:checked+.slider:before {
 
 .profile-form .form-group {
   margin-bottom: 22px;
+}
+
+.profile-email-input {
+  background-color: #eaeaea;
+  color: #888;
+  border-radius: 10px;
+}
+
+.profile-field-note {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
 }
 
 .profile-actions {

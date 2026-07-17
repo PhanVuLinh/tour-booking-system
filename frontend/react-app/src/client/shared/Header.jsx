@@ -218,10 +218,7 @@ function Header() {
                   <button className="btn-login-header user-profile-btn">
                     <i className="fa-solid fa-circle-user"></i>
                     <span>{currentUser.fullName}</span>
-                    <i
-                      className="fa-solid fa-chevron-down"
-                      style={{ fontSize: "12px", marginLeft: "4px" }}
-                    ></i>
+                    <i className="fa-solid fa-chevron-down user-profile-chevron"></i>
                   </button>
 
                   <div className="user-dropdown-menu">

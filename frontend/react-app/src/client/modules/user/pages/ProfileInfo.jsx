@@ -100,24 +100,12 @@ function ProfileInfo() {
               <i className="fa-solid fa-envelope"></i>
               <input
                 type="email"
-                className="b-input"
+                className="b-input profile-email-input"
                 value={formData.email}
                 disabled
-                style={{
-                  backgroundColor: "#eaeaea",
-                  color: "#888",
-                  paddingLeft: "45px",
-                  borderRadius: "10px",
-                }}
               />
             </div>
-            <span
-              style={{
-                fontSize: "12px",
-                color: "#888",
-                marginTop: "4px",
-              }}
-            >
+            <span className="profile-field-note">
               Email không thể thay đổi.
             </span>
           </div>
@@ -142,10 +130,7 @@ function ProfileInfo() {
               />
               {errors.fullName && (
                 <span className="error-text">
-                  <i
-                    className="fa-solid fa-circle-exclamation"
-                    style={{ marginRight: "4px" }}
-                  ></i>
+                  <i className="fa-solid fa-circle-exclamation"></i>
                   {errors.fullName}
                 </span>
               )}
@@ -167,10 +152,7 @@ function ProfileInfo() {
               />
               {errors.phone && (
                 <span className="error-text">
-                  <i
-                    className="fa-solid fa-circle-exclamation"
-                    style={{ marginRight: "4px" }}
-                  ></i>
+                  <i className="fa-solid fa-circle-exclamation"></i>
                   {errors.phone}
                 </span>
               )}

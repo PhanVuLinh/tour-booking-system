@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Breadcrumb } from "../../../shared";
 import { getProfile } from "../services/userService";
 
 function ProfileLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
     fullName: "",
     email: "",
@@ -13,8 +14,10 @@ function ProfileLayout() {
     auth_provider: null,
   });
   const [isProfileLoaded, setIsProfileLoaded] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const canChangePassword =
-    isProfileLoaded && (!profile.auth_provider || profile.auth_provider === "local");
+    isProfileLoaded &&
+    (!profile.auth_provider || profile.auth_provider === "local");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -50,6 +53,14 @@ function ProfileLayout() {
 
     fetchProfile();
   }, []);
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    toast.success("Đăng xuất thành công");
+    navigate("/");
+  };
 
   return (
     <div className="page-wrapper">
@@ -106,17 +117,9 @@ function ProfileLayout() {
                 </Link>
               )}
               <button
-                className="profile-nav-link text-red"
-                onClick={() => {
-                  toast.info("Đang đăng xuất...");
-                }}
-                style={{
-                  width: "100%",
-                  background: "none",
-                  border: "none",
-                  textAlign: "left",
-                  cursor: "pointer",
-                }}
+                className="profile-nav-link profile-logout-btn text-red"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
               >
                 <i className="fa-solid fa-arrow-right-from-bracket"></i> Đăng
                 xuất
