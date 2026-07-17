@@ -26,6 +26,13 @@ import {
   BookingSuccess,
 } from "../modules/booking";
 
+import {
+  ProfileChangePassword,
+  ProfileHistory,
+  ProfileInfo,
+} from "../modules/user/pages";
+import { ProfileLayout } from "../modules/user/layouts";
+
 import PrivateRoute from "./PrivateRoute";
 
 export const clientRoutes = [
@@ -101,12 +108,34 @@ export const clientRoutes = [
                 element: <BookingInfo />,
               },
               {
-                ath: "payment",
+                path: "payment",
                 element: <BookingPayment />,
               },
               {
                 path: "success",
                 element: <BookingSuccess />,
+              },
+            ],
+          },
+          {
+            path: "profile",
+            element: <ProfileLayout />,
+            children: [
+              {
+                index: true,
+                element: <Navigate to="info" replace />,
+              },
+              {
+                path: "info",
+                element: <ProfileInfo />,
+              },
+              {
+                path: "history",
+                element: <ProfileHistory />,
+              },
+              {
+                path: "change-password",
+                element: <ProfileChangePassword />,
               },
             ],
           },

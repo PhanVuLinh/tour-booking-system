@@ -8,7 +8,7 @@ module.exports.updateProfile = (req, res, next) => {
   }
 
   if (phone && phone.trim() !== "") {
-    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/; // Regex SĐT Việt Nam
+    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
     if (!phoneRegex.test(phone)) {
       return res
         .status(400)

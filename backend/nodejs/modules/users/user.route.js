@@ -10,4 +10,10 @@ router.use(requireAuth);
 
 router.get("/profile/info", userController.getProfile);
 
+router.put(
+  "/profile/info",
+  userValidate.updateProfile,
+  userController.updateProfile,
+);
+
 module.exports = router;

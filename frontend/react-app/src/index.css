@@ -6,3 +6,108 @@
     gap: 12px !important;
     padding: 8px !important;
 }
+
+.client-toaster[data-sonner-toaster] {
+    --normal-bg: rgba(255, 255, 255, 0.96);
+    --normal-border: rgba(15, 23, 42, 0.08);
+    --normal-text: #0f172a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --success-text: #166534;
+    --error-bg: #fef2f2;
+    --error-border: #fecaca;
+    --error-text: #991b1b;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --warning-text: #92400e;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --info-text: #1d4ed8;
+}
+
+.client-toaster [data-sonner-toast].app-toast {
+    width: min(390px, calc(100vw - 32px));
+    min-height: 58px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--normal-border);
+    background: var(--normal-bg);
+    color: var(--normal-text);
+    box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.14),
+        0 4px 12px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(14px);
+    font-family: inherit;
+}
+
+.client-toaster [data-sonner-toast].app-toast[data-type="success"] {
+    border-color: var(--success-border);
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.client-toaster [data-sonner-toast].app-toast[data-type="error"] {
+    border-color: var(--error-border);
+    background: var(--error-bg);
+    color: var(--error-text);
+}
+
+.client-toaster [data-sonner-toast].app-toast[data-type="warning"] {
+    border-color: var(--warning-border);
+    background: var(--warning-bg);
+    color: var(--warning-text);
+}
+
+.client-toaster [data-sonner-toast].app-toast[data-type="info"] {
+    border-color: var(--info-border);
+    background: var(--info-bg);
+    color: var(--info-text);
+}
+
+.client-toaster [data-sonner-toast].app-toast [data-icon] {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+}
+
+.app-toast-title {
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.app-toast-description {
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+.app-toast-close {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border-color: rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.72);
+    color: #475569;
+}
+
+.app-toast-action,
+.app-toast-cancel {
+    height: 32px;
+    border-radius: 999px;
+    padding: 0 12px;
+    font-weight: 700;
+}
+
+.toast-spin {
+    animation: toast-spin 0.8s linear infinite;
+}
+
+@keyframes toast-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
