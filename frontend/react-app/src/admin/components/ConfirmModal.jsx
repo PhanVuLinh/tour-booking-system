@@ -9,6 +9,7 @@ export default function ConfirmModal({
   confirmText = "Xác nhận",
   cancelText = "Hủy",
   variant = "danger", 
+  hideCancel = false,
 }) {
   if (!isOpen) return null;
 
@@ -43,13 +44,18 @@ export default function ConfirmModal({
           <p className="text-sm text-gray-500 text-center mt-1">{message}</p>
         </div>
         <div className="flex border-t border-gray-100">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            {cancelText}
-          </button>
-          <div className="w-px bg-gray-100" />
+
+          {!hideCancel && (
+            <>
+              <button
+                onClick={onCancel}
+                className="flex-1 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                {cancelText}
+              </button>
+              <div className="w-px bg-gray-100" />
+            </>
+          )}
           <button
             onClick={onConfirm}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${style.confirm}`}

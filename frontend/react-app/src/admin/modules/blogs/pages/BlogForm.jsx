@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Upload, X, ImageIcon } from "lucide-react";
 import { Editor } from '@tinymce/tinymce-react';
 import { blogService } from "../services/blogService";
-import { apiClient } from "../../login/services/authService";
+import ConfirmModal from "../../../components/ConfirmModal"; 
 
 export default function BlogForm() {
   const navigate = useNavigate();
@@ -13,6 +13,10 @@ export default function BlogForm() {
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState(null);
+
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  
+  const [successModal, setSuccessModal] = useState({ open: false, message: "" });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -62,36 +66,22 @@ export default function BlogForm() {
     try {
       setSubmitting(true);
       
-      let finalImageUrl = formData.thumbnail;
-
-      if (thumbnailFile) {
-        const uploadData = new FormData();
-        uploadData.append("file", thumbnailFile);
-        
-        const uploadRes = await apiClient.post('/upload', uploadData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        
-        finalImageUrl = uploadRes.data.url || uploadRes.data; 
-      }
-
       const payload = {
         title:       formData.title,
         description: formData.description,
         content:     formData.content,
-        thumbnail:   finalImageUrl,
         status:      formData.status,
+        thumbnail:   thumbnailFile ? null : formData.thumbnail, 
       };
 
       if (isEdit) {
-        await blogService.update(id, payload);
-        alert("Cập nhật bài viết thành công!");
+        await blogService.update(id, payload, thumbnailFile);
+        setSuccessModal({ open: true, message: "Cập nhật bài viết thành công!" });
       } else {
-        await blogService.create(payload);
-        alert("Thêm bài viết thành công!");
+        await blogService.create(payload, thumbnailFile);
+        setSuccessModal({ open: true, message: "Thêm bài viết mới thành công!" });
       }
-      navigate("/admin/blogs");
-    } catch (err) {
+          } catch (err) {
       alert("Lỗi: " + err.message);
     } finally {
       setSubmitting(false);
@@ -110,7 +100,7 @@ export default function BlogForm() {
     <div className="p-8 w-full max-w-5xl mx-auto">
       <button
         type="button"
-        onClick={() => navigate("/admin/blogs")}
+        onClick={() => setShowCancelConfirm(true)} 
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-medium mb-6"
       >
         <ArrowLeft className="w-4 h-4" /> Quay lại
@@ -151,7 +141,7 @@ export default function BlogForm() {
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
                   />
                 </div>
-                                <div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nội dung <span className="text-red-500">*</span>
                   </label>
@@ -242,7 +232,7 @@ export default function BlogForm() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/admin/blogs")}
+                onClick={() => setShowCancelConfirm(true)} 
                 disabled={submitting}
                 className="w-full py-3 px-4 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-60"
               >
@@ -252,6 +242,27 @@ export default function BlogForm() {
           </div>
         </div>
       </form>
+
+      <ConfirmModal
+        isOpen={showCancelConfirm}
+        onConfirm={() => navigate("/admin/blogs")}
+        onCancel={() => setShowCancelConfirm(false)}
+        title="Xác nhận hủy"
+        message="Bạn có chắc chắn muốn thoát? Các thay đổi chưa lưu sẽ bị mất."
+        confirmText="Đồng ý thoát"
+        cancelText="Ở lại"
+        variant="warning"
+      />
+
+      <ConfirmModal
+        isOpen={successModal.open}
+        onConfirm={() => navigate("/admin/blogs")} 
+        title="Thành công!"
+        message={successModal.message}
+        confirmText="Đóng"
+        variant="info"
+        hideCancel={true}
+      />
     </div>
   );
 }

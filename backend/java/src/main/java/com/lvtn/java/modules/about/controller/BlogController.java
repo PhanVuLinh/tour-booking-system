@@ -1,13 +1,17 @@
 package com.lvtn.java.modules.about.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lvtn.java.dto.blog.BlogRequest;
 import com.lvtn.java.dto.blog.BlogResponse;
 import com.lvtn.java.modules.about.service.BlogService;
+import com.lvtn.java.modules.tour.service.impl.ImageUploadServiceImpl;
 import com.lvtn.java.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,6 +22,8 @@ public class BlogController {
 
     private final BlogService blogService;
     private final SecurityUtils securityUtils;
+    private final ImageUploadServiceImpl imageUploadService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping
     public ResponseEntity<List<BlogResponse>> findAll() {
@@ -39,30 +45,48 @@ public class BlogController {
         return ResponseEntity.ok(blogService.findAllTrash());
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
-    public ResponseEntity<?> create(@RequestBody BlogRequest request) {
+    public ResponseEntity<?> create(
+            @RequestPart("request") String requestString,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
         try {
             Integer creatorId = securityUtils.getCurrentAccountId();
-            String imageUrl = request.getThumbnail();
-            BlogResponse response = blogService.create(request, imageUrl, creatorId);
+            BlogRequest request = objectMapper.readValue(requestString, BlogRequest.class);
 
+            String imageUrl = request.getThumbnail();
+
+            if (image != null && !image.isEmpty()) {
+                imageUrl = imageUploadService.uploadImage(image);
+            }
+
+            BlogResponse response = blogService.create(request, imageUrl, creatorId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody BlogRequest request) {
+    public ResponseEntity<?> update(
+            @PathVariable Long id,
+            @RequestPart("request") String requestString,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
         try {
             Integer updaterId = securityUtils.getCurrentAccountId();
-            String imageUrl = request.getThumbnail();
-            BlogResponse response = blogService.update(id, request, imageUrl, updaterId);
+            BlogRequest request = objectMapper.readValue(requestString, BlogRequest.class);
 
+            String imageUrl = request.getThumbnail();
+            if (image != null && !image.isEmpty()) {
+                imageUrl = imageUploadService.uploadImage(image);
+            }
+
+            BlogResponse response = blogService.update(id, request, imageUrl, updaterId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

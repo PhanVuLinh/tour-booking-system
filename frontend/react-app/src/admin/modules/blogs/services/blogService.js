@@ -1,77 +1,39 @@
 import { apiClient } from '../../login/services/authService';
 
 export const blogService = {
-  
-  getAll: async () => {
-    try {
-      const response = await apiClient.get('/blogs');
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Lỗi tải danh sách bài viết");
+  getAll: async () => (await apiClient.get('/blogs')).data,
+  getById: async (id) => (await apiClient.get(`/blogs/${id}`)).data,
+  getAllTrash: async () => (await apiClient.get('/blogs/trash')).data,
+
+  create: async (payload, thumbnailFile) => {
+    const formData = new FormData();
+    formData.append("request", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+    
+    if (thumbnailFile) {
+      formData.append("image", thumbnailFile);
     }
+
+    const response = await apiClient.post('/blogs', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 
-  getById: async (id) => {
-    try {
-      const response = await apiClient.get(`/blogs/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Không tìm thấy bài viết");
+  update: async (id, payload, thumbnailFile) => {
+    const formData = new FormData();
+    formData.append("request", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+    
+    if (thumbnailFile) {
+      formData.append("image", thumbnailFile);
     }
+
+    const response = await apiClient.put(`/blogs/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   },
 
-  getAllTrash: async () => {
-    try {
-      const response = await apiClient.get('/blogs/trash');
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Lỗi tải danh sách thùng rác");
-    }
-  },
-
-
-  create: async (payload) => {
-    try {
-      const response = await apiClient.post('/blogs', payload);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Tạo bài viết thất bại");
-    }
-  },
-
-  update: async (id, payload) => {
-    try {
-      const response = await apiClient.put(`/blogs/${id}`, payload);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Cập nhật bài viết thất bại");
-    }
-  },
-
-  softDelete: async (id) => {
-    try {
-      const response = await apiClient.delete(`/blogs/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Xóa bài viết thất bại");
-    }
-  },
-
-  restore: async (id) => {
-    try {
-      const response = await apiClient.put(`/blogs/${id}/restore`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Khôi phục bài viết thất bại");
-    }
-  },
-
-  hardDelete: async (id) => {
-    try {
-      const response = await apiClient.delete(`/blogs/${id}/force`);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || "Xóa vĩnh viễn bài viết thất bại");
-    }
-  }
+  softDelete: async (id) => (await apiClient.delete(`/blogs/${id}`)).data,
+  restore: async (id) => (await apiClient.put(`/blogs/${id}/restore`)).data,
+  hardDelete: async (id) => (await apiClient.delete(`/blogs/${id}/force`)).data
 };

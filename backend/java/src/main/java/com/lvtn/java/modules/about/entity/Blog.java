@@ -1,6 +1,7 @@
 package com.lvtn.java.modules.about.entity;
 
 import com.lvtn.java.domain.AuditableEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -13,6 +14,7 @@ public class Blog extends AuditableEntity {
     private String slug;
     private String thumbnail;
     private String description;
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
     private String status="active";
 
