@@ -24,7 +24,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> getAllRoles() {
-        return roleRepository.findByDeleted(0);
+        return roleRepository.findAll();
     }
 
     @Override
@@ -62,6 +62,16 @@ public class RoleServiceImpl implements RoleService {
         existingRole.setDeleted(1);
         existingRole.setDeletedAt(LocalDateTime.now());
         roleRepository.save(existingRole);
+    }
+    @Override
+    @Transactional
+    public void restoreRole(Integer id) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò với ID: " + id));
+
+        role.setDeleted(0);
+
+        roleRepository.save(role);
     }
 
     @Override

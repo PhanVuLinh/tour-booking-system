@@ -19,6 +19,7 @@ import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
 
 import PrivateRoute from "./PrivateRoute";
+import { RolePage, RoleForm } from "../modules/roles/pages";
 
 export const adminRoutes = [
   {
@@ -76,6 +77,18 @@ export const adminRoutes = [
           {
             path: "/admin/discounts",
             element: <Discount />,
+          },
+          {
+            path: "/admin/roles",
+            element: <RolePage />,
+          },
+          {
+            path: "/admin/roles/new",
+            element: <RoleForm />,
+          },
+          {
+            path: "/admin/roles/edit/:id",
+            element: <RoleForm />,
           },
           {
             path: "/admin/blogs",

@@ -11,5 +11,6 @@ public interface RoleService {
     Role createRole(RoleRequest request);
     Role updateRole(Integer id, RoleRequest request);
     void deleteRole(Integer id);
+    void restoreRole(Integer id);
     void updatePermissions(Integer roleId, List<Long> permissionIds);
 }

@@ -59,6 +59,17 @@ public class RoleController {
         }
     }
 
+    @PutMapping("/{id}/restore")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_ROLE')")
+    public ResponseEntity<?> restoreRole(@PathVariable Integer id) {
+        try {
+            roleService.restoreRole(id);
+            return ResponseEntity.ok("Đã mở khóa vai trò thành công!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("/{id}/permissions")
     @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_ROLE')")
     public ResponseEntity<?> updateRolePermissions(

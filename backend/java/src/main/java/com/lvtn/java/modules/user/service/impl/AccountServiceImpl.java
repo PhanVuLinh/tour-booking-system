@@ -1,11 +1,11 @@
 package com.lvtn.java.modules.user.service.impl;
 
+import com.lvtn.java.modules.role.entity.Role;
+import com.lvtn.java.modules.role.repository.RoleRepository;
 import com.lvtn.java.modules.user.entity.Account;
-import com.lvtn.java.modules.user.entity.Role;
 import com.lvtn.java.dto.account.AccountRequest;
 import com.lvtn.java.dto.account.AccountResponse;
 import com.lvtn.java.modules.user.repository.AccountRepository;
-import com.lvtn.java.modules.user.repository.RoleRepository;
 import com.lvtn.java.modules.user.service.AccountService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

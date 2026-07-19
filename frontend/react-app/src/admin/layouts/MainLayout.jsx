@@ -25,6 +25,7 @@ const navigation = [
   { name: "Đánh giá", href: "/admin/reviews", icon: MessageSquare },
   { name: "Banner", href: "/admin/banners", icon: ImageIcon },
   { name: "Liên hệ", href: "/admin/contacts", icon: MessageSquare },
+  { name: "Phân quyền", href: "/admin/roles", icon: KeyRound },
 ];
 
 export default function MainLayout() {
@@ -110,8 +111,6 @@ export default function MainLayout() {
               })}
             </ul>
           </nav>
-
-          {/* User Section with Dropdown */}
           <div className="border-t border-gray-200 py-4 shrink-0 relative" ref={dropdownRef}>
             
             {isDropdownOpen && (

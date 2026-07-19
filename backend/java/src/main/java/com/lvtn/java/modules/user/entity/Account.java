@@ -1,6 +1,7 @@
 package com.lvtn.java.modules.user.entity;
 
 import com.lvtn.java.domain.AuditableEntity;
+import com.lvtn.java.modules.role.entity.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 
