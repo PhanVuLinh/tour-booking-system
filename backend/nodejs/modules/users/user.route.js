@@ -24,4 +24,6 @@ router.put(
 
 router.get("/profile/tour-history", userController.getTourHistory);
 
+router.get("/profile/booking-detail/:id", userController.getBookingDetail);
+
 module.exports = router;

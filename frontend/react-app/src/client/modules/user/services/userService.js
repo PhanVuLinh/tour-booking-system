@@ -19,3 +19,8 @@ export const getTourHistory = async () => {
   const result = await get("/user/profile/tour-history");
   return result;
 };
+
+export const getBookingDetail = async (id) => {
+  const result = await get(`/user/profile/booking-detail/${id}`);
+  return result;
+};

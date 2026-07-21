@@ -2,134 +2,68 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useOutletContext } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
+import { getBookingDetail } from "../services/userService";
+
+import {
+  getPassengerTypeName,
+  getPaymentMethodName,
+} from "../utils/user.helper";
 
 function BookingDetail() {
-  const { isProfileLoaded } = useOutletContext();
-  const { id } = useParams(); // Lấy bookingId từ URL
+  const { id } = useParams();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Giả lập gọi API lấy chi tiết đơn đặt tour dựa vào ID
   useEffect(() => {
     setLoading(true);
-    // Sau này thay thế bằng API thật: fetch(`/api/bookings/detail/${id}`)
-    const timer = setTimeout(() => {
-      // Dữ liệu giả lập mô phỏng theo chuẩn Database
-      setBooking({
-        id: id,
-        bookingCode: "BKG-519317596",
-        tour: {
-          title: "Lịch trình vi vu Đà Nẵng – Hội An 4 ngày 3 đêm",
-          thumbnail:
-            "https://images.unsplash.com/photo-1557315360-6a350ab4eccd?auto=format&fit=crop&w=800&q=80",
-          startDate: "2026-08-15T08:00:00",
-        },
-        contact: {
-          fullName: "Trần Minh Quân",
-          phone: "0908123456",
-          email: "quan.tran@example.com",
-          address: "190 Pasteur, Phường Xuân Hòa, TP.HCM",
-        },
-        passengers: [
-          {
-            id: 1,
-            fullName: "Trần Minh Quân",
-            dob: "1995-08-15",
-            gender: "Nam",
-            identity_card: "079095123456",
-            passengerType: "adult",
-          },
-          {
-            id: 2,
-            fullName: "Trần Gia Bảo",
-            dob: "2018-03-20",
-            gender: "Nam",
-            identity_card: "",
-            passengerType: "child",
-          },
-        ],
-        payment: {
-          method: "cod",
-          type: "100", // 100% thanh toán
-          payableAmount: 3732000.0,
-          status: "pending",
-        },
-        pricing: {
-          subTotal: 4232000.0,
-          discount: 500000.0,
-          total: 3732000.0,
-        },
-        note: "Gia đình có trẻ em đi cùng, vui lòng sắp xếp chỗ ngồi gần nhau và hỗ trợ suất ăn ít cay.",
-        status: "pending",
-        createdAt: "2026-07-08T07:58:39",
+    setError(null);
+    getBookingDetail(id)
+      .then((response) => {
+        if (response.success && response.data) setBooking(response.data);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi tải chi tiết đơn tour:", err);
+        setError(
+          err.message ||
+            "Đã có lỗi xảy ra khi kết nối đến máy chủ. Vui lòng thử lại sau!",
+        );
+      })
+      .finally(() => {
+        setLoading(false);
       });
-      setLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
   }, [id]);
 
-  const getPassengerTypeName = (type) => {
-    switch (type) {
-      case "adult":
-        return "Người lớn";
-      case "child":
-        return "Trẻ em";
-      case "baby":
-        return "Em bé";
-      default:
-        return "Khách";
-    }
-  };
-
-  const getPaymentMethodName = (method) => {
-    switch (method) {
-      case "cod":
-        return "Tiền mặt / Chuyển khoản";
-      case "vnpay":
-        return "Thanh toán qua VNPAY";
-      case "momo":
-        return "Thanh toán qua Momo";
-      default:
-        return method;
-    }
-  };
-
-  if (!isProfileLoaded || loading) {
+  if (error || !booking) {
     return (
       <main className="profile-main b-box">
         <div className="profile-header">
           <Link to="/profile/history" className="btn-back-history">
-            <i className="fa-solid fa-arrow-left"></i> Quay lại
+            <i className="fa-solid fa-arrow-left"></i> Quay lại lịch sử
           </Link>
         </div>
-        <div
-          className="profile-form-wrapper"
-          style={{ padding: "40px 0", textAlign: "center" }}
-        >
-          <div className="client-spinner" style={{ margin: "0 auto" }}></div>
-          <p style={{ color: "#666", marginTop: "10px" }}>
-            Đang tải dữ liệu chi tiết...
-          </p>
+        <div className="search-empty-state" style={{ padding: "40px 20px" }}>
+          <i
+            className="fa-solid fa-triangle-exclamation"
+            style={{ fontSize: "40px", color: "#dc2626", marginBottom: "15px" }}
+          ></i>
+          <h3>{error || "Không tìm thấy đơn đặt tour!"}</h3>
+          <div
+            style={{
+              marginTop: "15px",
+              display: "flex",
+              gap: "10px",
+              justifyContent: "center",
+            }}
+          >
+            <Link to="/profile/history" className="btn-action btn-outline">
+              Quay lại danh sách
+            </Link>
+          </div>
         </div>
       </main>
     );
   }
-
-  if (!booking) {
-    return (
-      <main className="profile-main b-box">
-        <div className="search-empty-state">
-          <h3>Không tìm thấy đơn đặt tour!</h3>
-          <Link to="/profile/history" className="btn-action btn-fill">
-            Quay lại danh sách
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
-  const totalPassengers = booking.passengers.length;
 
   return (
     <main className="profile-main b-box">
@@ -183,7 +117,7 @@ function BookingDetail() {
                 </p>
                 <p>
                   <i className="fa-solid fa-users"></i> Số lượng:{" "}
-                  <strong>{totalPassengers} khách</strong>
+                  <strong>{booking.passengers.length} khách</strong>
                 </p>
                 <p>
                   <i className="fa-regular fa-clock"></i> Ngày đặt:{" "}

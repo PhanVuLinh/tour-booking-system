@@ -85,3 +85,29 @@ module.exports.getTourHistory = async (req, res) => {
     });
   }
 };
+
+module.exports.getBookingDetail = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const bookingId = req.params.id;
+    const detail = await userService.getBookingDetail(userId, bookingId);
+    if (!detail) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy thông tin đơn đặt tour",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Lấy chi tiết đơn đặt tour thành công",
+      data: detail,
+    });
+  } catch (error) {
+    console.error("Lỗi getBookingDetail Controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi Server khi lấy chi tiết đơn tour",
+    });
+  }
+};
