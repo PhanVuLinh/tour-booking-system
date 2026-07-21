@@ -88,10 +88,22 @@ module.exports.getTourDetailBySlug = async (slug) => {
   `;
   const [schedules] = await pool.query(sqlSchedules, [row.id]);
 
+  const sqlGalleries = `
+    SELECT
+        id,
+        image_url
+    FROM tour_images
+    WHERE tour_id = ?
+      AND deleted = 0
+    ORDER BY id ASC
+  `;
+  const [galleries] = await pool.query(sqlGalleries, [row.id]);
+
   return {
     ...formattedTour,
     departures: departures,
     schedules: schedules,
+    galleries: galleries,
   };
 };
 

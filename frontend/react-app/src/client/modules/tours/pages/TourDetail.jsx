@@ -37,6 +37,7 @@ function TourDetail() {
   const tourDetail = tourData || {};
   const departures = tourData?.departures || [];
   const schedules = tourData?.schedules || [];
+  const galleries = tourData?.galleries || [];
 
   const breadcrumbList = buildTourDetailBreadcrumb(tourData, slug);
 
@@ -91,6 +92,16 @@ function TourDetail() {
                     }
                   />
                 )}
+
+                {galleries.map((gallery, index) => (
+                  <img
+                    key={gallery.id}
+                    src={gallery.image_url}
+                    alt={`${tourDetail.title} - ảnh ${index + 1}`}
+                    onClick={() => setMainImage(gallery.image_url)}
+                    className={mainImage === gallery.image_url ? "active" : ""}
+                  />
+                ))}
               </div>
             </div>
 
