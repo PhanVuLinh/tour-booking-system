@@ -32,8 +32,11 @@ function OrderBooking() {
   const [paymentType, setPaymentType] = useState(
     location.state?.paymentType || "100",
   );
+  const [paymentMethod, setPaymentMethod] = useState(
+    location.state?.paymentMethod || "",
+  );
 
-  //Mã giảm giá
+  // Mã giảm giá chỉ dùng để hiển thị trước cho khách, backend sẽ kiểm tra lại.
   const [promoCode, setPromoCode] = useState(location.state?.promoCode || "");
   const [discount, setDiscount] = useState(location.state?.discount || 0);
   const [couponId, setCouponId] = useState(location.state?.couponId || null);
@@ -64,7 +67,6 @@ function OrderBooking() {
     const existing = location.state?.formData;
     if (existing?.passengerDetails) return existing;
 
-    //lấy thông tin user từ LOCAL STORAGE (Nếu đã đăng nhập)
     const userStr = localStorage.getItem("user");
     const loggedUser = userStr ? JSON.parse(userStr) : null;
 
@@ -80,6 +82,7 @@ function OrderBooking() {
     };
   });
   const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     navigate(location.pathname, {
@@ -91,11 +94,12 @@ function OrderBooking() {
           children: childCount,
           infants: infantCount,
         },
-        formData: formData,
-        promoCode: promoCode,
-        discount: discount,
-        couponId: couponId,
-        paymentType: paymentType,
+        formData,
+        promoCode,
+        discount,
+        couponId,
+        paymentType,
+        paymentMethod,
       },
     });
   }, [
@@ -107,6 +111,7 @@ function OrderBooking() {
     discount,
     couponId,
     paymentType,
+    paymentMethod,
   ]);
 
   const priceAdult = Number(selectedDate.newPriceAdult) || 0;
@@ -121,7 +126,6 @@ function OrderBooking() {
     infantCount * priceInfant;
 
   const total = Math.max(Math.round(subtotal - discount), 0);
-
   const payableAmount = paymentType === "50" ? Math.ceil(total * 0.5) : total;
   const remainingAmount = Math.max(total - payableAmount, 0);
 
@@ -132,9 +136,9 @@ function OrderBooking() {
       : 1;
 
   const updatePassenger = (type, action) => {
-    let groupKey =
+    const groupKey =
       type === "adult" ? "adults" : type === "child" ? "children" : "infants";
-    let isAdd = action === "add";
+    const isAdd = action === "add";
 
     if (type === "adult") {
       if (!isAdd && adultCount <= 1) return;
@@ -153,13 +157,14 @@ function OrderBooking() {
         const newPassenger =
           type === "adult"
             ? {
-                fullName: "",
-                dob: "",
-                gender: "Nam",
-                phone: "",
-                identity_card: "",
-              }
+              fullName: "",
+              dob: "",
+              gender: "Nam",
+              phone: "",
+              identity_card: "",
+            }
             : { fullName: "", dob: "", gender: "Nam", identity_card: "" };
+
         return {
           ...prev,
           passengerDetails: {
@@ -167,15 +172,15 @@ function OrderBooking() {
             [groupKey]: [...currentList, newPassenger],
           },
         };
-      } else {
-        return {
-          ...prev,
-          passengerDetails: {
-            ...prev.passengerDetails,
-            [groupKey]: currentList.slice(0, -1),
-          },
-        };
       }
+
+      return {
+        ...prev,
+        passengerDetails: {
+          ...prev.passengerDetails,
+          [groupKey]: currentList.slice(0, -1),
+        },
+      };
     });
   };
 
@@ -202,7 +207,7 @@ function OrderBooking() {
     } catch (error) {
       setDiscount(0);
       setCouponId(null);
-      toast.error(error.response?.data?.message || "Mã giảm giá không hợp lệ");
+      toast.error("Mã giảm giá không hợp lệ");
     }
   };
 
@@ -225,23 +230,22 @@ function OrderBooking() {
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
 
-        const contactErrors = Object.entries(errors).filter(([k]) =>
-          k.startsWith("contact."),
+        const contactErrors = Object.entries(errors).filter(([key]) =>
+          key.startsWith("contact."),
         );
-        const passengerErrors = Object.entries(errors).filter(([k]) =>
-          k.startsWith("passengerDetails."),
+        const passengerErrors = Object.entries(errors).filter(([key]) =>
+          key.startsWith("passengerDetails."),
         );
 
         if (contactErrors.length > 0) {
-          // Lấy message lỗi đầu tiên trong nhóm contact
           toast.error(`Thông tin liên lạc: ${contactErrors[0][1]}`);
         }
         if (passengerErrors.length > 0) {
-          // Lấy message lỗi đầu tiên trong nhóm hành khách
           toast.error(`Thông tin hành khách: ${passengerErrors[0][1]}`);
         }
         return;
       }
+
       setFormErrors({});
       toast.success("Thông tin hợp lệ!");
       navigate("/booking/payment", {
@@ -250,13 +254,29 @@ function OrderBooking() {
           passengers: currentPassengers,
           formData,
           paymentType,
+          paymentMethod,
         },
       });
       return;
     }
+
     if (currentStep === 2) {
+      if (!paymentMethod) {
+        toast.error("Vui lòng chọn phương thức thanh toán!");
+        return;
+      }
+
+      if (isSubmitting) return;
+
+      if (location.state?.bookingCode) {
+        toast.error("Đơn đặt tour đã được tạo thành công!");
+        navigate("/booking/success", { replace: true, state: location.state });
+        return;
+      }
+
+      setIsSubmitting(true);
+
       const payload = {
-        user_id: location.state?.userId || null,
         fullName: formData.contact.fullName,
         phone: formData.contact.phone,
         email: formData.contact.email,
@@ -265,29 +285,21 @@ function OrderBooking() {
         quantityAdult: adultCount,
         quantityChildren: childCount,
         quantityBaby: infantCount,
-        adultPrice: priceAdult,
-        childrenPrice: priceChild,
-        babyPrice: priceInfant,
-        subTotal: subtotal,
-        total: total, // Tổng tiền booking là giá sau khi giảm giá, không bị ảnh hưởng bởi hình thức cọc
-        payableAmount: payableAmount, // Số tiền khách thanh toán thực tế (50% hoặc 100%)
         coupon_id: couponId,
-        discount: discount,
         note: formData.note,
-        paymentMethod: "cod",
+        paymentMethod,
         paymentType,
-        remainingAmount,
         passengers: [
-          ...formData.passengerDetails.adults.map((p) => ({
-            ...p,
+          ...formData.passengerDetails.adults.map((passenger) => ({
+            ...passenger,
             passengerType: "adult",
           })),
-          ...(formData?.passengerDetails?.children || []).map((p) => ({
-            ...p,
+          ...(formData?.passengerDetails?.children || []).map((passenger) => ({
+            ...passenger,
             passengerType: "child",
           })),
-          ...formData.passengerDetails.infants.map((p) => ({
-            ...p,
+          ...formData.passengerDetails.infants.map((passenger) => ({
+            ...passenger,
             passengerType: "baby",
           })),
         ],
@@ -297,23 +309,27 @@ function OrderBooking() {
         const data = await createBookingService(payload);
 
         if (data.success) {
+          const bookingResult = data.data || {};
           toast.success("Đặt tour thành công!");
           navigate("/booking/success", {
+            replace: true,
             state: {
               ...location.state,
-              bookingCode: data.data.bookingCode,
+              bookingCode: bookingResult.bookingCode,
               passengers: {
-                adults: adultCount,
-                children: childCount,
-                infants: infantCount,
+                adults: bookingResult.quantityAdult ?? adultCount,
+                children: bookingResult.quantityChildren ?? childCount,
+                infants: bookingResult.quantityBaby ?? infantCount,
               },
-              subtotal,
-              couponId,
-              discount,
-              total,
-              payableAmount,
-              remainingAmount,
-              paymentType,
+              subtotal: bookingResult.subTotal ?? subtotal,
+              couponId: bookingResult.coupon_id ?? couponId,
+              discount: bookingResult.discount ?? discount,
+              total: bookingResult.total ?? total,
+              payableAmount: bookingResult.payableAmount ?? payableAmount,
+              remainingAmount: bookingResult.remainingAmount ?? remainingAmount,
+              paymentType: bookingResult.paymentType ?? paymentType,
+              paymentMethod: bookingResult.paymentMethod ?? paymentMethod,
+              formData,
             },
           });
         } else {
@@ -321,9 +337,12 @@ function OrderBooking() {
         }
       } catch (error) {
         toast.error("Lỗi kết nối đến máy chủ");
+      } finally {
+        setIsSubmitting(false);
       }
       return;
     }
+
     navigate("/");
   };
 
@@ -337,6 +356,7 @@ function OrderBooking() {
           infants: infantCount,
         },
         paymentType,
+        paymentMethod,
       },
     });
   };
@@ -377,39 +397,41 @@ function OrderBooking() {
                 formErrors,
                 paymentType,
                 setPaymentType,
+                paymentMethod,
+                setPaymentMethod,
               }}
             />
           </div>
 
           {currentStep < 3 && (
             <BookingSidebar
-            tourImage={tour.thumbnail}
-            tourTitle={tour.title}
-            tourCode={tour.id}
-            transport={selectedDate.vehicleName || "Đang cập nhật"}
-            departure={selectedDate.departureFrom || "Chưa cập nhật"}
-            selectedDate={selectedDate.startDate}
-            adultCount={adultCount}
-            childCount={childCount}
-            infantCount={infantCount}
-            priceAdult={priceAdult}
-            priceChild={priceChild}
-            priceInfant={priceInfant}
-            subtotal={subtotal}
-            discount={discount}
-            total={total}
-            payableAmount={payableAmount}
-            remainingAmount={remainingAmount}
-            paymentType={paymentType}
-            promoCode={promoCode}
-            setPromoCode={setPromoCode}
-            isPromoApplied={Boolean(couponId)}
-            formatPrice={formatPrice}
-            currentStep={currentStep}
-            handleApplyPromo={handleApplyPromo}
-            handleRemovePromo={handleRemovePromo}
-            handleNextStep={handleNextStep}
-            handleBackStep={handleBackStep}
+              tourImage={tour.thumbnail}
+              tourTitle={tour.title}
+              tourCode={tour.id}
+              transport={selectedDate.vehicleName || "Đang cập nhật"}
+              departure={selectedDate.departureFrom || "Chưa cập nhật"}
+              selectedDate={selectedDate.startDate}
+              adultCount={adultCount}
+              childCount={childCount}
+              infantCount={infantCount}
+              priceAdult={priceAdult}
+              priceChild={priceChild}
+              priceInfant={priceInfant}
+              subtotal={subtotal}
+              discount={discount}
+              total={total}
+              payableAmount={payableAmount}
+              remainingAmount={remainingAmount}
+              paymentType={paymentType}
+              promoCode={promoCode}
+              setPromoCode={setPromoCode}
+              isPromoApplied={Boolean(couponId)}
+              formatPrice={formatPrice}
+              currentStep={currentStep}
+              handleApplyPromo={handleApplyPromo}
+              handleRemovePromo={handleRemovePromo}
+              handleNextStep={handleNextStep}
+              handleBackStep={handleBackStep}
             />
           )}
         </div>

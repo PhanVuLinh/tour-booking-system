@@ -1,18 +1,19 @@
-import React, { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
 const Step2Payment = () => {
   const navigate = useNavigate();
-  const { formData, paymentType, setPaymentType } = useOutletContext();
-
-  // State lưu phương thức thanh toán
-  const [paymentMethod, setPaymentMethod] = useState("vnpay");
+  const {
+    formData,
+    paymentType,
+    setPaymentType,
+    paymentMethod,
+    setPaymentMethod,
+  } = useOutletContext();
 
   const contactInfo = formData?.contact || {};
 
   return (
     <div className="step2-payment-wrapper">
-      {/* 1. KHỐI THÔNG TIN LIÊN HỆ */}
       <div className="b-box contact-summary-box">
         <div className="box-header-flex">
           <h3>Thông tin liên hệ</h3>
@@ -53,7 +54,6 @@ const Step2Payment = () => {
         </div>
       </div>
 
-      {/* 2. KHỐI TÙY CHỌN MỨC THANH TOÁN (50% hoặc 100%) */}
       <div className="b-box payment-ratio-box">
         <h3>Quy định thanh toán</h3>
         <p className="box-subtext mb-15">
@@ -106,7 +106,6 @@ const Step2Payment = () => {
         </div>
       </div>
 
-      {/* 3. KHỐI PHƯƠNG THỨC THANH TOÁN */}
       <div className="b-box payment-method-box">
         <h3>Phương thức thanh toán</h3>
         <p className="box-subtext mb-15">
@@ -114,7 +113,6 @@ const Step2Payment = () => {
         </p>
 
         <div className="methods-list">
-          {/* VNPAY */}
           <label
             className={`method-item ${paymentMethod === "vnpay" ? "active" : ""}`}
           >
@@ -141,7 +139,6 @@ const Step2Payment = () => {
             </div>
           </label>
 
-          {/* MoMo */}
           <label
             className={`method-item ${paymentMethod === "momo" ? "active" : ""}`}
           >
@@ -168,7 +165,6 @@ const Step2Payment = () => {
             </div>
           </label>
 
-          {/* Chuyển khoản ngân hàng */}
           <label
             className={`method-item ${paymentMethod === "bank" ? "active" : ""}`}
           >
@@ -182,9 +178,6 @@ const Step2Payment = () => {
               />
               <span className="custom-radio"></span>
             </div>
-            {/* <div className="mi-logo bank-logo">
-              <i className="fa-solid fa-building-columns"></i>
-            </div> */}
             <img
               src="https://png.pngtree.com/png-vector/20220821/ourmid/pngtree-bank-transfer-icon-house-selected-transfer-vector-png-image_19626578.png"
               alt="Bank"
@@ -199,7 +192,6 @@ const Step2Payment = () => {
             </div>
           </label>
 
-          {/* Thanh toán trực tiếp tại quầy / COD */}
           <label
             className={`method-item ${paymentMethod === "cod" ? "active" : ""}`}
           >
@@ -227,7 +219,6 @@ const Step2Payment = () => {
           </label>
         </div>
 
-        {/* Hướng dẫn chuyển khoản hiển thị khi chọn Bank */}
         {paymentMethod === "bank" && (
           <div className="bank-transfer-details">
             <h4 className="btd-title">Thông tin chuyển khoản:</h4>
