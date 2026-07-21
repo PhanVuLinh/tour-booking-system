@@ -98,7 +98,9 @@ function ProfileLayout() {
               <Link
                 to="/profile/history"
                 className={`profile-nav-link ${
-                  location.pathname === "/profile/history" ? "active" : ""
+                  location.pathname.startsWith("/profile/history")
+                    ? "active"
+                    : ""
                 }`}
               >
                 <i className="fa-solid fa-clock-rotate-left"></i> Lịch sử đặt

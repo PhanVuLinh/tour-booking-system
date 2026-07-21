@@ -77,3 +77,45 @@ module.exports.changePassword = async (userId, data) => {
     message: "Đổi mật khẩu thành công",
   };
 };
+
+module.exports.getTourHistory = async (userId) => {
+  try {
+    const sql = `
+      select 
+        bookings.id,
+        bookings.bookingCode,
+        bookings.createdAt AS bookingDate,
+        bookings.status,
+        bookings.total AS totalAmount,
+        (bookings.quantityAdult + bookings.quantityChildren + bookings.quantityBaby) AS totalPassengers,
+        departures.startDate,
+        tours.title AS tourTitle,
+        tours.slug AS tourSlug,
+        tours.thumbnail AS tourThumbnail
+      from bookings
+      join departures on bookings.departure_id = departures.id
+      join tours on departures.tour_id = tours.id
+      where bookings.user_id = ?
+        and bookings.deleted = 0
+      order by bookings.createdAt DESC`;
+    const [rows] = await pool.query(sql, [userId]);
+
+    return rows.map((row) => ({
+      id: row.id,
+      bookingCode: row.bookingCode,
+      bookingDate: row.bookingDate,
+      status: row.status,
+      totalAmount: Number(row.totalAmount) || 0,
+      totalPassengers: Number(row.totalPassengers) || 0,
+      startDate: row.startDate,
+      tour: {
+        title: row.tourTitle,
+        slug: row.tourSlug,
+        thumbnail: row.tourThumbnail,
+      },
+    }));
+  } catch (error) {
+    console.error("Lỗi getTourHistory Service:", error);
+    throw new Error("Lỗi truy vấn CSDL khi lấy lịch sử đặt tour");
+  }
+};

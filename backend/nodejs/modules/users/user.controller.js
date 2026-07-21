@@ -66,3 +66,22 @@ module.exports.changePassword = async (req, res) => {
     });
   }
 };
+
+module.exports.getTourHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const tourHistory = await userService.getTourHistory(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Lấy danh sách lịch sử đặt tour thành công",
+      data: tourHistory,
+    });
+  } catch (error) {
+    console.error("Lỗi getTourHistory Controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi Server khi lấy lịch sử đặt tour",
+    });
+  }
+};

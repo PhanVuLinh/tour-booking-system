@@ -22,4 +22,6 @@ router.put(
   userController.changePassword,
 );
 
+router.get("/profile/tour-history", userController.getTourHistory);
+
 module.exports = router;
