@@ -20,6 +20,7 @@ module.exports.getFlashSales = async () => {
         tours.thumbnail,
         tours.time AS time,
         departures.id as departure_id,
+        departures.departureFrom,
         departures.startDate,
         departures.priceAdult AS oldPrice,
         departures.discountPercentage,
@@ -35,6 +36,7 @@ module.exports.getFlashSales = async () => {
       AND departures.deleted = 0
       AND departures.status ="active"
       AND departures.discountPercentage > 0
+      AND departures.startDate >= NOW()
     ORDER BY departures.startDate ASC
   `;
 
@@ -64,6 +66,7 @@ module.exports.getDomesticTours = async () => {
         tours.thumbnail,
         tours.time AS time,
         departures.id AS departure_id,
+        departures.departureFrom,
         departures.startDate,
         departures.priceAdult AS oldPrice,
         departures.discountPercentage,
@@ -78,6 +81,7 @@ module.exports.getDomesticTours = async () => {
       AND tours.status = 'active'
       AND departures.deleted = 0
       AND departures.status = 'active'
+      AND departures.startDate >= NOW()
       AND tours.category_id IN (?)
     ORDER BY departures.startDate ASC
     LIMIT 8 
@@ -98,7 +102,8 @@ module.exports.getForeignTours = async () => {
     "SELECT id FROM categories WHERE parent_id = ? AND deleted = 0 AND status = 'active'";
   const [children] = await pool.query(sqlChildren, [parentId]);
 
-  const categoryIds = [parentId, ...children.map((item) => item.id)];
+  const categoryIds =
+    children.length > 0 ? children.map((item) => item.id) : [parentId];
 
   const sqlTours = `
     SELECT 
@@ -108,6 +113,7 @@ module.exports.getForeignTours = async () => {
         tours.thumbnail,
         tours.time AS time,
         departures.id AS departure_id,
+        departures.departureFrom,
         departures.startDate,
         departures.priceAdult AS oldPrice,
         departures.discountPercentage,
@@ -122,6 +128,7 @@ module.exports.getForeignTours = async () => {
       AND tours.status = 'active'
       AND departures.deleted = 0
       AND departures.status = 'active'
+      AND departures.startDate >= NOW()
       AND tours.category_id IN (?)
     ORDER BY departures.startDate ASC
     LIMIT 8 

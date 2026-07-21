@@ -1,6 +1,6 @@
 const { pool } = require("../../config/database");
 
-module.exports.checkCouponCode = async (code, subTotal) => {
+module.exports.checkCouponCode = async (code, subTotal, user_id) => {
   try {
     const sql = `SELECT * FROM coupons 
                   WHERE code = ? 
@@ -11,34 +11,61 @@ module.exports.checkCouponCode = async (code, subTotal) => {
     if (rows.length === 0) {
       return {
         success: false,
-        message: "Mã giảm giá không tồn tại hoặc đã hết hạn!",
+        message: "Mã giảm giá không tồn tại hoặc không còn hiệu lực!",
       };
     }
 
     const coupon = rows[0];
     const now = new Date();
 
-    if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) {
+    if (now < new Date(coupon.startDate)) {
       return {
         success: false,
-        message: "Mã giảm giá không nằm trong thời gian áp dụng!",
+        message: "Mã giảm giá chưa đến thời gian áp dụng!",
       };
     }
 
-    if (coupon.usedCount >= coupon.quantity) {
+    if (now > new Date(coupon.endDate)) {
+      return {
+        success: false,
+        message: "Mã giảm giá đã hết hạn!",
+      };
+    }
+
+    if (Number(coupon.usedCount) >= Number(coupon.quantity)) {
       return {
         success: false,
         message: "Mã giảm giá đã hết lượt sử dụng!",
       };
     }
 
+    const [usedCouponRows] = await pool.query(
+      `select id 
+        from user_coupons
+        where user_id = ? 
+          and coupon_id = ?
+        LIMIT 1`,
+      [user_id, coupon.id],
+    );
+
+    if (usedCouponRows.length > 0) {
+      return {
+        success: false,
+        message: "Bạn đã sử dụng mã giảm giá này trước đó!",
+      };
+    }
+
     //Tính số tiền được giảm
-    let discount = (subTotal * coupon.discountPercentage) / 100;
+    let discount = Number(subTotal * coupon.discountPercentage) / 100;
 
     // Nếu vượt quá mức giảm tối đa thì chỉ lấy mức tối đa
-    if (coupon.maxDiscountAmount && discount > coupon.maxDiscountAmount) {
-      discount = coupon.maxDiscountAmount;
+    if (
+      coupon.maxDiscountAmount &&
+      discount > Number(coupon.maxDiscountAmount)
+    ) {
+      discount = Number(coupon.maxDiscountAmount);
     }
+
     return {
       success: true,
       message: "Áp dụng mã giảm giá thành công!",
@@ -52,7 +79,7 @@ module.exports.checkCouponCode = async (code, subTotal) => {
     console.error("Lỗi khi kiểm tra mã giảm giá:", error);
     return {
       success: false,
-      message: "Lỗi hệ thống: " + error.message,
+      message: "Không thể kiểm tra mã giảm giá. Vui lòng thử lại!",
     };
   }
 };

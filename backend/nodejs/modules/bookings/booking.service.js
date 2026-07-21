@@ -138,13 +138,19 @@ module.exports.createBooking = async (bookingData) => {
 
     // Bước 5: Kiểm tra coupon trong transaction
     let discount = 0;
-    let validCouponId = coupon_id || null;
+    let validCouponId = null;
 
     if (coupon_id) {
+      if (!user_id) {
+        const error = new Error("Vui lòng đăng nhập để sử dụng mã giảm giá");
+        error.isBusinessError = true;
+        throw error;
+      }
+
       const [couponRows] = await connection.query(
-        `SELECT *
-         FROM coupons
-         WHERE id = ?
+        `select *
+         from coupons
+         where id = ?
          FOR UPDATE`,
         [coupon_id],
       );
@@ -184,9 +190,25 @@ module.exports.createBooking = async (bookingData) => {
         throw error;
       }
 
+      const [usedCouponRows] = await connection.query(
+        `select id
+          from user_coupons
+          where user_id = ?
+            and coupon_id = ?
+          LIMIT 1`,
+        [user_id, coupon.id],
+      );
+
+      if (usedCouponRows.length > 0) {
+        const error = new Error("Bạn đã sử dụng mã giảm giá này trước đó");
+        error.isBusinessError = true;
+        throw error;
+      }
+
       discount = (subTotal * Number(coupon.discountPercentage || 0)) / 100;
 
       const maxDiscountAmount = Number(coupon.maxDiscountAmount || 0);
+
       if (maxDiscountAmount > 0 && discount > maxDiscountAmount) {
         discount = maxDiscountAmount;
       }
@@ -386,6 +408,26 @@ module.exports.createBooking = async (bookingData) => {
         error.isBusinessError = true;
         throw error;
       }
+
+      try {
+        await connection.query(
+          `INSERT INTO user_coupons ( user_id, coupon_id, used_at )
+          VALUES (?, ?, CURRENT_TIMESTAMP)`,
+          [user_id, validCouponId],
+        );
+      } catch (error) {
+        // UNIQUE(user_id, coupon_id) bảo vệ trường hợp
+        // hai request đồng thời sử dụng cùng một coupon
+        if (error.code === "ER_DUP_ENTRY" || Number(error.errno) === 1062) {
+          const duplicateError = new Error(
+            "Bạn đã sử dụng mã giảm giá này trước đó",
+          );
+          duplicateError.isBusinessError = true;
+          throw duplicateError;
+        }
+
+        throw error;
+      }
     }
 
     await connection.commit();
@@ -433,4 +475,3 @@ module.exports.createBooking = async (bookingData) => {
     connection.release();
   }
 };
-

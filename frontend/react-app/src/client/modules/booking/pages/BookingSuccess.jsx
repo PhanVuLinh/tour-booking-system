@@ -176,7 +176,7 @@ export default function BookingSuccess() {
 
               <div className="success-divider"></div>
 
-              <div className="success-info-row">
+              {/* <div className="success-info-row">
                 <span>Tạm tính:</span>
                 <strong>{formatPrice(subtotal)}</strong>
               </div>
@@ -200,7 +200,48 @@ export default function BookingSuccess() {
                 <strong className="text-red">
                   {formatPrice(payableAmount)}
                 </strong>
+              </div> */}
+              <div className="success-info-row">
+                <span>Tạm tính:</span>
+                <strong>{formatPrice(subtotal)}</strong>
               </div>
+
+              <div className="success-info-row">
+                <span>Khuyến mãi:</span>
+                <strong className="text-success">
+                  - {formatPrice(discount)}
+                </strong>
+              </div>
+
+              <div className="success-info-row">
+                <span>Tổng sau giảm:</span>
+                <strong>{formatPrice(total)}</strong>
+              </div>
+
+              {paymentType === "50" ? (
+                <>
+                  <div className="success-info-row">
+                    <span>Đặt cọc 50%:</span>
+                    <strong className="text-red">
+                      {formatPrice(payableAmount)}
+                    </strong>
+                  </div>
+
+                  <div className="success-info-row">
+                    <span>Còn lại phải thu:</span>
+                    <strong className="text-warning">
+                      {formatPrice(remainingAmount)}
+                    </strong>
+                  </div>
+                </>
+              ) : (
+                <div className="success-info-row">
+                  <span>Thanh toán 100%:</span>
+                  <strong className="text-red">
+                    {formatPrice(payableAmount)}
+                  </strong>
+                </div>
+              )}
             </div>
           </div>
         </div>

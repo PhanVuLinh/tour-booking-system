@@ -211,7 +211,7 @@ const Step2Payment = () => {
               className="mi-logo"
             />
             <div className="mi-info">
-              <span className="mi-name">Thanh toán trực tiếp tại quầy (COD)</span>
+              <span className="mi-name">Thanh toán trực tiếp tại quầy</span>
               <span className="mi-desc">
                 Quý khách vui lòng đến trực tiếp văn phòng TravelGo để thanh toán tiền mặt.
               </span>
