@@ -28,9 +28,11 @@ import {
 
 import {
   ProfileChangePassword,
-  ProfileHistory,
+  TourHistory,
+  BookingDetail,
   ProfileInfo,
 } from "../modules/user/pages";
+
 import { ProfileLayout } from "../modules/user/layouts";
 
 import PrivateRoute from "./PrivateRoute";
@@ -131,8 +133,13 @@ export const clientRoutes = [
               },
               {
                 path: "history",
-                element: <ProfileHistory />,
+                element: <TourHistory />,
               },
+              {
+                path: "history/:id",
+                element: <BookingDetail />,
+              },
+
               {
                 path: "change-password",
                 element: <ProfileChangePassword />,

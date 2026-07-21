@@ -1,1 +1,2 @@
-// export { default as TourCard } from "./TourCard";
+export { default as StatusBadge } from "./StatusBadge";
+export { default as HistoryCard } from "./HistoryCard";
