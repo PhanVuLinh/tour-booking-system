@@ -1,5 +1,5 @@
-import moment from "moment";
 import { Link } from "react-router-dom";
+import { formatDate } from "../../../utils/format.helper";
 
 function BlogSidebar({ recentBlogs }) {
   return (
@@ -17,7 +17,7 @@ function BlogSidebar({ recentBlogs }) {
                   <Link to={`/blog/detail/${item.slug}`}>{item.title}</Link>
                 </h4>
                 <span className="rp-date">
-                  {moment(item.createdAt).format("DD/MM/YYYY")}
+                  {formatDate(item.createdAt)}
                 </span>
               </div>
             </div>

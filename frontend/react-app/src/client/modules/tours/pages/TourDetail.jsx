@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Breadcrumb } from "../../../shared";
 import { buildTourDetailBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { getTourDetail } from "../services/tourService";
-
-import moment from "moment";
+import { formatDate, formatPrice } from "../../../utils/format.helper";
 
 function TourDetail() {
   const navigate = useNavigate();
@@ -47,10 +46,6 @@ function TourDetail() {
 
   const totalPrice =
     adults * priceAdult + children * priceChild + infants * priceInfant;
-
-  const formatPriceTotal = (price) => {
-    return price.toLocaleString("vi-VN") + " đ";
-  };
 
   const handleBooking = () => {
     if (!selectedDate) {
@@ -177,7 +172,7 @@ function TourDetail() {
                   <i className="fa-regular fa-calendar"></i> Khởi Hành:{" "}
                   <strong>
                     {selectedDate
-                      ? moment(selectedDate.startDate).format("DD/MM/YYYY")
+                      ? formatDate(selectedDate.startDate)
                       : "Chưa chọn"}
                   </strong>
                 </li>
@@ -203,10 +198,10 @@ function TourDetail() {
                         onClick={() => setSelectedDate(item)}
                       >
                         <span className="d-date">
-                          {moment(item.startDate).format("DD/MM")}
+                          {formatDate(item.startDate, "DD/MM")}
                         </span>
                         <span className="d-year">
-                          {moment(item.startDate).format("YYYY")}
+                          {formatDate(item.startDate, "YYYY")}
                         </span>
                         <hr className="d-divider" />
                         <span className="d-price">
@@ -231,7 +226,7 @@ function TourDetail() {
                     <div className="p-info">
                       <span className="p-name">Người lớn</span>
                       <span className="p-subprice">
-                        {formatPriceTotal(priceAdult)}
+                        {formatPrice(priceAdult)}
                       </span>
                     </div>
                     <div className="qty-stepper">
@@ -258,7 +253,7 @@ function TourDetail() {
                     <div className="p-info">
                       <span className="p-name">Trẻ em</span>
                       <span className="p-subprice">
-                        {formatPriceTotal(priceChild)}
+                        {formatPrice(priceChild)}
                       </span>
                     </div>
                     <div className="qty-stepper">
@@ -285,7 +280,7 @@ function TourDetail() {
                     <div className="p-info">
                       <span className="p-name">Em bé</span>
                       <span className="p-subprice">
-                        {formatPriceTotal(priceInfant)}
+                        {formatPrice(priceInfant)}
                       </span>
                     </div>
                     <div className="qty-stepper">
@@ -310,7 +305,7 @@ function TourDetail() {
 
                 <div className="booking-total">
                   <span>Tổng cộng:</span>
-                  <strong>{formatPriceTotal(totalPrice)}</strong>
+                  <strong>{formatPrice(totalPrice)}</strong>
                 </div>
 
                 <button

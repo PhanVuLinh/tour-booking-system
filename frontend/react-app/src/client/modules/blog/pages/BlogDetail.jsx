@@ -1,9 +1,9 @@
-import moment from "moment";
 import { useState, useEffect } from "react";
 import { useParams, Link, data } from "react-router-dom";
 import { Breadcrumb } from "../../../shared";
 import { BlogSidebar } from "../components";
 import { getBlogDetail } from "../services";
+import { formatDate } from "../../../utils/format.helper";
 
 function BlogDetail() {
   const { slug } = useParams();
@@ -69,7 +69,7 @@ function BlogDetail() {
               <div className="bd-meta">
                 <span className="meta-item">
                   <i className="fa-regular fa-calendar"></i>{" "}
-                  {moment(blog.createdAt).format("DD/MM/YYYY")}
+                  {formatDate(blog.createdAt)}
                 </span>
                 <span className="meta-item">
                   <i className="fa-regular fa-eye"></i> 1,234 lượt xem

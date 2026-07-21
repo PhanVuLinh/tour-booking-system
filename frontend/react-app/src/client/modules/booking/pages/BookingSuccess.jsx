@@ -1,7 +1,7 @@
-import moment from "moment";
 import { useEffect } from "react";
 import { Link, useLocation, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
+import { formatDate, formatPrice } from "../../../utils/format.helper";
 
 export default function BookingSuccess() {
   const contextData = useOutletContext();
@@ -37,9 +37,6 @@ export default function BookingSuccess() {
       sessionStorage.setItem(toastKey, "shown");
     }
   }, [bookingCode]);
-
-  const formatPrice = (price) =>
-    Number(price || 0).toLocaleString("vi-VN") + " đ";
 
   // Tính toán trực tiếp không cần dùng useMemo
   const details = formData?.passengerDetails || {};
@@ -127,7 +124,7 @@ export default function BookingSuccess() {
                       <span>
                         {passenger.label}
                         {passenger.dob
-                          ? ` - Sinh ngày: ${moment(passenger.dob).format("DD/MM/YYYY")}`
+                          ? ` - Sinh ngày: ${formatDate(passenger.dob)}`
                           : ""}
                       </span>
                     </div>
@@ -160,7 +157,7 @@ export default function BookingSuccess() {
               <div className="success-info-row">
                 <span>Khởi hành:</span>
                 <strong>
-                  {moment(selectedDate.startDate).format("DD/MM/YYYY")}{" "}
+                  {formatDate(selectedDate.startDate)}{" "}
                 </strong>
               </div>
               <div className="success-info-row">

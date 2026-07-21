@@ -1,4 +1,4 @@
-import moment from "moment";
+import { formatDate } from "../../../utils/format.helper";
 
 function BookingSidebar({
   tourImage,
@@ -53,7 +53,7 @@ function BookingSidebar({
           </li>
           <li>
             <span>Ngày khởi hành:</span>{" "}
-            <strong>{moment(selectedDate).format("DD/MM/YYYY")}</strong>
+            <strong>{formatDate(selectedDate)}</strong>
           </li>
           <li>
             <span>Khởi hành tại:</span> <strong>{departure}</strong>

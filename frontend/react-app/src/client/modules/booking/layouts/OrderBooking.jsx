@@ -7,6 +7,7 @@ import { buildBookingBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { BookingStepper, BookingSidebar } from "../components";
 import { validateBookingStep1 } from "../validations/booking.validator";
 import { createBookingService, checkCouponService } from "../services";
+import { formatPrice } from "../../../utils/format.helper";
 
 function OrderBooking() {
   const location = useLocation();
@@ -117,8 +118,6 @@ function OrderBooking() {
   const priceAdult = Number(selectedDate.newPriceAdult) || 0;
   const priceChild = Number(selectedDate.newPriceChildren) || 0;
   const priceInfant = Number(selectedDate.newPriceBaby) || 0;
-
-  const formatPrice = (price) => price.toLocaleString("vi-VN") + " đ";
 
   const subtotal =
     adultCount * priceAdult +

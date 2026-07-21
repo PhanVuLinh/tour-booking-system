@@ -1,5 +1,5 @@
-import moment from "moment";
 import { Link } from "react-router-dom";
+import { formatDate } from "../../../utils/format.helper";
 
 function BlogCard({ blog }) {
   return (
@@ -11,7 +11,7 @@ function BlogCard({ blog }) {
       <div className="bc-content">
         <div className="bc-meta">
           <i className="fa-regular fa-calendar"></i>{" "}
-          {moment(blog.startDate).format("DD/MM/YYYY")}
+          {formatDate(blog.startDate)}
         </div>
 
         <h3 className="bc-title">

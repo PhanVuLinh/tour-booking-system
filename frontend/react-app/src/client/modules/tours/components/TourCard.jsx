@@ -1,5 +1,5 @@
-import moment from "moment";
 import { Link } from "react-router-dom";
+import { formatDate, formatNumber } from "../../../utils/format.helper";
 
 function TourCard({ tour }) {
   const getVehicleIcon = (type) => {
@@ -34,11 +34,11 @@ function TourCard({ tour }) {
         <div className="tour-price">
           {tour.discountPercentage > 0 && (
             <span className="old-price">
-              {Number(tour.oldPrice).toLocaleString("vi-VN")}đ
+              {formatNumber(tour.oldPrice)} đ
             </span>
           )}
           <span className="new-price">
-            {Number(tour.newPrice).toLocaleString("vi-VN")}đ
+            {formatNumber(tour.newPrice)} đ
           </span>
         </div>
 
@@ -52,7 +52,7 @@ function TourCard({ tour }) {
           </li>
           <li>
             <i className="fa-regular fa-calendar"></i> Ngày Khởi Hành:{" "}
-            {moment(tour.startDate).format("DD/MM/YYYY")}
+            {formatDate(tour.startDate)}
           </li>
           <li>
             <i className="fa-regular fa-clock"></i> Thời Gian: {tour.time}

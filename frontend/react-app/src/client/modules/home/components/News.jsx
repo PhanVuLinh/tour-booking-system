@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import moment from "moment";
 import { getBlogs } from "../services/homeService";
+import { formatDate } from "../../../utils/format.helper";
 
 function News() {
   const [blogs, setBlogs] = useState([]);
@@ -41,7 +41,7 @@ function News() {
                 <img src={item.thumbnail} alt={item.title} />
                 <div className="news-card-small__content">
                   <span className="news-date">
-                    {moment(item.createdAt).format("DD/MM/YYYY")}
+                    {formatDate(item.createdAt)}
                   </span>
                   <h3 className="news-title">{item.title}</h3>
                 </div>
@@ -60,7 +60,7 @@ function News() {
               </div>
               <div className="news-card-large__content">
                 <span className="news-date">
-                  {moment(middle.createdAt).format("DD/MM/YYYY")}
+                  {formatDate(middle.createdAt)}
                 </span>
                 <h3 className="news-title">{middle.title}</h3>
                 <p className="news-desc">{middle.description}</p>
@@ -78,7 +78,7 @@ function News() {
                 <img src={item.thumbnail} alt={item.title} />
                 <div className="news-card-small__content">
                   <span className="news-date">
-                    {moment(item.createdAt).format("DD/MM/YYYY")}
+                    {formatDate(item.createdAt)}
                   </span>
                   <h3 className="news-title">{item.title}</h3>
                 </div>
