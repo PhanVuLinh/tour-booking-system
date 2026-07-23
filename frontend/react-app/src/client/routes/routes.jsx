@@ -97,28 +97,27 @@ export const clientRoutes = [
         path: "support",
         element: <SupportPage />,
       },
-
+      {
+        path: "booking",
+        element: <OrderBooking />,
+        children: [
+          {
+            path: "info",
+            element: <BookingInfo />,
+          },
+          {
+            path: "payment",
+            element: <BookingPayment />,
+          },
+          {
+            path: "success",
+            element: <BookingSuccess />,
+          },
+        ],
+      },
       {
         element: <PrivateRoute />,
         children: [
-          {
-            path: "booking",
-            element: <OrderBooking />,
-            children: [
-              {
-                path: "info",
-                element: <BookingInfo />,
-              },
-              {
-                path: "payment",
-                element: <BookingPayment />,
-              },
-              {
-                path: "success",
-                element: <BookingSuccess />,
-              },
-            ],
-          },
           {
             path: "profile",
             element: <ProfileLayout />,
