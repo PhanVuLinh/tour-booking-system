@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const routes = require("./routes");
 const database = require("./config/database");
+const { initCronJobs } = require("./modules/cron/booking.cron");
 
 const app = express();
 const port = process.env.PORT;
@@ -13,6 +14,9 @@ const allowedOrigins = [process.env.URL_FE_1, process.env.URL_FE_2].filter(
 
 //Kết nối đến DB;
 database.connect();
+
+//Khởi động bộ máy đếm thời gian dọn rác đơn hàng
+initCronJobs();
 
 //cấu hình CORS
 app.use(
