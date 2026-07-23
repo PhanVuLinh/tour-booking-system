@@ -1,18 +1,42 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-
-const ERROR_MESSAGES = {
-  invalid_signature:
-    "Thông tin phản hồi từ VNPAY không hợp lệ. Hệ thống chưa ghi nhận thanh toán.",
-  system_error:
-    "Hệ thống gặp lỗi khi xác nhận kết quả thanh toán. Vui lòng kiểm tra lịch sử đơn trước khi thanh toán lại.",
-};
+import { toast } from "sonner";
+import { createVnPayUrlService } from "../services";
 
 export default function BookingFailed() {
   const [searchParams] = useSearchParams();
+  const [isRetrying, setIsRetrying] = useState(false);
   const errorCode = searchParams.get("error");
+  const responseCode = searchParams.get("responseCode");
+  const bookingCode = searchParams.get("bookingCode");
+  const backendMessage = searchParams.get("message");
+  const canRetry = Boolean(
+    bookingCode && errorCode !== "booking_cancelled",
+  );
   const message =
-    ERROR_MESSAGES[errorCode] ||
-    "Giao dịch chưa hoàn tất hoặc đã bị hủy. Hệ thống chưa ghi nhận thanh toán.";
+    backendMessage ||
+    "Giao dịch chưa hoàn tất. Hệ thống chưa ghi nhận thanh toán.";
+
+  const handleRetry = async () => {
+    if (!bookingCode || isRetrying) return;
+
+    try {
+      setIsRetrying(true);
+      const response = await createVnPayUrlService(bookingCode);
+      const paymentUrl = response?.data?.paymentUrl;
+
+      if (!response?.success || !paymentUrl) {
+        toast.error(response?.message || "Không thể tạo lại giao dịch VNPay");
+        return;
+      }
+
+      window.location.assign(paymentUrl);
+    } catch {
+      toast.error("Không thể kết nối đến máy chủ");
+    } finally {
+      setIsRetrying(false);
+    }
+  };
 
   return (
     <div className="step3-success-wrapper">
@@ -24,13 +48,37 @@ export default function BookingFailed() {
         <h2 className="success-title">Thanh toán chưa thành công</h2>
         <p className="success-desc">{message}</p>
 
+        {bookingCode && (
+          <div className="order-ref-card">
+            <span className="ref-label">Mã đơn đặt tour:</span>
+            <strong className="ref-number">{bookingCode}</strong>
+          </div>
+        )}
+
+        {responseCode && (
+          <p className="success-desc">Mã phản hồi VNPay: {responseCode}</p>
+        )}
+
         <div className="success-actions-flex">
           <Link to="/" className="btn-action btn-outline">
             <i className="fa-solid fa-house"></i> Về trang chủ
           </Link>
-          <Link to="/profile/history" className="btn-action btn-fill">
-            Kiểm tra lịch sử đơn <i className="fa-solid fa-arrow-right"></i>
-          </Link>
+
+          {canRetry ? (
+            <button
+              type="button"
+              className="btn-action btn-fill"
+              onClick={handleRetry}
+              disabled={isRetrying}
+            >
+              {isRetrying ? "Đang xử lý..." : "Thanh toán lại"}
+              {!isRetrying && <i className="fa-solid fa-rotate-right"></i>}
+            </button>
+          ) : (
+            <Link to="/profile/history" className="btn-action btn-fill">
+              Kiểm tra lịch sử đơn <i className="fa-solid fa-arrow-right"></i>
+            </Link>
+          )}
         </div>
       </section>
     </div>

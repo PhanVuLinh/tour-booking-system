@@ -1,2 +1,2 @@
-export { default as StatusBadge } from "./StatusBadge";
+export { BookingStatusBadge, PaymentStatusBadge } from "./StatusBadge";
 export { default as HistoryCard } from "./HistoryCard";

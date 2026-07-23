@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import StatusBadge from "./StatusBadge";
+import { BookingStatusBadge } from "./StatusBadge";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
 
 export default function HistoryCard({ booking }) {
@@ -17,7 +17,7 @@ export default function HistoryCard({ booking }) {
           </span>
         </div>
         <div className="hc-header-right">
-          <StatusBadge status={booking.status} />
+          <BookingStatusBadge status={booking.status} />
         </div>
       </div>
 

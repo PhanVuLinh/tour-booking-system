@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useOutletContext } from "react-router-dom";
-import StatusBadge from "../components/StatusBadge";
+import { BookingStatusBadge } from "../components/StatusBadge";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
 import { getBookingDetail } from "../services/userService";
 
@@ -92,7 +92,7 @@ function BookingDetail() {
           <h2 className="profile-title" style={{ margin: 0 }}>
             Chi tiết đơn: #{booking.bookingCode}
           </h2>
-          <StatusBadge status={booking.status} />
+          <BookingStatusBadge status={booking.status} />
         </div>
       </div>
 

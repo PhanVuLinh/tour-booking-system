@@ -193,27 +193,28 @@ const Step2Payment = () => {
           </label>
 
           <label
-            className={`method-item ${paymentMethod === "cod" ? "active" : ""}`}
+            className={`method-item ${paymentMethod === "cash" ? "active" : ""}`}
           >
             <div className="mi-radio">
               <input
                 type="radio"
                 name="paymentMethod"
-                value="cod"
-                checked={paymentMethod === "cod"}
+                value="cash"
+                checked={paymentMethod === "cash"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
               <span className="custom-radio"></span>
             </div>
             <img
               src="https://scontent.subi.vn/cmsmedia/icon-thanh-to%C3%A1n-7651ec377ce85a4c35912fb6b92385e4.png"
-              alt="COD"
+              alt="Cash"
               className="mi-logo"
             />
-            <div className="mi-info">
-              <span className="mi-name">Thanh toán trực tiếp tại quầy</span>
-              <span className="mi-desc">
-                Quý khách vui lòng đến trực tiếp văn phòng TravelGo để thanh toán tiền mặt.
+            <div className="mi-text">
+              <h4>Thanh toán tại văn phòng</h4>
+              <span>
+                Quý khách vui lòng đến trực tiếp văn phòng TravelGo để thanh
+                toán.
               </span>
             </div>
           </label>

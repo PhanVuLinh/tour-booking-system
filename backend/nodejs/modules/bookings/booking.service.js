@@ -6,7 +6,7 @@ module.exports.createBooking = async (bookingData) => {
   try {
     await connection.beginTransaction();
 
-    const {
+    let {
       user_id = null,
       fullName,
       phone,
@@ -19,12 +19,13 @@ module.exports.createBooking = async (bookingData) => {
       quantityBaby = 0,
       note = "",
       passengers = [],
-      paymentMethod = "cod",
+      paymentMethod = "cash",
       paymentType = "100",
     } = bookingData;
 
     // Bước 1: Kiểm tra phương thức và hình thức thanh toán
-    if (!["cod", "vnpay", "momo", "bank"].includes(paymentMethod)) {
+    paymentMethod = String(paymentMethod).toLowerCase();
+    if (!["cash", "vnpay", "momo", "bank"].includes(paymentMethod)) {
       const error = new Error("Phương thức thanh toán không hợp lệ");
       error.isBusinessError = true;
       throw error;

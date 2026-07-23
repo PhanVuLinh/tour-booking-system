@@ -1,32 +1,86 @@
-import { useEffect } from "react";
-import { Link, useLocation, useOutletContext } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  Link,
+  useLocation,
+  useOutletContext,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { toast } from "sonner";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
+import {
+  getVnPayBookingResultService,
+} from "../services";
 
 export default function BookingSuccess() {
   const contextData = useOutletContext();
   const location = useLocation();
+  const { id: bookingId } = useParams();
+  const [searchParams] = useSearchParams();
+  const [bookingData, setBookingData] = useState(null);
   const bookingState = location.state || {};
 
-  const formData = contextData?.formData || bookingState.formData || {};
+  const formData =
+    bookingData?.formData ||
+    contextData?.formData ||
+    bookingState.formData ||
+    {};
   const contactInfo = formData?.contact || {};
-  const selectedDate = bookingState.selectedDate || {};
-  const tour = bookingState.tour || {};
+  const selectedDate =
+    bookingData?.selectedDate || bookingState.selectedDate || {};
+  const tour = bookingData?.tour || bookingState.tour || {};
 
   const adultCount =
-    contextData?.adultCount || bookingState.passengers?.adults || 0;
+    bookingData?.passengers?.adults ??
+    contextData?.adultCount ??
+    bookingState.passengers?.adults ??
+    0;
   const childCount =
-    contextData?.childCount || bookingState.passengers?.children || 0;
+    bookingData?.passengers?.children ??
+    contextData?.childCount ??
+    bookingState.passengers?.children ??
+    0;
   const infantCount =
-    contextData?.infantCount || bookingState.passengers?.infants || 0;
+    bookingData?.passengers?.infants ??
+    contextData?.infantCount ??
+    bookingState.passengers?.infants ??
+    0;
 
-  const subtotal = Number(bookingState.subtotal) || 0;
-  const discount = Number(bookingState.discount) || 0;
-  const total = Number(bookingState.total) || 0;
-  const payableAmount = Number(bookingState.payableAmount) || total;
-  const remainingAmount = Number(bookingState.remainingAmount) || 0;
-  const paymentType = contextData?.paymentType || bookingState.paymentType;
-  const bookingCode = bookingState.bookingCode || "Đang cập nhật";
+  const subtotal = Number(bookingData?.subtotal ?? bookingState.subtotal) || 0;
+  const discount = Number(bookingData?.discount ?? bookingState.discount) || 0;
+  const total = Number(bookingData?.total ?? bookingState.total) || 0;
+  const payableAmount =
+    Number(
+      bookingData?.payableAmount ??
+      bookingState.payableAmount
+    ) || total;
+  const remainingAmount =
+    Number(bookingData?.remainingAmount ?? bookingState.remainingAmount) || 0;
+  const paymentType =
+    bookingData?.paymentType ||
+    contextData?.paymentType ||
+    bookingState.paymentType;
+  const bookingCode =
+    bookingData?.bookingCode ||
+    bookingState.bookingCode ||
+    searchParams.get("bookingCode") ||
+    "Đang cập nhật";
+  const paymentStatus =
+    bookingData?.paymentStatus || bookingState.paymentStatus;
+
+  useEffect(() => {
+    if (!bookingId) return;
+
+    getVnPayBookingResultService(bookingId)
+      .then((response) => {
+        if (response?.success) setBookingData(response.data);
+      })
+      .catch(() => {
+        toast.error("Không thể tải đầy đủ thông tin đơn hàng");
+      });
+  }, [bookingId]);
+
+
 
   useEffect(() => {
     const toastKey = `booking-success-toast-${bookingCode}`;
@@ -156,9 +210,7 @@ export default function BookingSuccess() {
               </div>
               <div className="success-info-row">
                 <span>Khởi hành:</span>
-                <strong>
-                  {formatDate(selectedDate.startDate)}{" "}
-                </strong>
+                <strong>{formatDate(selectedDate.startDate)} </strong>
               </div>
               <div className="success-info-row">
                 <span>Phương thức:</span>
@@ -166,8 +218,21 @@ export default function BookingSuccess() {
               </div>
               <div className="success-info-row">
                 <span>Trạng thái:</span>
-                <strong className="success-warning-text">
-                  <i className="fa-solid fa-clock-rotate-left"></i> Chờ xác nhận
+                <strong
+                  className={
+                    paymentStatus === "paid"
+                      ? "text-success"
+                      : "success-warning-text"
+                  }
+                >
+                  <i
+                    className={
+                      paymentStatus === "paid"
+                        ? "fa-solid fa-circle-check"
+                        : "fa-solid fa-clock-rotate-left"
+                    }
+                  ></i>{" "}
+                  {paymentStatus === "paid" ? "Đã thanh toán" : "Chờ xác nhận"}
                 </strong>
               </div>
 

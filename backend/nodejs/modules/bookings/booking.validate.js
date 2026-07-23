@@ -48,9 +48,10 @@ module.exports.validateCreateBooking = (req, res, next) => {
   }
 
   const paymentMethod = String(
-    bookingData.paymentMethod || "cod",
+    bookingData.paymentMethod || "cash",
   ).toLowerCase();
-  if (!["cod", "vnpay", "momo", "bank"].includes(paymentMethod)) {
+
+  if (!["cash", "vnpay", "momo", "bank"].includes(paymentMethod)) {
     return res.status(400).json({
       success: false,
       message: "Phương thức thanh toán không hợp lệ",

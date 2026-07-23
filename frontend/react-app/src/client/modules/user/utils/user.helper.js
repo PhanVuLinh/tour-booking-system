@@ -13,7 +13,7 @@ export const getPassengerTypeName = (type) => {
 
 export const getPaymentMethodName = (method) => {
   switch (method) {
-    case "cod":
+    case "cash":
       return "Thanh toán tại quầy";
     case "bank":
       return "Chuyển khoản ngân hàng";
