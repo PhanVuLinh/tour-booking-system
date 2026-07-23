@@ -1,19 +1,19 @@
 const { pool } = require("../../config/database");
 const bcrypt = require("bcryptjs");
 
-module.exports.getProfile = async (userId) => {
-  const sql = `select id, fullName, email, phone, auth_provider, createdAt from users where id = ?`;
-  const [users] = await pool.query(sql, [userId]);
+module.exports.getProfile = async (user_id) => {
+  const sql = `select id, full_name, email, phone, auth_provider, created_at from users where id = ?`;
+  const [users] = await pool.query(sql, [user_id]);
 
   if (users.length === 0) return null;
   return users[0];
 };
 
-module.exports.updateProfile = async (userId, data) => {
+module.exports.updateProfile = async (user_id, data) => {
   try {
-    const sql = `Update users set fullName = ? , phone = ? where id = ?`;
+    const sql = `Update users set full_name = ? , phone = ? where id = ?`;
 
-    await pool.query(sql, [data.fullName, data.phone || null, userId]);
+    await pool.query(sql, [data.full_name, data.phone || null, user_id]);
 
     return {
       success: true,
@@ -25,10 +25,10 @@ module.exports.updateProfile = async (userId, data) => {
   }
 };
 
-module.exports.changePassword = async (userId, data) => {
+module.exports.changePassword = async (user_id, data) => {
   const [users] = await pool.query(
     "select id, password, auth_provider from users where id = ? limit 1",
-    [userId],
+    [user_id],
   );
 
   if (users.length === 0) {
@@ -69,7 +69,7 @@ module.exports.changePassword = async (userId, data) => {
   const hashedPassword = await bcrypt.hash(data.newPassword, 10);
   await pool.query("update users set password = ? where id = ?", [
     hashedPassword,
-    userId,
+    user_id,
   ]);
 
   return {
@@ -78,17 +78,17 @@ module.exports.changePassword = async (userId, data) => {
   };
 };
 
-module.exports.getTourHistory = async (userId) => {
+module.exports.getTourHistory = async (user_id) => {
   try {
     const sql = `
       select 
         bookings.id,
-        bookings.bookingCode,
-        bookings.createdAt AS bookingDate,
+        bookings.booking_code,
+        bookings.created_at AS bookingDate,
         bookings.status,
         bookings.total AS totalAmount,
-        (bookings.quantityAdult + bookings.quantityChildren + bookings.quantityBaby) AS totalPassengers,
-        departures.startDate,
+        (bookings.quantity_adult + bookings.quantity_children + bookings.quantity_baby) AS totalPassengers,
+        departures.start_date,
         tours.title AS tourTitle,
         tours.slug AS tourSlug,
         tours.thumbnail AS tourThumbnail
@@ -97,17 +97,17 @@ module.exports.getTourHistory = async (userId) => {
       join tours on departures.tour_id = tours.id
       where bookings.user_id = ?
         and bookings.deleted = 0
-      order by bookings.createdAt DESC`;
-    const [rows] = await pool.query(sql, [userId]);
+      order by bookings.created_at DESC`;
+    const [rows] = await pool.query(sql, [user_id]);
 
     return rows.map((row) => ({
       id: row.id,
-      bookingCode: row.bookingCode,
+      booking_code: row.booking_code,
       bookingDate: row.bookingDate,
       status: row.status,
       totalAmount: Number(row.totalAmount) || 0,
       totalPassengers: Number(row.totalPassengers) || 0,
-      startDate: row.startDate,
+      start_date: row.start_date,
       tour: {
         title: row.tourTitle,
         slug: row.tourSlug,
@@ -120,23 +120,23 @@ module.exports.getTourHistory = async (userId) => {
   }
 };
 
-module.exports.getBookingDetail = async (userId, bookingId) => {
+module.exports.getBookingDetail = async (user_id, bookingId) => {
   try {
     const sqlBooking = `
     select 
         bookings.id,
-        bookings.bookingCode,
-        bookings.fullName AS contactName,
+        bookings.booking_code,
+        bookings.full_name AS contactName,
         bookings.phone AS contactPhone,
         bookings.email AS contactEmail,
         bookings.address AS contactAddress,
-        bookings.subTotal,
+        bookings.sub_total,
         bookings.discount,
         bookings.total,
         bookings.note,
         bookings.status,
-        bookings.createdAt,
-        departures.startDate,
+        bookings.created_at,
+        departures.start_date,
         tours.title AS tourTitle,
         tours.thumbnail AS tourThumbnail
     from bookings 
@@ -146,21 +146,21 @@ module.exports.getBookingDetail = async (userId, bookingId) => {
       and bookings.user_id = ? 
       and bookings.deleted = 0
   `;
-    const [bookings] = await pool.query(sqlBooking, [bookingId, userId]);
+    const [bookings] = await pool.query(sqlBooking, [bookingId, user_id]);
 
     if (bookings.length === 0) return null;
 
     const booking = bookings[0];
 
     const sqlPassengers = `
-    select id, fullName, dob, gender, identity_card, passengerType
+    select id, full_name, dob, gender, identity_card, passenger_type
     from passengers
     where booking_id = ?
   `;
     const [passengers] = await pool.query(sqlPassengers, [bookingId]);
 
     const sqlPayment = `
-    select paymentMethod, paymentType, amount AS payableAmount, paymentStatus
+    select payment_method, payment_type, amount AS payable_amount, payment_status
     from payments
     where booking_id = ?
     order by id DESC LIMIT 1
@@ -171,14 +171,14 @@ module.exports.getBookingDetail = async (userId, bookingId) => {
 
     return {
       id: booking.id,
-      bookingCode: booking.bookingCode,
+      booking_code: booking.booking_code,
       tour: {
         title: booking.tourTitle,
         thumbnail: booking.tourThumbnail,
-        startDate: booking.startDate,
+        start_date: booking.start_date,
       },
       contact: {
-        fullName: booking.contactName,
+        full_name: booking.contactName,
         phone: booking.contactPhone,
         email: booking.contactEmail,
         address: booking.contactAddress,
@@ -186,28 +186,28 @@ module.exports.getBookingDetail = async (userId, bookingId) => {
 
       passengers: passengers.map((item) => ({
         id: item.id,
-        fullName: item.fullName,
+        full_name: item.full_name,
         dob: item.dob,
         gender: item.gender,
         identity_card: item.identity_card,
-        passengerType: item.passengerType,
+        passenger_type: item.passenger_type,
       })),
 
       payment: {
-        method: payment.paymentMethod,
-        type: payment.paymentType,
-        payableAmount: Number(payment.payableAmount),
-        status: payment.paymentStatus,
+        method: payment.payment_method,
+        type: payment.payment_type,
+        payable_amount: Number(payment.payable_amount),
+        status: payment.payment_status,
       },
 
       pricing: {
-        subTotal: Number(booking.subTotal),
+        sub_total: Number(booking.sub_total),
         discount: Number(booking.discount),
         total: Number(booking.total),
       },
       note: booking.note,
       status: booking.status,
-      createdAt: booking.createdAt,
+      created_at: booking.created_at,
     };
   } catch (error) {
     console.error("Lỗi getBookingDetail Service:", error);

@@ -41,7 +41,7 @@ function News() {
                 <img src={item.thumbnail} alt={item.title} />
                 <div className="news-card-small__content">
                   <span className="news-date">
-                    {formatDate(item.createdAt)}
+                    {formatDate(item.created_at)}
                   </span>
                   <h3 className="news-title">{item.title}</h3>
                 </div>
@@ -60,7 +60,7 @@ function News() {
               </div>
               <div className="news-card-large__content">
                 <span className="news-date">
-                  {formatDate(middle.createdAt)}
+                  {formatDate(middle.created_at)}
                 </span>
                 <h3 className="news-title">{middle.title}</h3>
                 <p className="news-desc">{middle.description}</p>
@@ -78,7 +78,7 @@ function News() {
                 <img src={item.thumbnail} alt={item.title} />
                 <div className="news-card-small__content">
                   <span className="news-date">
-                    {formatDate(item.createdAt)}
+                    {formatDate(item.created_at)}
                   </span>
                   <h3 className="news-title">{item.title}</h3>
                 </div>

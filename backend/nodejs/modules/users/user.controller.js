@@ -2,8 +2,8 @@ const userService = require("./user.service");
 
 module.exports.getProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const user = await userService.getProfile(userId);
+    const user_id = req.user.id;
+    const user = await userService.getProfile(user_id);
 
     if (!user) {
       return res
@@ -26,8 +26,8 @@ module.exports.getProfile = async (req, res) => {
 
 module.exports.updateProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
-    await userService.updateProfile(userId, req.body);
+    const user_id = req.user.id;
+    await userService.updateProfile(user_id, req.body);
 
     res.status(200).json({
       success: true,
@@ -44,8 +44,8 @@ module.exports.updateProfile = async (req, res) => {
 
 module.exports.changePassword = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const result = await userService.changePassword(userId, req.body);
+    const user_id = req.user.id;
+    const result = await userService.changePassword(user_id, req.body);
 
     if (!result.success) {
       return res.status(result.statusCode || 400).json({
@@ -69,8 +69,8 @@ module.exports.changePassword = async (req, res) => {
 
 module.exports.getTourHistory = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const tourHistory = await userService.getTourHistory(userId);
+    const user_id = req.user.id;
+    const tourHistory = await userService.getTourHistory(user_id);
 
     return res.status(200).json({
       success: true,
@@ -88,9 +88,9 @@ module.exports.getTourHistory = async (req, res) => {
 
 module.exports.getBookingDetail = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const user_id = req.user.id;
     const bookingId = req.params.id;
-    const detail = await userService.getBookingDetail(userId, bookingId);
+    const detail = await userService.getBookingDetail(user_id, bookingId);
     if (!detail) {
       return res.status(404).json({
         success: false,

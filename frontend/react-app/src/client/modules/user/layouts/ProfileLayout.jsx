@@ -8,7 +8,7 @@ function ProfileLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState({
-    fullName: "",
+    full_name: "",
     email: "",
     phone: "",
     auth_provider: null,
@@ -25,7 +25,7 @@ function ProfileLayout() {
         const response = await getProfile();
         if (response.success) {
           const nextProfile = {
-            fullName: response.data.fullName || "",
+            full_name: response.data.full_name || "",
             email: response.data.email || "",
             phone: response.data.phone || "",
             auth_provider: response.data.auth_provider || null,
@@ -81,7 +81,7 @@ function ProfileLayout() {
                 <i className="fa-solid fa-user"></i>
               </div>
               <div className="pu-info">
-                <h4>{profile.fullName || "Người dùng"}</h4>
+                <h4>{profile.full_name || "Người dùng"}</h4>
                 <span>Thành viên TravelGo</span>
               </div>
             </div>

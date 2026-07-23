@@ -3,12 +3,12 @@ import { get } from "../../../utils/request";
 export const getToursByCategory = async (slug, page = 1, filterParams = {}, sort = null) => {
     const queryParams = new URLSearchParams({ page });
 
-    if (filterParams.departureFrom)
-        queryParams.append('departureFrom', filterParams.departureFrom);
+    if (filterParams.departure_from)
+        queryParams.append('departure_from', filterParams.departure_from);
     if (filterParams.priceLevel)
         queryParams.append('priceLevel', filterParams.priceLevel);
-    if (filterParams.startDate)
-        queryParams.append('startDate', filterParams.startDate);
+    if (filterParams.start_date)
+        queryParams.append('start_date', filterParams.start_date);
     if (filterParams.adults)
         queryParams.append('adults', filterParams.adults);
     if (filterParams.children)

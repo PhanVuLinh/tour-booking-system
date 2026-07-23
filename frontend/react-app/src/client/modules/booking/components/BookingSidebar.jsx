@@ -3,7 +3,7 @@ import { formatDate } from "../../../utils/format.helper";
 function BookingSidebar({
   tourImage,
   tourTitle,
-  tourCode,
+  tour_code,
   transport,
   departure,
   selectedDate,
@@ -12,16 +12,16 @@ function BookingSidebar({
   childCount,
   infantCount,
 
-  priceAdult,
+  price_adult,
   priceChild,
   priceInfant,
 
   subtotal,
   discount,
   total,
-  payableAmount,
+  payable_amount,
   remainingAmount,
-  paymentType,
+  payment_type,
 
   promoCode,
   setPromoCode,
@@ -43,7 +43,7 @@ function BookingSidebar({
           <img src={tourImage} alt={tourTitle} />
           <div className="st-info">
             <h4>{tourTitle}</h4>
-            <p className="tour-code">Mã tour: {tourCode}</p>
+            <p className="tour-code">Mã tour: {tour_code}</p>
           </div>
         </div>
 
@@ -67,11 +67,11 @@ function BookingSidebar({
               <div className="spd-left">
                 <span className="spd-name">Người lớn</span>
                 <span className="spd-meta">
-                  {adultCount} x {formatPrice(priceAdult)}
+                  {adultCount} x {formatPrice(price_adult)}
                 </span>
               </div>
               <div className="spd-right">
-                <strong>{formatPrice(adultCount * priceAdult)}</strong>
+                <strong>{formatPrice(adultCount * price_adult)}</strong>
               </div>
             </div>
           )}
@@ -143,9 +143,9 @@ function BookingSidebar({
             </div>
             <div className="booking-total">
               <span>Cần thanh toán:</span>
-              <strong>{formatPrice(payableAmount)}</strong>
+              <strong>{formatPrice(payable_amount)}</strong>
             </div>
-            {paymentType === "50" && (
+            {payment_type === "50" && (
               <div className="price-item remaining-payment">
                 <span>Còn lại:</span>
                 <strong>{formatPrice(remainingAmount)}</strong>

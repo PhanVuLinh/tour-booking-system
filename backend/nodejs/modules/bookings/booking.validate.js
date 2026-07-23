@@ -8,24 +8,24 @@ module.exports.validateCreateBooking = (req, res, next) => {
     });
   }
 
-  if (!bookingData.fullName || !bookingData.phone || !bookingData.email) {
+  if (!bookingData.full_name || !bookingData.phone || !bookingData.email) {
     return res.status(400).json({
       success: false,
       message: "Vui lòng cung cấp đủ thông tin liên hệ (Tên, SĐT, Email)",
     });
   }
 
-  const quantityAdult = Number(bookingData.quantityAdult || 0);
-  const quantityChildren = Number(bookingData.quantityChildren || 0);
-  const quantityBaby = Number(bookingData.quantityBaby || 0);
+  const quantity_adult = Number(bookingData.quantity_adult || 0);
+  const quantity_children = Number(bookingData.quantity_children || 0);
+  const quantity_baby = Number(bookingData.quantity_baby || 0);
 
   if (
-    !Number.isInteger(quantityAdult) ||
-    !Number.isInteger(quantityChildren) ||
-    !Number.isInteger(quantityBaby) ||
-    quantityAdult < 0 ||
-    quantityChildren < 0 ||
-    quantityBaby < 0
+    !Number.isInteger(quantity_adult) ||
+    !Number.isInteger(quantity_children) ||
+    !Number.isInteger(quantity_baby) ||
+    quantity_adult < 0 ||
+    quantity_children < 0 ||
+    quantity_baby < 0
   ) {
     return res.status(400).json({
       success: false,
@@ -33,25 +33,25 @@ module.exports.validateCreateBooking = (req, res, next) => {
     });
   }
 
-  if (quantityAdult + quantityChildren + quantityBaby <= 0) {
+  if (quantity_adult + quantity_children + quantity_baby <= 0) {
     return res.status(400).json({
       success: false,
       message: "Tổng số hành khách phải lớn hơn 0",
     });
   }
 
-  if (!["50", "100"].includes(String(bookingData.paymentType || "100"))) {
+  if (!["50", "100"].includes(String(bookingData.payment_type || "100"))) {
     return res.status(400).json({
       success: false,
       message: "Hình thức thanh toán không hợp lệ",
     });
   }
 
-  const paymentMethod = String(
-    bookingData.paymentMethod || "cash",
+  const payment_method = String(
+    bookingData.payment_method || "cash",
   ).toLowerCase();
 
-  if (!["cash", "vnpay", "momo", "bank"].includes(paymentMethod)) {
+  if (!["cash", "vnpay", "momo", "bank"].includes(payment_method)) {
     return res.status(400).json({
       success: false,
       message: "Phương thức thanh toán không hợp lệ",
@@ -65,11 +65,11 @@ module.exports.validateCreateBooking = (req, res, next) => {
     });
   }
 
-  bookingData.quantityAdult = quantityAdult;
-  bookingData.quantityChildren = quantityChildren;
-  bookingData.quantityBaby = quantityBaby;
-  bookingData.paymentType = String(bookingData.paymentType || "100");
-  bookingData.paymentMethod = paymentMethod;
+  bookingData.quantity_adult = quantity_adult;
+  bookingData.quantity_children = quantity_children;
+  bookingData.quantity_baby = quantity_baby;
+  bookingData.payment_type = String(bookingData.payment_type || "100");
+  bookingData.payment_method = payment_method;
 
   next();
 };

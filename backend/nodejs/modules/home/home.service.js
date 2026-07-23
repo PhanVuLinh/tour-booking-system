@@ -5,7 +5,7 @@ module.exports.getFlashSales = async () => {
   //   select *
   //   from tours join departures on tours.id = departures.tour_id
   //   where tours.deleted = 0 and departures.deleted = 0
-  //   ORDER BY departures.startDate ASC
+  //   ORDER BY departures.start_date ASC
 
   // `;
 
@@ -20,14 +20,14 @@ module.exports.getFlashSales = async () => {
         tours.thumbnail,
         tours.time AS time,
         departures.id as departure_id,
-        departures.departureFrom,
-        departures.startDate,
-        departures.priceAdult AS oldPrice,
-        departures.discountPercentage,
-        (departures.priceAdult - (departures.priceAdult * departures.discountPercentage / 100)) AS newPrice,
-        (departures.stockAdult + departures.stockChildren + departures.stockBaby) AS slots,
+        departures.departure_from,
+        departures.start_date,
+        departures.price_adult AS oldPrice,
+        departures.discount_percentage,
+        (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) AS newPrice,
+        (departures.stock_adult + departures.stock_children + departures.stock_baby) AS slots,
         vehicles.name AS vehicleName,
-        vehicles.vehicleType AS vehicleType
+        vehicles.vehicle_type AS vehicle_type
     FROM tours 
     JOIN departures ON tours.id = departures.tour_id
     join vehicles ON vehicles.id = departures.vehicle_id
@@ -35,9 +35,9 @@ module.exports.getFlashSales = async () => {
       AND tours.status ="active"
       AND departures.deleted = 0
       AND departures.status ="active"
-      AND departures.discountPercentage > 0
-      AND departures.startDate >= NOW()
-    ORDER BY departures.startDate ASC
+      AND departures.discount_percentage > 0
+      AND departures.start_date >= NOW()
+    ORDER BY departures.start_date ASC
   `;
 
   const [rows] = await pool.query(sql);
@@ -50,13 +50,13 @@ module.exports.getDomesticTours = async () => {
     "SELECT id FROM categories WHERE slug = 'tour-trong-nuoc' AND deleted = 0 AND status = 'active'";
   const [categories] = await pool.query(sqlCategory);
   if (categories.length === 0) return [];
-  const parentId = categories[0].id;
+  const parent_id = categories[0].id;
 
   const sqlChildren =
     "SELECT id FROM categories WHERE parent_id = ? AND deleted = 0 AND status = 'active'";
-  const [children] = await pool.query(sqlChildren, [parentId]);
+  const [children] = await pool.query(sqlChildren, [parent_id]);
 
-  const categoryIds = [parentId, ...children.map((item) => item.id)];
+  const categoryIds = [parent_id, ...children.map((item) => item.id)];
 
   const sqlTours = `
     SELECT 
@@ -66,14 +66,14 @@ module.exports.getDomesticTours = async () => {
         tours.thumbnail,
         tours.time AS time,
         departures.id AS departure_id,
-        departures.departureFrom,
-        departures.startDate,
-        departures.priceAdult AS oldPrice,
-        departures.discountPercentage,
-        (departures.priceAdult - (departures.priceAdult * departures.discountPercentage / 100)) AS newPrice,
-        (departures.stockAdult + departures.stockChildren + departures.stockBaby) AS slots,
+        departures.departure_from,
+        departures.start_date,
+        departures.price_adult AS oldPrice,
+        departures.discount_percentage,
+        (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) AS newPrice,
+        (departures.stock_adult + departures.stock_children + departures.stock_baby) AS slots,
         vehicles.name AS vehicleName,
-        vehicles.vehicleType AS vehicleType
+        vehicles.vehicle_type AS vehicle_type
     FROM tours 
     JOIN departures ON tours.id = departures.tour_id
     LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
@@ -81,9 +81,9 @@ module.exports.getDomesticTours = async () => {
       AND tours.status = 'active'
       AND departures.deleted = 0
       AND departures.status = 'active'
-      AND departures.startDate >= NOW()
+      AND departures.start_date >= NOW()
       AND tours.category_id IN (?)
-    ORDER BY departures.startDate ASC
+    ORDER BY departures.start_date ASC
     LIMIT 8 
   `;
 
@@ -96,14 +96,14 @@ module.exports.getForeignTours = async () => {
     "SELECT id FROM categories WHERE slug = 'tour-quoc-te' AND deleted = 0 AND status = 'active'";
   const [categories] = await pool.query(sqlCategory);
   if (categories.length === 0) return [];
-  const parentId = categories[0].id;
+  const parent_id = categories[0].id;
 
   const sqlChildren =
     "SELECT id FROM categories WHERE parent_id = ? AND deleted = 0 AND status = 'active'";
-  const [children] = await pool.query(sqlChildren, [parentId]);
+  const [children] = await pool.query(sqlChildren, [parent_id]);
 
   const categoryIds =
-    children.length > 0 ? children.map((item) => item.id) : [parentId];
+    children.length > 0 ? children.map((item) => item.id) : [parent_id];
 
   const sqlTours = `
     SELECT 
@@ -113,14 +113,14 @@ module.exports.getForeignTours = async () => {
         tours.thumbnail,
         tours.time AS time,
         departures.id AS departure_id,
-        departures.departureFrom,
-        departures.startDate,
-        departures.priceAdult AS oldPrice,
-        departures.discountPercentage,
-        (departures.priceAdult - (departures.priceAdult * departures.discountPercentage / 100)) AS newPrice,
-        (departures.stockAdult + departures.stockChildren + departures.stockBaby) AS slots,
+        departures.departure_from,
+        departures.start_date,
+        departures.price_adult AS oldPrice,
+        departures.discount_percentage,
+        (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) AS newPrice,
+        (departures.stock_adult + departures.stock_children + departures.stock_baby) AS slots,
         vehicles.name AS vehicleName,
-        vehicles.vehicleType AS vehicleType
+        vehicles.vehicle_type AS vehicle_type
     FROM tours 
     JOIN departures ON tours.id = departures.tour_id
     LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
@@ -128,9 +128,9 @@ module.exports.getForeignTours = async () => {
       AND tours.status = 'active'
       AND departures.deleted = 0
       AND departures.status = 'active'
-      AND departures.startDate >= NOW()
+      AND departures.start_date >= NOW()
       AND tours.category_id IN (?)
-    ORDER BY departures.startDate ASC
+    ORDER BY departures.start_date ASC
     LIMIT 8 
   `;
 
@@ -140,7 +140,7 @@ module.exports.getForeignTours = async () => {
 
 module.exports.getBlogs = async () => {
   const sql =
-    "SELECT id,title,slug,thumbnail,description,createdAt FROM blogs WHERE deleted = 0 AND status = 'active' LIMIT 5";
+    "SELECT id,title,slug,thumbnail,description,created_at FROM blogs WHERE deleted = 0 AND status = 'active' LIMIT 5";
 
   const [rows] = await pool.query(sql);
 

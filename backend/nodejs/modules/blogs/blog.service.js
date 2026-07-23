@@ -4,11 +4,11 @@ module.exports.getBlogs = async (page = 1, limit = 9, sort = "created_at") => {
   try {
     const offset = (page - 1) * limit;
 
-    let orderBy = "ORDER BY createdAt DESC";
-    if (sort === "oldest") orderBy = "ORDER BY createdAt ASC";
+    let orderBy = "ORDER BY created_at DESC";
+    if (sort === "oldest") orderBy = "ORDER BY created_at ASC";
 
     const sql = `
-    select id, title, slug, thumbnail, description, createdAt
+    select id, title, slug, thumbnail, description, created_at
     from blogs
     where status = 'active' and deleted = 0
     ${orderBy}
@@ -42,7 +42,7 @@ module.exports.getBlogs = async (page = 1, limit = 9, sort = "created_at") => {
 module.exports.getBlogDetailBySlug = async (slug) => {
   try {
     const sql = `
-      select id, title, slug, thumbnail, description, content, createdAt
+      select id, title, slug, thumbnail, description, content, created_at
       from blogs
       where slug = ? 
         and status = 'active' 
@@ -55,10 +55,10 @@ module.exports.getBlogDetailBySlug = async (slug) => {
     }
 
     const recentSql = `
-            select id, title, slug, thumbnail, createdAt
+            select id, title, slug, thumbnail, created_at
             from blogs
             where status = 'active' and deleted = 0 and slug != ?
-            ORDER BY createdAt DESC
+            ORDER BY created_at DESC
             LIMIT 5
         `;
     const [recentBlogs] = await pool.query(recentSql, [slug]);

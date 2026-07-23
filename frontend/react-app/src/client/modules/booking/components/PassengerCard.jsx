@@ -42,15 +42,15 @@ const PassengerCard = ({ type, index, isAdult, groupKey, passengerData = {}, onD
                 </label>
                 <input
                   type="text"
-                  className={`b-input ${formErrors[`passengerDetails.${groupKey}.${arrayIndex}.fullName`] ? "error-border" : ""}`}
+                  className={`b-input ${formErrors[`passengerDetails.${groupKey}.${arrayIndex}.full_name`] ? "error-border" : ""}`}
                   placeholder="Ví dụ: Nguyễn Văn A"
-                  value={passengerData.fullName || ""}
-                  onChange={(e) => onDataChange("fullName", e.target.value)}
+                  value={passengerData.full_name || ""}
+                  onChange={(e) => onDataChange("full_name", e.target.value)}
                 />
-                {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.fullName`] && (
+                {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.full_name`] && (
                   <span className="error-text">
                     <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "4px" }}></i>
-                    {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.fullName`]}
+                    {formErrors[`passengerDetails.${groupKey}.${arrayIndex}.full_name`]}
                   </span>
                 )}
               </div>

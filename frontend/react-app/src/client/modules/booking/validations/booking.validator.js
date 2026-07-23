@@ -3,8 +3,8 @@ export const validateBookingStep1 = (formData) => {
 
   const contact = formData?.contact || {};
 
-  if (!contact.fullName || contact.fullName.trim() === "") {
-    errors["contact.fullName"] = "Họ tên không được để trống";
+  if (!contact.full_name || contact.full_name.trim() === "") {
+    errors["contact.full_name"] = "Họ tên không được để trống";
   }
 
   const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
@@ -26,8 +26,8 @@ export const validateBookingStep1 = (formData) => {
   const validatePassenger = (passenger, type, index) => {
     const prefix = `passengerDetails.${type}.${index}`;
 
-    if (!passenger.fullName || passenger.fullName.trim() === "") {
-      errors[`${prefix}.fullName`] = "Họ tên là bắt buộc";
+    if (!passenger.full_name || passenger.full_name.trim() === "") {
+      errors[`${prefix}.full_name`] = "Họ tên là bắt buộc";
     }
 
     if (!passenger.dob || passenger.dob.trim() === "") {

@@ -25,9 +25,9 @@ function TourFilter() {
 
   // Trạng thái lưu các giá trị lọc cục bộ trước khi Áp Dụng
   const [filters, setFilters] = useState({
-    departureFrom: searchParams.get("departureFrom") || "",
+    departure_from: searchParams.get("departure_from") || "",
     priceLevel: searchParams.get("priceLevel") || "",
-    startDate: searchParams.get("startDate") || "",
+    start_date: searchParams.get("start_date") || "",
     adults: searchParams.get("adults") || "0",
     children: searchParams.get("children") || "0",
     babies: searchParams.get("babies") || "0",
@@ -36,9 +36,9 @@ function TourFilter() {
   // Đồng bộ lại filters nếu URL thay đổi
   useEffect(() => {
     setFilters({
-      departureFrom: searchParams.get("departureFrom") || "",
+      departure_from: searchParams.get("departure_from") || "",
       priceLevel: searchParams.get("priceLevel") || "",
-      startDate: searchParams.get("startDate") || "",
+      start_date: searchParams.get("start_date") || "",
       adults: searchParams.get("adults") || "0",
       children: searchParams.get("children") || "0",
       babies: searchParams.get("babies") || "0",
@@ -55,10 +55,10 @@ function TourFilter() {
   const handleApply = () => {
     const params = new URLSearchParams(searchParams);
 
-    if (filters.departureFrom) {
-      params.set("departureFrom", filters.departureFrom);
+    if (filters.departure_from) {
+      params.set("departure_from", filters.departure_from);
     } else {
-      params.delete("departureFrom");
+      params.delete("departure_from");
     }
 
     if (filters.priceLevel) {
@@ -67,10 +67,10 @@ function TourFilter() {
       params.delete("priceLevel");
     }
 
-    if (filters.startDate) {
-      params.set("startDate", filters.startDate);
+    if (filters.start_date) {
+      params.set("start_date", filters.start_date);
     } else {
-      params.delete("startDate");
+      params.delete("start_date");
     }
 
     if (filters.adults && parseInt(filters.adults) > 0) {
@@ -100,9 +100,9 @@ function TourFilter() {
 
   const handleClearFilter = () => {
     setFilters({
-      departureFrom: "",
+      departure_from: "",
       priceLevel: "",
-      startDate: "",
+      start_date: "",
       adults: "0",
       children: "0",
       babies: "0",
@@ -114,9 +114,9 @@ function TourFilter() {
 
   // Kiểm tra xem có bất kỳ bộ lọc nào đang active trên URL không
   const hasActiveFilter =
-    searchParams.has("departureFrom") ||
+    searchParams.has("departure_from") ||
     searchParams.has("priceLevel") ||
-    searchParams.has("startDate") ||
+    searchParams.has("start_date") ||
     searchParams.has("adults") ||
     searchParams.has("children") ||
     searchParams.has("babies");
@@ -156,8 +156,8 @@ function TourFilter() {
             <label className="filter-label">Điểm đi</label>
             <select
               className="filter-select"
-              name="departureFrom"
-              value={filters.departureFrom}
+              name="departure_from"
+              value={filters.departure_from}
               onChange={handleChange}
             >
               <option value="">
@@ -175,11 +175,11 @@ function TourFilter() {
           <div className="filter-group custom-datepicker-wrapper">
             <label className="filter-label">Ngày khởi hành</label>
             <DatePicker
-              selected={filters.startDate ? parseISO(filters.startDate) : null}
+              selected={filters.start_date ? parseISO(filters.start_date) : null}
               onChange={(date) => {
                 setFilters((prev) => ({
                   ...prev,
-                  startDate: date ? format(date, "yyyy-MM-dd") : "",
+                  start_date: date ? format(date, "yyyy-MM-dd") : "",
                 }));
               }}
               dateFormat="dd/MM/yyyy"

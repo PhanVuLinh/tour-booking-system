@@ -22,9 +22,9 @@ module.exports.getCategoryBySlug = async (req, res) => {
     const { slug } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 9;
-    const departureFrom = req.query.departureFrom || null;
+    const departure_from = req.query.departure_from || null;
     const priceLevel = req.query.priceLevel || null;
-    const startDate = req.query.startDate || null;
+    const start_date = req.query.start_date || null;
     const adults = parseInt(req.query.adults) || 0;
     const children = parseInt(req.query.children) || 0;
     const babies = parseInt(req.query.babies) || 0;
@@ -34,9 +34,9 @@ module.exports.getCategoryBySlug = async (req, res) => {
       slug,
       page,
       limit,
-      departureFrom,
+      departure_from,
       priceLevel,
-      startDate,
+      start_date,
       adults,
       children,
       babies,

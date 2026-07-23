@@ -113,18 +113,18 @@ const Step1Info = () => {
             </label>
             <input
               type="text"
-              className={`b-input ${formErrors["contact.fullName"] ? "error-border" : ""}`}
+              className={`b-input ${formErrors["contact.full_name"] ? "error-border" : ""}`}
               placeholder="Ví dụ: Nguyễn Văn A"
-              value={formData?.contact?.fullName || ""}
-              onChange={(e) => handleContactChange("fullName", e.target.value)}
+              value={formData?.contact?.full_name || ""}
+              onChange={(e) => handleContactChange("full_name", e.target.value)}
             />
-            {formErrors["contact.fullName"] && (
+            {formErrors["contact.full_name"] && (
               <span className="error-text">
                 <i
                   className="fa-solid fa-circle-exclamation"
                   style={{ marginRight: "4px" }}
                 ></i>
-                {formErrors["contact.fullName"]}
+                {formErrors["contact.full_name"]}
               </span>
             )}
           </div>

@@ -8,30 +8,30 @@ module.exports.createBooking = async (bookingData) => {
 
     let {
       user_id = null,
-      fullName,
+      full_name,
       phone,
       email,
       address = null,
       departure_id,
       coupon_id = null,
-      quantityAdult = 0,
-      quantityChildren = 0,
-      quantityBaby = 0,
+      quantity_adult = 0,
+      quantity_children = 0,
+      quantity_baby = 0,
       note = "",
       passengers = [],
-      paymentMethod = "cash",
-      paymentType = "100",
+      payment_method = "cash",
+      payment_type = "100",
     } = bookingData;
 
     // Bước 1: Kiểm tra phương thức và hình thức thanh toán
-    paymentMethod = String(paymentMethod).toLowerCase();
-    if (!["cash", "vnpay", "momo", "bank"].includes(paymentMethod)) {
+    payment_method = String(payment_method).toLowerCase();
+    if (!["cash", "vnpay", "momo", "bank"].includes(payment_method)) {
       const error = new Error("Phương thức thanh toán không hợp lệ");
       error.isBusinessError = true;
       throw error;
     }
 
-    if (!["50", "100"].includes(paymentType)) {
+    if (!["50", "100"].includes(payment_type)) {
       const error = new Error("Hình thức thanh toán không hợp lệ");
       error.isBusinessError = true;
       throw error;
@@ -43,19 +43,19 @@ module.exports.createBooking = async (bookingData) => {
        WHERE departure_id = ?
          AND phone = ?
          AND email = ?
-         AND quantityAdult = ?
-         AND quantityChildren = ?
-         AND quantityBaby = ?
+         AND quantity_adult = ?
+         AND quantity_children = ?
+         AND quantity_baby = ?
          AND deleted = 0
-         AND createdAt >= NOW() - INTERVAL 2 MINUTE
+         AND created_at >= NOW() - INTERVAL 2 MINUTE
        LIMIT 1`,
       [
         departure_id,
         phone,
         email,
-        quantityAdult,
-        quantityChildren,
-        quantityBaby,
+        quantity_adult,
+        quantity_children,
+        quantity_baby,
       ],
     );
 
@@ -71,16 +71,16 @@ module.exports.createBooking = async (bookingData) => {
     const [departureRows] = await connection.query(
       `SELECT
         id,
-        priceAdult,
-        priceChildren,
-        priceBaby,
-        discountPercentage,
-        stockAdult,
-        stockChildren,
-        stockBaby,
+        price_adult,
+        price_children,
+        price_baby,
+        discount_percentage,
+        stock_adult,
+        stock_children,
+        stock_baby,
         status,
         deleted,
-        startDate
+        start_date
       FROM departures
       WHERE id = ?
       FOR UPDATE`,
@@ -103,7 +103,7 @@ module.exports.createBooking = async (bookingData) => {
     }
 
     // Kiểm tra lịch khởi hành đã hết hạn đặt
-    if (new Date() > new Date(departure.startDate)) {
+    if (new Date() > new Date(departure.start_date)) {
       const error = new Error("Lịch khởi hành đã hết hạn đặt tour");
       error.isBusinessError = true;
       throw error;
@@ -111,9 +111,9 @@ module.exports.createBooking = async (bookingData) => {
 
     // Bước 3: Kiểm tra số chỗ còn lại
     if (
-      Number(departure.stockAdult) < quantityAdult ||
-      Number(departure.stockChildren) < quantityChildren ||
-      Number(departure.stockBaby) < quantityBaby
+      Number(departure.stock_adult) < quantity_adult ||
+      Number(departure.stock_children) < quantity_children ||
+      Number(departure.stock_baby) < quantity_baby
     ) {
       const error = new Error("Số chỗ còn lại không đủ");
       error.isBusinessError = true;
@@ -121,21 +121,21 @@ module.exports.createBooking = async (bookingData) => {
     }
 
     // Bước 4: Backend tự tính giá từ bảng departures
-    const departureDiscount = Number(departure.discountPercentage || 0);
-    const adultPrice = Math.round(
-      Number(departure.priceAdult) * (1 - departureDiscount / 100),
+    const departureDiscount = Number(departure.discount_percentage || 0);
+    const adult_price = Math.round(
+      Number(departure.price_adult) * (1 - departureDiscount / 100),
     );
-    const childrenPrice = Math.round(
-      Number(departure.priceChildren) * (1 - departureDiscount / 100),
+    const children_price = Math.round(
+      Number(departure.price_children) * (1 - departureDiscount / 100),
     );
-    const babyPrice = Math.round(
-      Number(departure.priceBaby) * (1 - departureDiscount / 100),
+    const baby_price = Math.round(
+      Number(departure.price_baby) * (1 - departureDiscount / 100),
     );
 
-    const subTotal =
-      quantityAdult * adultPrice +
-      quantityChildren * childrenPrice +
-      quantityBaby * babyPrice;
+    const sub_total =
+      quantity_adult * adult_price +
+      quantity_children * children_price +
+      quantity_baby * baby_price;
 
     // Bước 5: Kiểm tra coupon trong transaction
     let discount = 0;
@@ -164,8 +164,8 @@ module.exports.createBooking = async (bookingData) => {
 
       const coupon = couponRows[0];
       const now = new Date();
-      const startDate = new Date(coupon.startDate);
-      const endDate = new Date(coupon.endDate);
+      const start_date = new Date(coupon.start_date);
+      const end_date = new Date(coupon.end_date);
 
       if (coupon.status !== "active" || Number(coupon.deleted) !== 0) {
         const error = new Error("Mã giảm giá không còn hiệu lực");
@@ -173,19 +173,19 @@ module.exports.createBooking = async (bookingData) => {
         throw error;
       }
 
-      if (now < startDate) {
+      if (now < start_date) {
         const error = new Error("Mã giảm giá chưa đến thời gian sử dụng");
         error.isBusinessError = true;
         throw error;
       }
 
-      if (now > endDate) {
+      if (now > end_date) {
         const error = new Error("Mã giảm giá đã hết hạn");
         error.isBusinessError = true;
         throw error;
       }
 
-      if (Number(coupon.usedCount) >= Number(coupon.quantity)) {
+      if (Number(coupon.used_count) >= Number(coupon.quantity)) {
         const error = new Error("Mã giảm giá đã hết lượt sử dụng");
         error.isBusinessError = true;
         throw error;
@@ -206,12 +206,12 @@ module.exports.createBooking = async (bookingData) => {
         throw error;
       }
 
-      discount = (subTotal * Number(coupon.discountPercentage || 0)) / 100;
+      discount = (sub_total * Number(coupon.discount_percentage || 0)) / 100;
 
-      const maxDiscountAmount = Number(coupon.maxDiscountAmount || 0);
+      const max_discount_amount = Number(coupon.max_discount_amount || 0);
 
-      if (maxDiscountAmount > 0 && discount > maxDiscountAmount) {
-        discount = maxDiscountAmount;
+      if (max_discount_amount > 0 && discount > max_discount_amount) {
+        discount = max_discount_amount;
       }
 
       discount = Math.round(discount);
@@ -219,9 +219,9 @@ module.exports.createBooking = async (bookingData) => {
     }
 
     // Bước 6: Backend tự tính tổng tiền phải thanh toán
-    const total = Math.max(subTotal - discount, 0);
-    const payableAmount = paymentType === "50" ? Math.ceil(total * 0.5) : total;
-    const remainingAmount = Math.max(total - payableAmount, 0);
+    const total = Math.max(sub_total - discount, 0);
+    const payable_amount = payment_type === "50" ? Math.ceil(total * 0.5) : total;
+    const remainingAmount = Math.max(total - payable_amount, 0);
 
     // Bước 7: Kiểm tra danh sách hành khách
     if (!Array.isArray(passengers)) {
@@ -236,13 +236,13 @@ module.exports.createBooking = async (bookingData) => {
     const today = new Date();
 
     for (let pax of passengers) {
-      if (!pax.fullName || !pax.dob || !pax.passengerType) {
+      if (!pax.full_name || !pax.dob || !pax.passenger_type) {
         const error = new Error("Thông tin hành khách không khớp số lượng vé");
         error.isBusinessError = true;
         throw error;
       }
 
-      if (!["adult", "child", "baby"].includes(pax.passengerType)) {
+      if (!["adult", "child", "baby"].includes(pax.passenger_type)) {
         const error = new Error("Thông tin hành khách không khớp số lượng vé");
         error.isBusinessError = true;
         throw error;
@@ -273,33 +273,33 @@ module.exports.createBooking = async (bookingData) => {
       // Người lớn (adult): từ 12 tuổi trở lên
       // Trẻ em (child): từ 2 đến 11 tuổi
       // Em bé (baby): dưới 2 tuổi
-      if (pax.passengerType === "adult" && age < 12) {
+      if (pax.passenger_type === "adult" && age < 12) {
         const error = new Error("Tuổi hành khách không khớp loại vé");
         error.isBusinessError = true;
         throw error;
       }
 
-      if (pax.passengerType === "child" && (age < 2 || age >= 12)) {
+      if (pax.passenger_type === "child" && (age < 2 || age >= 12)) {
         const error = new Error("Tuổi hành khách không khớp loại vé");
         error.isBusinessError = true;
         throw error;
       }
 
-      if (pax.passengerType === "baby" && age >= 2) {
+      if (pax.passenger_type === "baby" && age >= 2) {
         const error = new Error("Tuổi hành khách không khớp loại vé");
         error.isBusinessError = true;
         throw error;
       }
 
-      if (pax.passengerType === "adult") adultPassengerCount++;
-      if (pax.passengerType === "child") childPassengerCount++;
-      if (pax.passengerType === "baby") babyPassengerCount++;
+      if (pax.passenger_type === "adult") adultPassengerCount++;
+      if (pax.passenger_type === "child") childPassengerCount++;
+      if (pax.passenger_type === "baby") babyPassengerCount++;
     }
 
     if (
-      adultPassengerCount !== quantityAdult ||
-      childPassengerCount !== quantityChildren ||
-      babyPassengerCount !== quantityBaby
+      adultPassengerCount !== quantity_adult ||
+      childPassengerCount !== quantity_children ||
+      babyPassengerCount !== quantity_baby
     ) {
       const error = new Error("Thông tin hành khách không khớp số lượng vé");
       error.isBusinessError = true;
@@ -307,7 +307,7 @@ module.exports.createBooking = async (bookingData) => {
     }
 
     // Bước 8: Tạo mã booking
-    const bookingCode =
+    const booking_code =
       "BKG-" +
       Date.now().toString().slice(-6) +
       Math.floor(Math.random() * 1000);
@@ -315,24 +315,24 @@ module.exports.createBooking = async (bookingData) => {
     // Bước 9: Insert bảng bookings bằng số tiền backend đã tính
     const [bookingResult] = await connection.query(
       `INSERT INTO bookings 
-      (bookingCode, user_id, fullName, phone, email, address, departure_id, coupon_id, quantityAdult, quantityChildren, quantityBaby, adultPrice, childrenPrice, babyPrice, subTotal, discount, total, note, status) 
+      (booking_code, user_id, full_name, phone, email, address, departure_id, coupon_id, quantity_adult, quantity_children, quantity_baby, adult_price, children_price, baby_price, sub_total, discount, total, note, status) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
       [
-        bookingCode,
+        booking_code,
         user_id,
-        fullName,
+        full_name,
         phone,
         email,
         address,
         departure_id,
         validCouponId,
-        quantityAdult,
-        quantityChildren,
-        quantityBaby,
-        adultPrice,
-        childrenPrice,
-        babyPrice,
-        subTotal,
+        quantity_adult,
+        quantity_children,
+        quantity_baby,
+        adult_price,
+        children_price,
+        baby_price,
+        sub_total,
         discount,
         total,
         note,
@@ -344,47 +344,47 @@ module.exports.createBooking = async (bookingData) => {
     if (passengers.length > 0) {
       for (let pax of passengers) {
         await connection.query(
-          `INSERT INTO passengers (booking_id, fullName, dob, gender, identity_card, phone, passengerType) 
+          `INSERT INTO passengers (booking_id, full_name, dob, gender, identity_card, phone, passenger_type) 
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
           [
             booking_id,
-            pax.fullName,
+            pax.full_name,
             pax.dob,
             pax.gender || null,
             pax.identity_card || "",
             pax.phone || null,
-            pax.passengerType,
+            pax.passenger_type,
           ],
         );
       }
     }
 
-    // Bước 11: Insert bảng payments bằng payableAmount backend đã tính
+    // Bước 11: Insert bảng payments bằng payable_amount backend đã tính
     await connection.query(
-      `INSERT INTO payments (booking_id, paymentMethod, paymentType, amount, paymentStatus) 
+      `INSERT INTO payments (booking_id, payment_method, payment_type, amount, payment_status) 
        VALUES (?, ?, ?, ?, 'pending')`,
-      [booking_id, paymentMethod, paymentType, payableAmount],
+      [booking_id, payment_method, payment_type, payable_amount],
     );
 
     // Bước 12: Trừ stock an toàn, không cho stock âm
     const [stockResult] = await connection.query(
       `UPDATE departures
        SET
-        stockAdult = stockAdult - ?,
-        stockChildren = stockChildren - ?,
-        stockBaby = stockBaby - ?
+        stock_adult = stock_adult - ?,
+        stock_children = stock_children - ?,
+        stock_baby = stock_baby - ?
        WHERE id = ?
-        AND stockAdult >= ?
-        AND stockChildren >= ?
-        AND stockBaby >= ?`,
+        AND stock_adult >= ?
+        AND stock_children >= ?
+        AND stock_baby >= ?`,
       [
-        quantityAdult,
-        quantityChildren,
-        quantityBaby,
+        quantity_adult,
+        quantity_children,
+        quantity_baby,
         departure_id,
-        quantityAdult,
-        quantityChildren,
-        quantityBaby,
+        quantity_adult,
+        quantity_children,
+        quantity_baby,
       ],
     );
 
@@ -398,9 +398,9 @@ module.exports.createBooking = async (bookingData) => {
     if (validCouponId) {
       const [couponResult] = await connection.query(
         `UPDATE coupons
-         SET usedCount = usedCount + 1
+         SET used_count = used_count + 1
          WHERE id = ?
-          AND usedCount < quantity`,
+          AND used_count < quantity`,
         [validCouponId],
       );
 
@@ -437,22 +437,22 @@ module.exports.createBooking = async (bookingData) => {
       message: "Đặt tour thành công",
       data: {
         booking_id,
-        bookingCode,
+        booking_code,
         departure_id,
-        quantityAdult,
-        quantityChildren,
-        quantityBaby,
-        adultPrice,
-        childrenPrice,
-        babyPrice,
-        subTotal,
+        quantity_adult,
+        quantity_children,
+        quantity_baby,
+        adult_price,
+        children_price,
+        baby_price,
+        sub_total,
         discount,
         total,
-        payableAmount,
+        payable_amount,
         remainingAmount,
         coupon_id: validCouponId,
-        paymentMethod,
-        paymentType,
+        payment_method,
+        payment_type,
       },
     };
   } catch (error) {

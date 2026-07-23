@@ -49,24 +49,24 @@ export default function BookingSuccess() {
   const subtotal = Number(bookingData?.subtotal ?? bookingState.subtotal) || 0;
   const discount = Number(bookingData?.discount ?? bookingState.discount) || 0;
   const total = Number(bookingData?.total ?? bookingState.total) || 0;
-  const payableAmount =
+  const payable_amount =
     Number(
-      bookingData?.payableAmount ??
-      bookingState.payableAmount
+      bookingData?.payable_amount ??
+      bookingState.payable_amount
     ) || total;
   const remainingAmount =
     Number(bookingData?.remainingAmount ?? bookingState.remainingAmount) || 0;
-  const paymentType =
-    bookingData?.paymentType ||
-    contextData?.paymentType ||
-    bookingState.paymentType;
-  const bookingCode =
-    bookingData?.bookingCode ||
-    bookingState.bookingCode ||
-    searchParams.get("bookingCode") ||
+  const payment_type =
+    bookingData?.payment_type ||
+    contextData?.payment_type ||
+    bookingState.payment_type;
+  const booking_code =
+    bookingData?.booking_code ||
+    bookingState.booking_code ||
+    searchParams.get("booking_code") ||
     "Đang cập nhật";
-  const paymentStatus =
-    bookingData?.paymentStatus || bookingState.paymentStatus;
+  const payment_status =
+    bookingData?.payment_status || bookingState.payment_status;
 
   useEffect(() => {
     if (!bookingId) return;
@@ -83,14 +83,14 @@ export default function BookingSuccess() {
 
 
   useEffect(() => {
-    const toastKey = `booking-success-toast-${bookingCode}`;
-    if (bookingCode && !sessionStorage.getItem(toastKey)) {
+    const toastKey = `booking-success-toast-${booking_code}`;
+    if (booking_code && !sessionStorage.getItem(toastKey)) {
       toast.success("Đặt tour thành công!", {
         description: "Thông tin xác nhận đã được ghi nhận trong hệ thống.",
       });
       sessionStorage.setItem(toastKey, "shown");
     }
-  }, [bookingCode]);
+  }, [booking_code]);
 
   // Tính toán trực tiếp không cần dùng useMemo
   const details = formData?.passengerDetails || {};
@@ -109,7 +109,7 @@ export default function BookingSuccess() {
 
   const totalPassengers = adultCount + childCount + infantCount;
   const paymentLabel =
-    paymentType === "50" ? "Đặt cọc 50%" : "Thanh toán toàn bộ 100%";
+    payment_type === "50" ? "Đặt cọc 50%" : "Thanh toán toàn bộ 100%";
 
   return (
     <div className="step3-success-wrapper">
@@ -120,14 +120,14 @@ export default function BookingSuccess() {
 
         <h2 className="success-title">Đặt tour thành công!</h2>
         <p className="success-desc">
-          Cảm ơn <strong>{contactInfo.fullName || "Quý khách"}</strong> đã tin
+          Cảm ơn <strong>{contactInfo.full_name || "Quý khách"}</strong> đã tin
           tưởng và đặt tour tại TravelGo. Đơn tour của bạn đã được hệ thống ghi
           nhận và đang chờ xác nhận.
         </p>
 
         <div className="order-ref-card">
           <span className="ref-label">Mã đơn đặt tour:</span>
-          <strong className="ref-number">{bookingCode}</strong>
+          <strong className="ref-number">{booking_code}</strong>
         </div>
 
         <div className="success-card-grid">
@@ -143,7 +143,7 @@ export default function BookingSuccess() {
             <div className="success-info-list">
               <div className="success-info-row">
                 <span>Người liên hệ:</span>
-                <strong>{contactInfo.fullName || "Chưa cập nhật"}</strong>
+                <strong>{contactInfo.full_name || "Chưa cập nhật"}</strong>
               </div>
               <div className="success-info-row">
                 <span>Số điện thoại:</span>
@@ -172,7 +172,7 @@ export default function BookingSuccess() {
                     </div>
                     <div className="success-passenger-detail">
                       <strong>
-                        {passenger.fullName ||
+                        {passenger.full_name ||
                           `${passenger.label} ${passenger.displayIndex}`}
                       </strong>
                       <span>
@@ -210,7 +210,7 @@ export default function BookingSuccess() {
               </div>
               <div className="success-info-row">
                 <span>Khởi hành:</span>
-                <strong>{formatDate(selectedDate.startDate)} </strong>
+                <strong>{formatDate(selectedDate.start_date)} </strong>
               </div>
               <div className="success-info-row">
                 <span>Phương thức:</span>
@@ -220,19 +220,19 @@ export default function BookingSuccess() {
                 <span>Trạng thái:</span>
                 <strong
                   className={
-                    paymentStatus === "paid"
+                    payment_status === "paid"
                       ? "text-success"
                       : "success-warning-text"
                   }
                 >
                   <i
                     className={
-                      paymentStatus === "paid"
+                      payment_status === "paid"
                         ? "fa-solid fa-circle-check"
                         : "fa-solid fa-clock-rotate-left"
                     }
                   ></i>{" "}
-                  {paymentStatus === "paid" ? "Đã thanh toán" : "Chờ xác nhận"}
+                  {payment_status === "paid" ? "Đã thanh toán" : "Chờ xác nhận"}
                 </strong>
               </div>
 
@@ -248,7 +248,7 @@ export default function BookingSuccess() {
                   - {formatPrice(discount)}
                 </strong>
               </div>
-              {paymentType === "50" && (
+              {payment_type === "50" && (
                 <div className="success-info-row">
                   <span>Còn lại phải thu:</span>
                   <strong className="text-warning">
@@ -260,7 +260,7 @@ export default function BookingSuccess() {
               <div className="success-total-row">
                 <span>Đã thanh toán:</span>
                 <strong className="text-red">
-                  {formatPrice(payableAmount)}
+                  {formatPrice(payable_amount)}
                 </strong>
               </div> */}
               <div className="success-info-row">
@@ -280,12 +280,12 @@ export default function BookingSuccess() {
                 <strong>{formatPrice(total)}</strong>
               </div>
 
-              {paymentType === "50" ? (
+              {payment_type === "50" ? (
                 <>
                   <div className="success-info-row">
                     <span>Đặt cọc 50%:</span>
                     <strong className="text-red">
-                      {formatPrice(payableAmount)}
+                      {formatPrice(payable_amount)}
                     </strong>
                   </div>
 
@@ -300,7 +300,7 @@ export default function BookingSuccess() {
                 <div className="success-info-row">
                   <span>Thanh toán 100%:</span>
                   <strong className="text-red">
-                    {formatPrice(payableAmount)}
+                    {formatPrice(payable_amount)}
                   </strong>
                 </div>
               )}

@@ -69,7 +69,7 @@ function BlogDetail() {
               <div className="bd-meta">
                 <span className="meta-item">
                   <i className="fa-regular fa-calendar"></i>{" "}
-                  {formatDate(blog.createdAt)}
+                  {formatDate(blog.created_at)}
                 </span>
                 <span className="meta-item">
                   <i className="fa-regular fa-eye"></i> 1,234 lượt xem

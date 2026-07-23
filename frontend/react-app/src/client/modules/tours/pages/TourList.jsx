@@ -9,9 +9,9 @@ function TourList() {
   const { slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const page = searchParams.get("page") || 1;
-  const departureFrom = searchParams.get("departureFrom") || null;
+  const departure_from = searchParams.get("departure_from") || null;
   const priceLevel = searchParams.get("priceLevel") || null;
-  const startDate = searchParams.get("startDate") || null;
+  const start_date = searchParams.get("start_date") || null;
   const adults = parseInt(searchParams.get("adults")) || 0;
   const children = parseInt(searchParams.get("children")) || 0;
   const babies = parseInt(searchParams.get("babies")) || 0;
@@ -31,9 +31,9 @@ function TourList() {
   useEffect(() => {
     setIsLoading(true);
     const filterParams = {
-      departureFrom,
+      departure_from,
       priceLevel,
-      startDate,
+      start_date,
       adults,
       children,
       babies,
@@ -53,9 +53,9 @@ function TourList() {
   }, [
     slug,
     page,
-    departureFrom,
+    departure_from,
     priceLevel,
-    startDate,
+    start_date,
     adults,
     children,
     babies,

@@ -217,13 +217,13 @@ function Header() {
                 <div className="user-dropdown-wrapper">
                   <button className="btn-login-header user-profile-btn">
                     <i className="fa-solid fa-circle-user"></i>
-                    <span>{currentUser.fullName}</span>
+                    <span>{currentUser.full_name}</span>
                     <i className="fa-solid fa-chevron-down user-profile-chevron"></i>
                   </button>
 
                   <div className="user-dropdown-menu">
                     <div className="ud-user-info">
-                      <strong>{currentUser.fullName}</strong>
+                      <strong>{currentUser.full_name}</strong>
                       <span>{currentUser.email}</span>
                     </div>
                     <div className="ud-divider"></div>

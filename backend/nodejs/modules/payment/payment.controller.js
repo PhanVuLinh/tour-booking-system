@@ -17,18 +17,18 @@ const getRequestIp = (req) => {
 
 module.exports.createPaymentUrl = async (req, res) => {
   try {
-    const { bookingCode } = req.body;
+    const { booking_code } = req.body;
 
-    if (!bookingCode) {
+    if (!booking_code) {
       return res
         .status(400)
-        .json({ success: false, message: "Thiếu mã bookingCode" });
+        .json({ success: false, message: "Thiếu mã booking_code" });
     }
 
     const ipAddr = getRequestIp(req);
 
     const vnpUrl = await paymentService.createPaymentUrlService(
-      bookingCode,
+      booking_code,
       ipAddr,
     );
 
@@ -62,7 +62,7 @@ module.exports.vnpayReturn = async (req, res) => {
 
     if (result.success) {
       return res.redirect(
-        `${clientUrl}/booking/success/${result.bookingId}?bookingCode=${encodeURIComponent(result.bookingCode)}`,
+        `${clientUrl}/booking/success/${result.bookingId}?booking_code=${encodeURIComponent(result.booking_code)}`,
       );
     }
 
@@ -70,7 +70,7 @@ module.exports.vnpayReturn = async (req, res) => {
     const message =
       result.message || "Không thể xác nhận kết quả thanh toán VNPay.";
     const query = new URLSearchParams({ error: errorCode, message });
-    if (result.bookingCode) query.set("bookingCode", result.bookingCode);
+    if (result.booking_code) query.set("booking_code", result.booking_code);
     if (result.responseCode) query.set("responseCode", result.responseCode);
 
     return res.redirect(`${clientUrl}/booking/failed?${query.toString()}`);
@@ -88,7 +88,7 @@ module.exports.vnpayReturn = async (req, res) => {
 module.exports.getPaymentStatus = async (req, res) => {
   try {
     const payment = await paymentService.getPaymentStatusService(
-      req.params.bookingCode,
+      req.params.booking_code,
     );
 
     if (!payment) {

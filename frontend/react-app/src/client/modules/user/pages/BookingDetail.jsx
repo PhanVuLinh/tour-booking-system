@@ -90,7 +90,7 @@ function BookingDetail() {
           }}
         >
           <h2 className="profile-title" style={{ margin: 0 }}>
-            Chi tiết đơn: #{booking.bookingCode}
+            Chi tiết đơn: #{booking.booking_code}
           </h2>
           <BookingStatusBadge status={booking.status} />
         </div>
@@ -113,7 +113,7 @@ function BookingDetail() {
               <div className="bd-tour-meta">
                 <p>
                   <i className="fa-regular fa-calendar"></i> Khởi hành:{" "}
-                  <strong>{formatDate(booking.tour.startDate)}</strong>
+                  <strong>{formatDate(booking.tour.start_date)}</strong>
                 </p>
                 <p>
                   <i className="fa-solid fa-users"></i> Số lượng:{" "}
@@ -121,7 +121,7 @@ function BookingDetail() {
                 </p>
                 <p>
                   <i className="fa-regular fa-clock"></i> Ngày đặt:{" "}
-                  <strong>{formatDate(booking.createdAt)}</strong>
+                  <strong>{formatDate(booking.created_at)}</strong>
                 </p>
               </div>
             </div>
@@ -137,7 +137,7 @@ function BookingDetail() {
             <div className="bd-info-item">
               <span className="label">Họ và tên:</span>
               <span className="value">
-                <strong>{booking.contact.fullName}</strong>
+                <strong>{booking.contact.full_name}</strong>
               </span>
             </div>
             <div className="bd-info-item">
@@ -180,9 +180,9 @@ function BookingDetail() {
                 </div>
                 <div className="bd-passenger-details">
                   <div className="bd-pd-header">
-                    <strong>{p.fullName}</strong>
-                    <span className={`badge-type type-${p.passengerType}`}>
-                      {getPassengerTypeName(p.passengerType)}
+                    <strong>{p.full_name}</strong>
+                    <span className={`badge-type type-${p.passenger_type}`}>
+                      {getPassengerTypeName(p.passenger_type)}
                     </span>
                   </div>
                   <div className="bd-pd-body">
@@ -230,7 +230,7 @@ function BookingDetail() {
             <div className="bd-ps-right">
               <div className="bd-price-row">
                 <span>Tạm tính:</span>
-                <span>{formatPrice(booking.pricing.subTotal)}</span>
+                <span>{formatPrice(booking.pricing.sub_total)}</span>
               </div>
               {booking.pricing.discount > 0 && (
                 <div className="bd-price-row discount">
@@ -254,7 +254,7 @@ function BookingDetail() {
                   :
                 </span>
                 <strong className="text-red">
-                  {formatPrice(booking.payment.payableAmount)}
+                  {formatPrice(booking.payment.payable_amount)}
                 </strong>
               </div>
             </div>

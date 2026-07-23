@@ -30,7 +30,7 @@ const getVnpayConfig = () => {
   return config;
 };
 
-module.exports.createPaymentUrlService = async (bookingCode, ipAddr) => {
+module.exports.createPaymentUrlService = async (booking_code, ipAddr) => {
   const config = getVnpayConfig();
   const connection = await pool.getConnection();
   let orderDetail;
@@ -43,17 +43,17 @@ module.exports.createPaymentUrlService = async (bookingCode, ipAddr) => {
         payments.id AS paymentId,
         payments.booking_id AS bookingId,
         payments.amount,
-        payments.paymentMethod,
-        payments.paymentType,
-        payments.paymentStatus,
+        payments.payment_method,
+        payments.payment_type,
+        payments.payment_status,
         bookings.status AS bookingStatus
        FROM payments 
        JOIN bookings ON payments.booking_id = bookings.id
-       WHERE bookings.bookingCode = ? AND payments.paymentMethod = 'vnpay'
+       WHERE bookings.booking_code = ? AND payments.payment_method = 'vnpay'
        ORDER BY payments.id DESC
        LIMIT 1
        FOR UPDATE`,
-      [bookingCode],
+      [booking_code],
     );
 
     if (rows.length === 0) {
@@ -70,11 +70,11 @@ module.exports.createPaymentUrlService = async (bookingCode, ipAddr) => {
       );
     }
 
-    if (orderDetail.paymentStatus === "paid") {
+    if (orderDetail.payment_status === "paid") {
       throw createBusinessError("Đơn hàng đã thanh toán");
     }
 
-    if (!["pending", "failed"].includes(orderDetail.paymentStatus)) {
+    if (!["pending", "failed"].includes(orderDetail.payment_status)) {
       throw createBusinessError("Trạng thái thanh toán không hợp lệ");
     }
 
@@ -84,16 +84,16 @@ module.exports.createPaymentUrlService = async (bookingCode, ipAddr) => {
 
     // Nếu lần trước thất bại, tạo một payment mới cho lần thử lại.
     // Booking và stock cũ được giữ nguyên, không trừ thêm lần nữa.
-    if (orderDetail.paymentStatus === "failed") {
+    if (orderDetail.payment_status === "failed") {
       const [retryPayment] = await connection.query(
         `INSERT INTO payments
-          (booking_id, paymentMethod, paymentType, amount, paymentStatus)
+          (booking_id, payment_method, payment_type, amount, payment_status)
          VALUES (?, 'vnpay', ?, ?, 'pending')`,
-        [orderDetail.bookingId, orderDetail.paymentType, orderDetail.amount],
+        [orderDetail.bookingId, orderDetail.payment_type, orderDetail.amount],
       );
 
       orderDetail.paymentId = retryPayment.insertId;
-      orderDetail.paymentStatus = "pending";
+      orderDetail.payment_status = "pending";
     }
 
     await connection.commit();
@@ -183,7 +183,7 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
       `select
         payments.*,
         bookings.id AS bookingId,
-        bookings.bookingCode,
+        bookings.booking_code,
         bookings.status AS bookingStatus
        from payments 
        join bookings on payments.booking_id = bookings.id
@@ -204,7 +204,7 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
     const payment = rows[0];
     const resultInfo = {
       bookingId: payment.bookingId,
-      bookingCode: payment.bookingCode,
+      booking_code: payment.booking_code,
       responseCode: params.vnp_ResponseCode,
     };
 
@@ -220,7 +220,7 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
     }
 
     // Callback gọi lại sau khi đã thanh toán thì trả thành công, không cập nhật lần hai.
-    if (payment.paymentStatus === "paid") {
+    if (payment.payment_status === "paid") {
       await connection.commit();
       return { success: true, ...resultInfo };
     }
@@ -231,7 +231,7 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
     if (isSuccess) {
       await connection.query(
         `update payments
-         set paymentStatus = 'paid', transaction_id = ?, paidAt = NOW()
+         set payment_status = 'paid', transaction_id = ?, paidAt = NOW()
          where id = ?`,
         [params.vnp_TransactionNo || null, paymentId],
       );
@@ -254,8 +254,8 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
       // Nếu tồn tại payment pending cũ, đóng chúng lại sau khi một lần đã thành công.
       await connection.query(
         `update payments
-         set paymentStatus = 'failed'
-         where booking_id = ? and id <> ? and paymentStatus = 'pending'`,
+         set payment_status = 'failed'
+         where booking_id = ? and id <> ? and payment_status = 'pending'`,
         [payment.bookingId, paymentId],
       );
 
@@ -264,7 +264,7 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
     }
 
     await connection.query(
-      "update payments set paymentStatus = 'failed' where id = ?",
+      "update payments set payment_status = 'failed' where id = ?",
       [paymentId],
     );
 
@@ -284,23 +284,23 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
   }
 };
 
-module.exports.getPaymentStatusService = async (bookingCode) => {
+module.exports.getPaymentStatusService = async (booking_code) => {
   const [rows] = await pool.query(
     `select
       bookings.id as bookingId,
-      bookings.bookingCode,
+      bookings.booking_code,
       bookings.status as bookingStatus,
       payments.id as paymentId,
-      payments.paymentStatus,
+      payments.payment_status,
       payments.amount,
       payments.transaction_id as transactionId,
       payments.paidAt
      from bookings 
      join payments on payments.booking_id = bookings.id
-     where bookings.bookingCode = ? and payments.paymentMethod = 'vnpay'
-     order by case when payments.paymentStatus = 'paid' then 0 else 1 end, payments.id desc
+     where bookings.booking_code = ? and payments.payment_method = 'vnpay'
+     order by case when payments.payment_status = 'paid' then 0 else 1 end, payments.id desc
      limit 1`,
-    [bookingCode],
+    [booking_code],
   );
 
   if (rows.length === 0) return null;
@@ -309,7 +309,7 @@ module.exports.getPaymentStatusService = async (bookingCode) => {
   return {
     ...payment,
     canRetry:
-      payment.bookingStatus === "pending" && payment.paymentStatus === "failed",
+      payment.bookingStatus === "pending" && payment.payment_status === "failed",
   };
 };
 
@@ -319,34 +319,34 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
   const [bookingRows] = await pool.query(
     `select
       bookings.id,
-      bookings.bookingCode,
-      bookings.fullName,
+      bookings.booking_code,
+      bookings.full_name,
       bookings.phone,
       bookings.email,
       bookings.address,
-      bookings.quantityAdult,
-      bookings.quantityChildren,
-      bookings.quantityBaby,
-      bookings.subTotal,
+      bookings.quantity_adult,
+      bookings.quantity_children,
+      bookings.quantity_baby,
+      bookings.sub_total,
       bookings.discount,
       bookings.total,
       bookings.note,
       bookings.status AS bookingStatus,
-      departures.startDate,
+      departures.start_date,
       tours.title AS tourTitle,
       tours.thumbnail AS tourThumbnail,
-      payments.paymentMethod,
-      payments.paymentType,
-      payments.amount AS payableAmount,
-      payments.paymentStatus
+      payments.payment_method,
+      payments.payment_type,
+      payments.amount AS payable_amount,
+      payments.payment_status
      from bookings
      join departures on departures.id = bookings.departure_id
      join tours on tours.id = departures.tour_id
      join payments on payments.booking_id = bookings.id
      where bookings.id = ?
        and bookings.deleted = 0
-       and payments.paymentMethod = 'vnpay'
-       and payments.paymentStatus = 'paid'
+       and payments.payment_method = 'vnpay'
+       and payments.payment_status = 'paid'
      order by payments.id desc
      limit 1`,
     [bookingId],
@@ -356,7 +356,7 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
 
   const booking = bookingRows[0];
   const [passengerRows] = await pool.query(
-    `select fullName, dob, gender, identity_card, phone, passengerType
+    `select full_name, dob, gender, identity_card, phone, passenger_type
      from passengers
      where booking_id = ?
      order by id asc`,
@@ -371,16 +371,16 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
 
   for (const passenger of passengerRows) {
     const passengerData = {
-      fullName: passenger.fullName,
+      full_name: passenger.full_name,
       dob: passenger.dob,
       gender: passenger.gender,
       identity_card: passenger.identity_card,
       phone: passenger.phone,
     };
 
-    if (passenger.passengerType === "adult") {
+    if (passenger.passenger_type === "adult") {
       passengerDetails.adults.push(passengerData);
-    } else if (passenger.passengerType === "child") {
+    } else if (passenger.passenger_type === "child") {
       passengerDetails.children.push(passengerData);
     } else {
       passengerDetails.infants.push(passengerData);
@@ -388,13 +388,13 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
   }
 
   const total = Number(booking.total) || 0;
-  const payableAmount = Number(booking.payableAmount) || 0;
+  const payable_amount = Number(booking.payable_amount) || 0;
 
   return {
-    bookingCode: booking.bookingCode,
+    booking_code: booking.booking_code,
     formData: {
       contact: {
-        fullName: booking.fullName,
+        full_name: booking.full_name,
         phone: booking.phone,
         email: booking.email,
         address: booking.address,
@@ -402,24 +402,24 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
       note: booking.note,
       passengerDetails,
     },
-    selectedDate: { startDate: booking.startDate },
+    selectedDate: { start_date: booking.start_date },
     tour: {
       title: booking.tourTitle,
       thumbnail: booking.tourThumbnail,
     },
     passengers: {
-      adults: Number(booking.quantityAdult) || 0,
-      children: Number(booking.quantityChildren) || 0,
-      infants: Number(booking.quantityBaby) || 0,
+      adults: Number(booking.quantity_adult) || 0,
+      children: Number(booking.quantity_children) || 0,
+      infants: Number(booking.quantity_baby) || 0,
     },
-    subtotal: Number(booking.subTotal) || 0,
+    subtotal: Number(booking.sub_total) || 0,
     discount: Number(booking.discount) || 0,
     total,
-    payableAmount,
-    remainingAmount: Math.max(total - payableAmount, 0),
-    paymentMethod: booking.paymentMethod,
-    paymentType: booking.paymentType,
-    paymentStatus: booking.paymentStatus,
+    payable_amount,
+    remainingAmount: Math.max(total - payable_amount, 0),
+    payment_method: booking.payment_method,
+    payment_type: booking.payment_type,
+    payment_status: booking.payment_status,
     bookingStatus: booking.bookingStatus,
   };
 };

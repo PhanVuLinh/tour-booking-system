@@ -8,13 +8,13 @@ export const checkCouponService = async (payload) => {
   return await post("/coupons/check", payload);
 };
 
-export const createVnPayUrlService = async (bookingCode) => {
-  return await post("/payments/create_payment_url", { bookingCode });
+export const createVnPayUrlService = async (booking_code) => {
+  return await post("/payments/create_payment_url", { booking_code });
 };
 
-export const getVnPayPaymentStatusService = async (bookingCode) => {
+export const getVnPayPaymentStatusService = async (booking_code) => {
   return await get(
-    `/payments/booking/${encodeURIComponent(bookingCode)}/status`,
+    `/payments/booking/${encodeURIComponent(booking_code)}/status`,
   );
 };
 

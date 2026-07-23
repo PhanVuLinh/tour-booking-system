@@ -17,7 +17,7 @@ function BlogSidebar({ recentBlogs }) {
                   <Link to={`/blog/detail/${item.slug}`}>{item.title}</Link>
                 </h4>
                 <span className="rp-date">
-                  {formatDate(item.createdAt)}
+                  {formatDate(item.created_at)}
                 </span>
               </div>
             </div>

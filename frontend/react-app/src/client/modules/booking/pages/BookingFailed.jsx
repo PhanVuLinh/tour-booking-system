@@ -8,21 +8,21 @@ export default function BookingFailed() {
   const [isRetrying, setIsRetrying] = useState(false);
   const errorCode = searchParams.get("error");
   const responseCode = searchParams.get("responseCode");
-  const bookingCode = searchParams.get("bookingCode");
+  const booking_code = searchParams.get("booking_code");
   const backendMessage = searchParams.get("message");
   const canRetry = Boolean(
-    bookingCode && errorCode !== "booking_cancelled",
+    booking_code && errorCode !== "booking_cancelled",
   );
   const message =
     backendMessage ||
     "Giao dịch chưa hoàn tất. Hệ thống chưa ghi nhận thanh toán.";
 
   const handleRetry = async () => {
-    if (!bookingCode || isRetrying) return;
+    if (!booking_code || isRetrying) return;
 
     try {
       setIsRetrying(true);
-      const response = await createVnPayUrlService(bookingCode);
+      const response = await createVnPayUrlService(booking_code);
       const paymentUrl = response?.data?.paymentUrl;
 
       if (!response?.success || !paymentUrl) {
@@ -48,10 +48,10 @@ export default function BookingFailed() {
         <h2 className="success-title">Thanh toán chưa thành công</h2>
         <p className="success-desc">{message}</p>
 
-        {bookingCode && (
+        {booking_code && (
           <div className="order-ref-card">
             <span className="ref-label">Mã đơn đặt tour:</span>
-            <strong className="ref-number">{bookingCode}</strong>
+            <strong className="ref-number">{booking_code}</strong>
           </div>
         )}
 

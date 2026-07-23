@@ -11,13 +11,13 @@ const autoCancelExpiredBookings = async () => {
   try {
     // 1. Tìm các booking đang pending quá 2 phút (vnpay, momo, bank)
     const [expiredBookings] = await connection.query(
-      `SELECT b.id, b.bookingCode, b.departure_id, b.coupon_id, b.user_id, 
-              b.quantityAdult, b.quantityChildren, b.quantityBaby 
+      `SELECT b.id, b.booking_code, b.departure_id, b.coupon_id, b.user_id, 
+              b.quantity_adult, b.quantity_children, b.quantity_baby 
        FROM bookings b
        JOIN payments p ON p.booking_id = b.id
        WHERE b.status = 'pending' 
-         AND p.paymentMethod IN ('vnpay', 'momo', 'bank')
-         AND b.createdAt <= NOW() - INTERVAL 2 MINUTE`
+         AND p.payment_method IN ('vnpay', 'momo', 'bank')
+         AND b.created_at <= NOW() - INTERVAL 2 MINUTE`
     );
 
     if (expiredBookings.length === 0) {
@@ -40,22 +40,22 @@ const autoCancelExpiredBookings = async () => {
 
         // Cập nhật payments -> failed
         await connection.query(
-          `UPDATE payments SET paymentStatus = 'failed' 
-           WHERE booking_id = ? AND paymentStatus = 'pending'`,
+          `UPDATE payments SET payment_status = 'failed' 
+           WHERE booking_id = ? AND payment_status = 'pending'`,
           [booking.id]
         );
 
         // Cộng trả lại số vé vào kho departures
         await connection.query(
           `UPDATE departures
-           SET stockAdult = stockAdult + ?,
-               stockChildren = stockChildren + ?,
-               stockBaby = stockBaby + ?
+           SET stock_adult = stock_adult + ?,
+               stock_children = stock_children + ?,
+               stock_baby = stock_baby + ?
            WHERE id = ?`,
           [
-            booking.quantityAdult,
-            booking.quantityChildren,
-            booking.quantityBaby,
+            booking.quantity_adult,
+            booking.quantity_children,
+            booking.quantity_baby,
             booking.departure_id,
           ]
         );
@@ -64,7 +64,7 @@ const autoCancelExpiredBookings = async () => {
         if (booking.coupon_id) {
           await connection.query(
             `UPDATE coupons
-             SET usedCount = GREATEST(usedCount - 1, 0)
+             SET used_count = GREATEST(used_count - 1, 0)
              WHERE id = ?`,
             [booking.coupon_id]
           );
@@ -78,10 +78,10 @@ const autoCancelExpiredBookings = async () => {
         }
 
         await connection.commit();
-        console.log(`[CRON] Đã huỷ thành công đơn hàng: ${booking.bookingCode} và trả lại vé.`);
+        console.log(`[CRON] Đã huỷ thành công đơn hàng: ${booking.booking_code} và trả lại vé.`);
       } catch (error) {
         await connection.rollback();
-        console.error(`[CRON] Lỗi khi huỷ đơn hàng ${booking.bookingCode}:`, error);
+        console.error(`[CRON] Lỗi khi huỷ đơn hàng ${booking.booking_code}:`, error);
       }
     }
   } catch (error) {

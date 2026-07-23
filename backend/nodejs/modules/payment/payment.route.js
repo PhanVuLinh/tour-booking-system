@@ -11,7 +11,7 @@ router.post(
 
 router.get("/vnpay_return", paymentController.vnpayReturn);
 
-router.get("/booking/:bookingCode/status", paymentController.getPaymentStatus);
+router.get("/booking/:booking_code/status", paymentController.getPaymentStatus);
 
 router.get(
   "/booking/:bookingId/result",

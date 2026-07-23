@@ -7,7 +7,7 @@ import { validateProfileForm } from "../validations/user.validator";
 function ProfileInfo() {
   const { profile, setProfile } = useOutletContext();
   const [formData, setFormData] = useState({
-    fullName: "",
+    full_name: "",
     email: "",
     phone: "",
   });
@@ -16,7 +16,7 @@ function ProfileInfo() {
 
   useEffect(() => {
     setFormData({
-      fullName: profile.fullName || "",
+      full_name: profile.full_name || "",
       email: profile.email || "",
       phone: profile.phone || "",
     });
@@ -35,14 +35,14 @@ function ProfileInfo() {
 
     try {
       const response = await updateProfile({
-        fullName: formData.fullName.trim(),
+        full_name: formData.full_name.trim(),
         phone: formData.phone.trim(),
       });
 
       if (response.success) {
         const nextProfile = {
           ...profile,
-          fullName: formData.fullName.trim(),
+          full_name: formData.full_name.trim(),
           phone: formData.phone.trim(),
         };
 
@@ -53,7 +53,7 @@ function ProfileInfo() {
         const userStr = localStorage.getItem("user");
         if (userStr) {
           const user = JSON.parse(userStr);
-          user.fullName = nextProfile.fullName;
+          user.full_name = nextProfile.full_name;
           localStorage.setItem("user", JSON.stringify(user));
         }
       } else {
@@ -66,7 +66,7 @@ function ProfileInfo() {
 
   const handleCancelEdit = () => {
     setFormData({
-      fullName: profile.fullName || "",
+      full_name: profile.full_name || "",
       email: profile.email || "",
       phone: profile.phone || "",
     });
@@ -118,20 +118,20 @@ function ProfileInfo() {
               <input
                 type="text"
                 className="b-input"
-                name="fullName"
-                value={formData.fullName}
+                name="full_name"
+                value={formData.full_name}
                 disabled={!isEditing}
                 onChange={(e) => {
-                  setFormData({ ...formData, fullName: e.target.value });
-                  setErrors({ ...errors, fullName: "" });
+                  setFormData({ ...formData, full_name: e.target.value });
+                  setErrors({ ...errors, full_name: "" });
                 }}
                 placeholder="Nhập họ và tên"
                 required
               />
-              {errors.fullName && (
+              {errors.full_name && (
                 <span className="error-text">
                   <i className="fa-solid fa-circle-exclamation"></i>
-                  {errors.fullName}
+                  {errors.full_name}
                 </span>
               )}
             </div>

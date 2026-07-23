@@ -1,6 +1,6 @@
 const { pool } = require("../../config/database");
 
-module.exports.checkCouponCode = async (code, subTotal, user_id) => {
+module.exports.checkCouponCode = async (code, sub_total, user_id) => {
   try {
     const sql = `SELECT * FROM coupons 
                   WHERE code = ? 
@@ -18,21 +18,21 @@ module.exports.checkCouponCode = async (code, subTotal, user_id) => {
     const coupon = rows[0];
     const now = new Date();
 
-    if (now < new Date(coupon.startDate)) {
+    if (now < new Date(coupon.start_date)) {
       return {
         success: false,
         message: "Mã giảm giá chưa đến thời gian áp dụng!",
       };
     }
 
-    if (now > new Date(coupon.endDate)) {
+    if (now > new Date(coupon.end_date)) {
       return {
         success: false,
         message: "Mã giảm giá đã hết hạn!",
       };
     }
 
-    if (Number(coupon.usedCount) >= Number(coupon.quantity)) {
+    if (Number(coupon.used_count) >= Number(coupon.quantity)) {
       return {
         success: false,
         message: "Mã giảm giá đã hết lượt sử dụng!",
@@ -56,14 +56,14 @@ module.exports.checkCouponCode = async (code, subTotal, user_id) => {
     }
 
     //Tính số tiền được giảm
-    let discount = Number(subTotal * coupon.discountPercentage) / 100;
+    let discount = Number(sub_total * coupon.discount_percentage) / 100;
 
     // Nếu vượt quá mức giảm tối đa thì chỉ lấy mức tối đa
     if (
-      coupon.maxDiscountAmount &&
-      discount > Number(coupon.maxDiscountAmount)
+      coupon.max_discount_amount &&
+      discount > Number(coupon.max_discount_amount)
     ) {
-      discount = Number(coupon.maxDiscountAmount);
+      discount = Number(coupon.max_discount_amount);
     }
 
     return {

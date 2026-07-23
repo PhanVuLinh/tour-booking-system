@@ -1,7 +1,7 @@
 module.exports.updateProfile = (req, res, next) => {
-  const { fullName, phone } = req.body;
+  const { full_name, phone } = req.body;
 
-  if (!fullName || fullName.trim() === "") {
+  if (!full_name || full_name.trim() === "") {
     return res
       .status(400)
       .json({ success: false, message: "Họ và tên không được để trống" });

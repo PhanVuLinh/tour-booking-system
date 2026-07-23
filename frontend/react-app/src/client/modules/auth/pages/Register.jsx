@@ -9,7 +9,7 @@ function Register() {
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState({
-    fullName: "",
+    full_name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -32,7 +32,7 @@ function Register() {
     try {
       const response = await register(userData);
       if (response.success) {
-        const userName = response.data?.user?.fullName || "bạn";
+        const userName = response.data?.user?.full_name || "bạn";
         toast.success(`Chúc mừng ${userName} đã đăng ký tài khoản thành công!`);
         navigate("/login");
       } else {
@@ -60,20 +60,20 @@ function Register() {
                   <i className="fa-regular fa-user"></i>
                   <input
                     type="text"
-                    value={userData.fullName}
+                    value={userData.full_name}
                     onChange={(e) =>
-                      setUserData({ ...userData, fullName: e.target.value })
+                      setUserData({ ...userData, full_name: e.target.value })
                     }
                     placeholder="Nhập họ tên của bạn"
                   />
                 </div>
-                {errors.fullName && (
+                {errors.full_name && (
                   <span className="error-text">
                     <i
                       className="fa-solid fa-circle-exclamation"
                       style={{ marginRight: "4px" }}
                     ></i>
-                    {errors.fullName}
+                    {errors.full_name}
                   </span>
                 )}
               </div>

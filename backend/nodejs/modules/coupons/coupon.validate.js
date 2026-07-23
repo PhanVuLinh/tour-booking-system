@@ -1,5 +1,5 @@
 module.exports.validateCheckCoupon = (req, res, next) => {
-  const { code, subTotal } = req.body;
+  const { code, sub_total } = req.body;
   const user_id = req.user ? req.user.id : null;
 
   if (!code || !String(code).trim()) {
@@ -9,7 +9,7 @@ module.exports.validateCheckCoupon = (req, res, next) => {
     });
   }
 
-  const totalValue = Number(subTotal);
+  const totalValue = Number(sub_total);
 
   if (!Number.isFinite(totalValue) || totalValue <= 0) {
     return res.status(400).json({
@@ -26,7 +26,7 @@ module.exports.validateCheckCoupon = (req, res, next) => {
   }
 
   req.body.code = String(code).trim().toUpperCase();
-  req.body.subTotal = totalValue;
+  req.body.sub_total = totalValue;
 
   next();
 };

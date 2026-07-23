@@ -4,9 +4,9 @@ const Step2Payment = () => {
   const navigate = useNavigate();
   const {
     formData,
-    paymentType,
+    payment_type,
     setPaymentType,
-    paymentMethod,
+    payment_method,
     setPaymentMethod,
   } = useOutletContext();
 
@@ -30,7 +30,7 @@ const Step2Payment = () => {
           <div className="ci-item">
             <span className="ci-label">Họ và tên</span>
             <strong className="ci-value">
-              {contactInfo.fullName || "Chưa cập nhật"}
+              {contactInfo.full_name || "Chưa cập nhật"}
             </strong>
           </div>
           <div className="ci-item">
@@ -62,13 +62,13 @@ const Step2Payment = () => {
 
         <div className="ratio-cards-grid">
           <label
-            className={`ratio-card ${paymentType === "100" ? "active" : ""}`}
+            className={`ratio-card ${payment_type === "100" ? "active" : ""}`}
           >
             <input
               type="radio"
-              name="paymentType"
+              name="payment_type"
               value="100"
-              checked={paymentType === "100"}
+              checked={payment_type === "100"}
               onChange={(e) => setPaymentType(e.target.value)}
             />
             <div className="rc-content">
@@ -83,13 +83,13 @@ const Step2Payment = () => {
           </label>
 
           <label
-            className={`ratio-card ${paymentType === "50" ? "active" : ""}`}
+            className={`ratio-card ${payment_type === "50" ? "active" : ""}`}
           >
             <input
               type="radio"
-              name="paymentType"
+              name="payment_type"
               value="50"
-              checked={paymentType === "50"}
+              checked={payment_type === "50"}
               onChange={(e) => setPaymentType(e.target.value)}
             />
             <div className="rc-content">
@@ -114,14 +114,14 @@ const Step2Payment = () => {
 
         <div className="methods-list">
           <label
-            className={`method-item ${paymentMethod === "vnpay" ? "active" : ""}`}
+            className={`method-item ${payment_method === "vnpay" ? "active" : ""}`}
           >
             <div className="mi-radio">
               <input
                 type="radio"
-                name="paymentMethod"
+                name="payment_method"
                 value="vnpay"
-                checked={paymentMethod === "vnpay"}
+                checked={payment_method === "vnpay"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
               <span className="custom-radio"></span>
@@ -140,14 +140,14 @@ const Step2Payment = () => {
           </label>
 
           <label
-            className={`method-item ${paymentMethod === "momo" ? "active" : ""}`}
+            className={`method-item ${payment_method === "momo" ? "active" : ""}`}
           >
             <div className="mi-radio">
               <input
                 type="radio"
-                name="paymentMethod"
+                name="payment_method"
                 value="momo"
-                checked={paymentMethod === "momo"}
+                checked={payment_method === "momo"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
               <span className="custom-radio"></span>
@@ -166,14 +166,14 @@ const Step2Payment = () => {
           </label>
 
           <label
-            className={`method-item ${paymentMethod === "bank" ? "active" : ""}`}
+            className={`method-item ${payment_method === "bank" ? "active" : ""}`}
           >
             <div className="mi-radio">
               <input
                 type="radio"
-                name="paymentMethod"
+                name="payment_method"
                 value="bank"
-                checked={paymentMethod === "bank"}
+                checked={payment_method === "bank"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
               <span className="custom-radio"></span>
@@ -193,14 +193,14 @@ const Step2Payment = () => {
           </label>
 
           <label
-            className={`method-item ${paymentMethod === "cash" ? "active" : ""}`}
+            className={`method-item ${payment_method === "cash" ? "active" : ""}`}
           >
             <div className="mi-radio">
               <input
                 type="radio"
-                name="paymentMethod"
+                name="payment_method"
                 value="cash"
-                checked={paymentMethod === "cash"}
+                checked={payment_method === "cash"}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               />
               <span className="custom-radio"></span>
@@ -220,7 +220,7 @@ const Step2Payment = () => {
           </label>
         </div>
 
-        {paymentMethod === "bank" && (
+        {payment_method === "bank" && (
           <div className="bank-transfer-details">
             <h4 className="btd-title">Thông tin chuyển khoản:</h4>
             <ul>

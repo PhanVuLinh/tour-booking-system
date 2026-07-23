@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 module.exports.register = async (userData) => {
   try {
-    if (!userData.fullName || !userData.email || !userData.password) {
+    if (!userData.full_name || !userData.email || !userData.password) {
       return {
         success: false,
         message: "Vui lòng điền đầy đủ thông tin",
@@ -27,8 +27,8 @@ module.exports.register = async (userData) => {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
     const [result] = await pool.query(
-      "insert into users (fullName, email, password, status) values (?, ?, ?, 'active')",
-      [userData.fullName, userData.email, hashedPassword],
+      "insert into users (full_name, email, password, status) values (?, ?, ?, 'active')",
+      [userData.full_name, userData.email, hashedPassword],
     );
 
     return {
@@ -36,7 +36,7 @@ module.exports.register = async (userData) => {
       message: "Đăng ký tài khoản thành công",
       data: {
         user: {
-          fullName: userData.fullName,
+          full_name: userData.full_name,
           email: userData.email,
           status: "active",
         },
@@ -52,7 +52,7 @@ module.exports.login = async (loginData) => {
   try {
     const [users] = await pool.query(
       `
-        select id, fullName, email, password, auth_provider, status, deleted from users 
+        select id, full_name, email, password, auth_provider, status, deleted from users 
         where email = ?`,
       [loginData.email],
     );
@@ -105,7 +105,7 @@ module.exports.login = async (loginData) => {
     const token = jwt.sign(
       {
         id: user.id,
-        fullName: user.fullName,
+        full_name: user.full_name,
         email: user.email,
       },
       jwtSecret,
@@ -119,7 +119,7 @@ module.exports.login = async (loginData) => {
         token: token,
         user: {
           id: user.id,
-          fullName: user.fullName,
+          full_name: user.full_name,
           email: user.email,
           auth_provider: user.auth_provider || null,
           status: user.status,
@@ -146,7 +146,7 @@ module.exports.loginGoogle = async (idToken) => {
     const payload = ticket.getPayload();
 
     const email = payload.email;
-    const fullName = payload.name;
+    const full_name = payload.name;
 
     if (!email) {
       return {
@@ -156,19 +156,19 @@ module.exports.loginGoogle = async (idToken) => {
     }
 
     const [users] = await pool.query(
-      "SELECT id, fullName, email, auth_provider, status, deleted FROM users WHERE email = ?",
+      "SELECT id, full_name, email, auth_provider, status, deleted FROM users WHERE email = ?",
       [email],
     );
 
     let user = users[0];
     if (!user) {
       const [result] = await pool.query(
-        "INSERT INTO users (fullName, email, password, auth_provider, status, deleted) VALUES (?, ?, NULL, 'google', 'active', 0)",
-        [fullName, email],
+        "INSERT INTO users (full_name, email, password, auth_provider, status, deleted) VALUES (?, ?, NULL, 'google', 'active', 0)",
+        [full_name, email],
       );
       user = {
         id: result.insertId,
-        fullName: fullName,
+        full_name: full_name,
         email: email,
         auth_provider: "google",
         status: "active",
@@ -193,7 +193,7 @@ module.exports.loginGoogle = async (idToken) => {
     const jwtToken = jwt.sign(
       {
         id: user.id,
-        fullName: user.fullName,
+        full_name: user.full_name,
         email: user.email,
       },
       jwtSecret,
@@ -208,7 +208,7 @@ module.exports.loginGoogle = async (idToken) => {
         token: jwtToken,
         user: {
           id: user.id,
-          fullName: user.fullName,
+          full_name: user.full_name,
           email: user.email,
           auth_provider: user.auth_provider || "google",
           status: user.status,
@@ -249,12 +249,12 @@ module.exports.loginFacebook = async (accessToken) => {
 
     if (!user) {
       const [result] = await pool.query(
-        "INSERT INTO users (fullName, email, password, auth_provider, status) VALUES (?, ?, NULL, 'facebook', 'active')",
+        "INSERT INTO users (full_name, email, password, auth_provider, status) VALUES (?, ?, NULL, 'facebook', 'active')",
         [name, email],
       );
       user = {
         id: result.insertId,
-        fullName: name,
+        full_name: name,
         email: email,
         auth_provider: "facebook",
         status: "active",
@@ -268,7 +268,7 @@ module.exports.loginFacebook = async (accessToken) => {
 
     const jwtSecret = process.env.JWT_SECRET;
     const token = jwt.sign(
-      { id: user.id, fullName: user.fullName, email: user.email },
+      { id: user.id, full_name: user.full_name, email: user.email },
       jwtSecret,
       { expiresIn: process.env.JWT_EXPIRES_IN },
     );
@@ -279,7 +279,7 @@ module.exports.loginFacebook = async (accessToken) => {
         token: token,
         user: {
           id: user.id,
-          fullName: user.fullName,
+          full_name: user.full_name,
           email: user.email,
           auth_provider: user.auth_provider || "facebook",
           status: user.status,

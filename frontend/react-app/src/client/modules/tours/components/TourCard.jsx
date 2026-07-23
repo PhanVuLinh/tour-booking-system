@@ -22,9 +22,9 @@ function TourCard({ tour }) {
         <div className="tour-card__overlay">
           <span className="tour-card__view-btn">Xem chi tiết</span>
         </div>
-        {tour.discountPercentage > 0 && (
+        {tour.discount_percentage > 0 && (
           <span className="badge-discount">
-            <i className="fa-solid fa-bolt"></i> Giảm {tour.discountPercentage}%
+            <i className="fa-solid fa-bolt"></i> Giảm {tour.discount_percentage}%
           </span>
         )}
       </div>
@@ -32,7 +32,7 @@ function TourCard({ tour }) {
       <div className="tour-card__content">
         <h3 className="tour-title">{tour.title}</h3>
         <div className="tour-price">
-          {tour.discountPercentage > 0 && (
+          {tour.discount_percentage > 0 && (
             <span className="old-price">
               {formatNumber(tour.oldPrice)} đ
             </span>
@@ -48,18 +48,18 @@ function TourCard({ tour }) {
           </li>
           <li>
             <i className="fa-solid fa-map-location-dot"></i> Nơi Khởi Hành:{" "}
-            {tour.departureFrom || "Chưa cập nhật"}
+            {tour.departure_from || "Chưa cập nhật"}
           </li>
           <li>
             <i className="fa-regular fa-calendar"></i> Ngày Khởi Hành:{" "}
-            {formatDate(tour.startDate)}
+            {formatDate(tour.start_date)}
           </li>
           <li>
             <i className="fa-regular fa-clock"></i> Thời Gian: {tour.time}
           </li>
           {/* Thêm phần hiển thị phương tiện tại đây */}
           <li>
-            <i className={`fa-solid ${getVehicleIcon(tour.vehicleType)}`}></i>
+            <i className={`fa-solid ${getVehicleIcon(tour.vehicle_type)}`}></i>
             Phương tiện: {tour.vehicleName || "Chưa cập nhật"}
           </li>
         </ul>

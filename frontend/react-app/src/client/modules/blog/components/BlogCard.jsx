@@ -11,7 +11,7 @@ function BlogCard({ blog }) {
       <div className="bc-content">
         <div className="bc-meta">
           <i className="fa-regular fa-calendar"></i>{" "}
-          {formatDate(blog.startDate)}
+          {formatDate(blog.start_date)}
         </div>
 
         <h3 className="bc-title">

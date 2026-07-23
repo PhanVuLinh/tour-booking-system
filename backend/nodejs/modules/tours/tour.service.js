@@ -53,24 +53,24 @@ module.exports.getTourDetailBySlug = async (slug) => {
   const sqlDepartures = `
     SELECT 
         departures.id AS departure_id,
-        departures.departureFrom,
-        departures.startDate,
-        departures.priceAdult,
-        departures.priceChildren,
-        departures.priceBaby,
-        departures.discountPercentage,
-        (departures.priceAdult - (departures.priceAdult * departures.discountPercentage / 100)) AS newPriceAdult,
-        (departures.priceChildren - (departures.priceChildren * departures.discountPercentage / 100)) AS newPriceChildren,
-        (departures.priceBaby - (departures.priceBaby * departures.discountPercentage / 100)) AS newPriceBaby,
-        (departures.stockAdult + departures.stockChildren + departures.stockBaby) AS slots,
+        departures.departure_from,
+        departures.start_date,
+        departures.price_adult,
+        departures.price_children,
+        departures.price_baby,
+        departures.discount_percentage,
+        (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) AS newPriceAdult,
+        (departures.price_children - (departures.price_children * departures.discount_percentage / 100)) AS newPriceChildren,
+        (departures.price_baby - (departures.price_baby * departures.discount_percentage / 100)) AS newPriceBaby,
+        (departures.stock_adult + departures.stock_children + departures.stock_baby) AS slots,
         vehicles.name AS vehicleName,
-        vehicles.vehicleType AS vehicleType
+        vehicles.vehicle_type AS vehicle_type
     FROM departures
     LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
     WHERE departures.tour_id = ? 
       AND departures.deleted = 0 
       AND departures.status = 'active'
-    ORDER BY departures.startDate ASC
+    ORDER BY departures.start_date ASC
   `;
 
   const [departures] = await pool.query(sqlDepartures, [row.id]);
@@ -116,20 +116,20 @@ module.exports.searchTours = async ({ locationFrom, quantity, date }) => {
       tours.thumbnail,
       tours.time,
       departures.id AS departure_id,
-      departures.departureFrom,
-      departures.startDate,
-      departures.priceAdult AS oldPrice,
-      departures.discountPercentage,
+      departures.departure_from,
+      departures.start_date,
+      departures.price_adult AS oldPrice,
+      departures.discount_percentage,
       (
-        departures.priceAdult - (
-          departures.priceAdult * IFNULL(departures.discountPercentage, 0) / 100
+        departures.price_adult - (
+          departures.price_adult * IFNULL(departures.discount_percentage, 0) / 100
         )
       ) AS newPrice,
       (
-        departures.stockAdult + departures.stockChildren + departures.stockBaby
+        departures.stock_adult + departures.stock_children + departures.stock_baby
       ) AS slots,
       vehicles.name AS vehicleName,
-      vehicles.vehicleType AS vehicleType
+      vehicles.vehicle_type AS vehicle_type
     FROM tours 
     LEFT JOIN categories ON tours.category_id = categories.id
     LEFT JOIN departures ON tours.id = departures.tour_id
@@ -143,25 +143,25 @@ module.exports.searchTours = async ({ locationFrom, quantity, date }) => {
 
   if (locationFrom) {
     sql +=
-      " AND (tours.title LIKE ? OR categories.title LIKE ? OR departures.departureFrom LIKE ?)";
+      " AND (tours.title LIKE ? OR categories.title LIKE ? OR departures.departure_from LIKE ?)";
     queryParams.push(`%${locationFrom}%`, `%${locationFrom}%`);
     queryParams.push(`%${locationFrom}%`);
   }
 
   if (date) {
-    sql += ` AND DATE(departures.startDate) = ?`;
+    sql += ` AND DATE(departures.start_date) = ?`;
     queryParams.push(date);
   }
 
   if (quantity) {
     const num = parseInt(quantity, 10);
     if (!isNaN(num)) {
-      sql += ` AND (departures.stockAdult + departures.stockChildren + departures.stockBaby) >= ?`;
+      sql += ` AND (departures.stock_adult + departures.stock_children + departures.stock_baby) >= ?`;
       queryParams.push(num);
     }
   }
 
-  sql += ` ORDER BY departures.startDate ASC, tours.createdAt DESC`;
+  sql += ` ORDER BY departures.start_date ASC, tours.created_at DESC`;
 
   const [tours] = await pool.query(sql, queryParams);
   return tours;

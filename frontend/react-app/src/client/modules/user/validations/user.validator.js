@@ -1,14 +1,14 @@
 export const validateProfileForm = (formData) => {
   const errors = {};
-  const fullName = formData.fullName?.trim() || "";
+  const full_name = formData.full_name?.trim() || "";
   const phone = formData.phone?.trim() || "";
 
-  if (!fullName) {
-    errors.fullName = "Họ và tên không được để trống";
-  } else if (fullName.length < 2) {
-    errors.fullName = "Họ và tên phải có ít nhất 2 ký tự";
-  } else if (fullName.length > 100) {
-    errors.fullName = "Họ và tên không được vượt quá 100 ký tự";
+  if (!full_name) {
+    errors.full_name = "Họ và tên không được để trống";
+  } else if (full_name.length < 2) {
+    errors.full_name = "Họ và tên phải có ít nhất 2 ký tự";
+  } else if (full_name.length > 100) {
+    errors.full_name = "Họ và tên không được vượt quá 100 ký tự";
   }
 
   if (phone) {

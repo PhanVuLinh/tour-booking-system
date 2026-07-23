@@ -34,7 +34,7 @@ function Login() {
       if (response.success) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        toast.success(`Chào mừng ${response.data.user.fullName} quay trở lại!`);
+        toast.success(`Chào mừng ${response.data.user.full_name} quay trở lại!`);
         navigate("/");
       } else {
         toast.error(response.message);
@@ -56,7 +56,7 @@ function Login() {
       if (response.success) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        toast.success(`Chào mừng ${response.data.user.fullName} quay trở lại!`);
+        toast.success(`Chào mừng ${response.data.user.full_name} quay trở lại!`);
         navigate("/");
       } else {
         toast.error(response.message);
@@ -79,7 +79,7 @@ function Login() {
         localStorage.setItem("token", apiResult.data.token);
         localStorage.setItem("user", JSON.stringify(apiResult.data.user));
         toast.success(
-          `Chào mừng ${apiResult.data.user.fullName} quay trở lại!`,
+          `Chào mừng ${apiResult.data.user.full_name} quay trở lại!`,
         );
         navigate("/");
       } else {

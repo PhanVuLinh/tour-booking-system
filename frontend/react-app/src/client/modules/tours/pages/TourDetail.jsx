@@ -41,12 +41,12 @@ function TourDetail() {
 
   const breadcrumbList = buildTourDetailBreadcrumb(tourData, slug);
 
-  const priceAdult = selectedDate ? Number(selectedDate.newPriceAdult) : 0;
+  const price_adult = selectedDate ? Number(selectedDate.newPriceAdult) : 0;
   const priceChild = selectedDate ? Number(selectedDate.newPriceChildren) : 0;
   const priceInfant = selectedDate ? Number(selectedDate.newPriceBaby) : 0;
 
   const totalPrice =
-    adults * priceAdult + children * priceChild + infants * priceInfant;
+    adults * price_adult + children * priceChild + infants * priceInfant;
 
   const handleBooking = () => {
     if (!selectedDate) {
@@ -177,13 +177,13 @@ function TourDetail() {
                 </li>
                 <li>
                   <i className="fa-solid fa-map-location-dot"></i> Nơi Khởi Hành:{" "}
-                  <strong>{selectedDate?.departureFrom || "Chưa cập nhật"}</strong>
+                  <strong>{selectedDate?.departure_from || "Chưa cập nhật"}</strong>
                 </li>
                 <li>
                   <i className="fa-regular fa-calendar"></i> Khởi Hành:{" "}
                   <strong>
                     {selectedDate
-                      ? formatDate(selectedDate.startDate)
+                      ? formatDate(selectedDate.start_date)
                       : "Chưa chọn"}
                   </strong>
                 </li>
@@ -209,10 +209,10 @@ function TourDetail() {
                         onClick={() => setSelectedDate(item)}
                       >
                         <span className="d-date">
-                          {formatDate(item.startDate, "DD/MM")}
+                          {formatDate(item.start_date, "DD/MM")}
                         </span>
                         <span className="d-year">
-                          {formatDate(item.startDate, "YYYY")}
+                          {formatDate(item.start_date, "YYYY")}
                         </span>
                         <hr className="d-divider" />
                         <span className="d-price">
@@ -237,7 +237,7 @@ function TourDetail() {
                     <div className="p-info">
                       <span className="p-name">Người lớn</span>
                       <span className="p-subprice">
-                        {formatPrice(priceAdult)}
+                        {formatPrice(price_adult)}
                       </span>
                     </div>
                     <div className="qty-stepper">

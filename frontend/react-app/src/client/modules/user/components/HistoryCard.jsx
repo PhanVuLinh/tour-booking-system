@@ -10,7 +10,7 @@ export default function HistoryCard({ booking }) {
       <div className="hc-header">
         <div className="hc-header-left">
           <span className="hc-code">
-            Mã đơn: <strong>{booking.bookingCode}</strong>
+            Mã đơn: <strong>{booking.booking_code}</strong>
           </span>
           <span className="hc-date">
             Ngày đặt: {formatDate(booking.bookingDate)}
@@ -36,7 +36,7 @@ export default function HistoryCard({ booking }) {
             <div className="hc-meta-item">
               <i className="fa-regular fa-calendar"></i>
               <span>
-                Khởi hành: <strong>{formatDate(booking.startDate)}</strong>
+                Khởi hành: <strong>{formatDate(booking.start_date)}</strong>
               </span>
             </div>
             <div className="hc-meta-item">
