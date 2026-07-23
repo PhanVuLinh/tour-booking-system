@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 public class User extends BaseEntity {
 
-    @Column(name = "fullName")
+    @Column(name = "full_name")
     private String fullName;
 
     private String email;
@@ -24,25 +24,23 @@ public class User extends BaseEntity {
 
     private String password;
 
-    private String token;
-
     private String status="active";
 
     @Column(columnDefinition = "boolean default false")
     private Boolean deleted = false;
 
-    @Column(name = "deletedAt",nullable = true)
+    @Column(name = "deleted_at",nullable = true)
     private LocalDateTime deletedAt;
 
-    @Column(nullable = true)
+    @Column(name = "deleted_by",nullable = true)
     private Integer deletedBy;
 
     @CreationTimestamp
-    @Column(name = "createdAt",nullable = false,updatable = false)
+    @Column(name = "created_at",nullable = false,updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updatedAt",nullable = false)
+    @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
 
 }

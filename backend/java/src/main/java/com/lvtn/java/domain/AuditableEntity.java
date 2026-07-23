@@ -17,24 +17,24 @@ public class AuditableEntity extends BaseEntity{
     @Column(columnDefinition = "boolean default false")
     private Boolean deleted = false;
 
-    @Column(name = "deletedAt",nullable = true)
+    @Column(name = "deleted_at",nullable = true)
     private LocalDateTime deletedAt;
 
-    @Column(nullable = true)
+    @Column(name = "created_by",nullable = true)
     private Integer createdBy;
 
-    @Column(nullable = true)
+    @Column(name = "updated_by",nullable = true)
     private Integer updatedBy;
 
-    @Column(nullable = true)
+    @Column(name = "deleted_by",nullable = true)
     private Integer deletedBy;
 
     @CreationTimestamp
-    @Column(name = "createdAt",nullable = false,updatable = false)
+    @Column(name = "created_at",nullable = false,updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updatedAt",nullable = false)
+    @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
 
 }

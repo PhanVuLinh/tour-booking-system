@@ -14,7 +14,7 @@ public class Blog extends AuditableEntity {
     private String slug;
     private String thumbnail;
     private String description;
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String content;
     private String status="active";
 

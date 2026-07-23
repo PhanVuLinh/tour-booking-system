@@ -22,15 +22,15 @@ public class Role extends BaseEntity {
 
     private Integer deleted = 0;
 
-    @Column(name = "deletedAt",nullable = true)
+    @Column(name = "deleted_at",nullable = true)
     private LocalDateTime deletedAt;
 
     @CreationTimestamp
-    @Column(name = "createdAt",nullable = false,updatable = false)
+    @Column(name = "created_at",nullable = false,updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updatedAt",nullable = false)
+    @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
 
 }

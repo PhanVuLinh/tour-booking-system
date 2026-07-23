@@ -26,18 +26,19 @@ public class AccountController {
     private final ObjectMapper objectMapper;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_USER')")
     public ResponseEntity<List<AccountResponse>> getAllActive() {
         return ResponseEntity.ok(accountService.findAllActive());
     }
 
     @GetMapping("/trash")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'ACCOUNT_TRASH')")
     public ResponseEntity<List<AccountResponse>> getAllTrash() {
         return ResponseEntity.ok(accountService.findAllTrash());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_USER')")
     public ResponseEntity<?> getById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(accountService.findById(id));
@@ -47,7 +48,7 @@ public class AccountController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CREATE_USER')")
     public ResponseEntity<?> create(@RequestBody AccountRequest request) {
         try {
             Integer creatorId = securityUtils.getCurrentAccountId();
@@ -58,7 +59,7 @@ public class AccountController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.accountId()")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_USER') or #id == authentication.principal.accountId()")
     public ResponseEntity<?> update(
             @PathVariable Integer id,
             @RequestPart("data") String dataJson,
@@ -79,7 +80,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'DELETE_USER')")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
             Integer deleterId = securityUtils.getCurrentAccountId();
@@ -91,7 +92,7 @@ public class AccountController {
     }
 
     @PutMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_USER')")
     public ResponseEntity<?> restore(@PathVariable Integer id) {
         try {
             Integer restorerId = securityUtils.getCurrentAccountId();
@@ -103,7 +104,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}/force")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'DELETE_USER')")
     public ResponseEntity<?> hardDelete(@PathVariable Integer id) {
         try {
             Integer requesterId = securityUtils.getCurrentAccountId();

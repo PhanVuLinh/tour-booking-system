@@ -12,6 +12,6 @@ public class Vehicle extends AuditableEntity {
     @Column
     private String name;
     @Enumerated(EnumType.STRING)
-    @Column(name = "vehicleType", nullable = false)
+    @Column(name = "vehicle_type", nullable = false)
     private VehicleType vehicleType;
 }

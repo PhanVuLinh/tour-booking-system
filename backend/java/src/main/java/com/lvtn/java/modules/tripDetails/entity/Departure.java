@@ -25,37 +25,37 @@ public class Departure extends AuditableEntity {
     @JoinColumn(name = "guide_id")
     private Account guide;
 
-    @Column(name = "startDate")
+    @Column(name = "start_date")
     private LocalDateTime startTime;
 
-    @Column(name = "endDate")
+    @Column(name = "end_date")
     private LocalDateTime endDate;
 
-    @Column
+    @Column(name = "price_adult")
     private BigDecimal priceAdult;
 
-    @Column
+    @Column(name = "price_children")
     private BigDecimal priceChildren;
 
-    @Column
+    @Column(name = "price_baby")
     private BigDecimal priceBaby;
 
-    @Column
+    @Column(name = "stock_adult")
     private int stockAdult;
 
-    @Column
+    @Column(name = "stock_children")
     private int stockChildren;
 
-    @Column
+    @Column(name = "stock_baby")
     private int stockBaby;
 
     @Column(name = "status")
     private String status = "active";
 
-    @Column(name = "discountPercentage")
+    @Column(name = "discount_percentage")
     private Integer discount;
 
-    @Column(name = "departureFrom")
+    @Column(name = "departure_from")
     private String departureFrom;
 
 }

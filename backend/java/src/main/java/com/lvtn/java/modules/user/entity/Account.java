@@ -14,7 +14,9 @@ public class Account extends AuditableEntity {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Column(name = "full_name")
     private String fullName;
+
     private String email;
     @Column(length = 1000)
     private String password;
@@ -22,7 +24,10 @@ public class Account extends AuditableEntity {
     private String token;
     private String phone;
     private String avatar;
+
+    @Column(name = "job_title")
     private String jobTitle;
+
     private String status="active";
 
 }
