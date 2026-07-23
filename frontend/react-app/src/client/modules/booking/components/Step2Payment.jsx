@@ -210,9 +210,9 @@ const Step2Payment = () => {
               alt="Cash"
               className="mi-logo"
             />
-            <div className="mi-text">
-              <h4>Thanh toán tại văn phòng</h4>
-              <span>
+            <div className="mi-info">
+              <span className="mi-name">Thanh toán tại văn phòng</span>
+              <span className="mi-desc">
                 Quý khách vui lòng đến trực tiếp văn phòng TravelGo để thanh
                 toán.
               </span>

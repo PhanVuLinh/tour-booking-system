@@ -26,8 +26,7 @@ function OrderBooking() {
 
   const breadcrumbData = {
     title: tour?.title || "Đặt tour",
-    image:
-      tour?.thumbnail ||
+    thumbnail:
       "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80",
     list: buildBookingBreadcrumb(tour),
   };
@@ -418,7 +417,7 @@ function OrderBooking() {
       <Breadcrumb
         title={breadcrumbData.title}
         list={breadcrumbData.list}
-        image={breadcrumbData.image}
+        thumbnail={breadcrumbData.thumbnail}
       />
 
       <div className="b-container">

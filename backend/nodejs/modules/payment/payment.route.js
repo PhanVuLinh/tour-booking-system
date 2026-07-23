@@ -18,9 +18,4 @@ router.get(
   paymentController.getBookingSuccessData,
 );
 
-router.post(
-  "/test/expire/:bookingCode",
-  paymentController.expireBookingForTest,
-);
-
 module.exports = router;

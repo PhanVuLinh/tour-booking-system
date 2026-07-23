@@ -129,26 +129,3 @@ module.exports.getBookingSuccessData = async (req, res) => {
     });
   }
 };
-
-module.exports.expireBookingForTest = async (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    return res.sendStatus(404);
-  }
-
-  try {
-    const result = await paymentService.expireBookingForTestService(
-      req.params.bookingCode,
-    );
-    return res.json({
-      success: true,
-      message: "Đã giả lập hết hạn và hoàn tài nguyên",
-      data: result,
-    });
-  } catch (error) {
-    console.log("Lỗi giả lập hết hạn booking:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.statusCode ? error.message : "Không thể giả lập hết hạn",
-    });
-  }
-};

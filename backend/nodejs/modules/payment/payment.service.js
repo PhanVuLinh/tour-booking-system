@@ -39,18 +39,18 @@ module.exports.createPaymentUrlService = async (bookingCode, ipAddr) => {
     await connection.beginTransaction();
 
     const [rows] = await connection.query(
-      `SELECT
-        p.id AS paymentId,
-        p.booking_id AS bookingId,
-        p.amount,
-        p.paymentMethod,
-        p.paymentType,
-        p.paymentStatus,
-        b.status AS bookingStatus
-       FROM payments p
-       JOIN bookings b ON p.booking_id = b.id
-       WHERE b.bookingCode = ? AND p.paymentMethod = 'vnpay'
-       ORDER BY p.id DESC
+      `select
+        payments.id AS paymentId,
+        payments.booking_id AS bookingId,
+        payments.amount,
+        payments.paymentMethod,
+        payments.paymentType,
+        payments.paymentStatus,
+        bookings.status AS bookingStatus
+       FROM payments 
+       JOIN bookings ON payments.booking_id = bookings.id
+       WHERE bookings.bookingCode = ? AND payments.paymentMethod = 'vnpay'
+       ORDER BY payments.id DESC
        LIMIT 1
        FOR UPDATE`,
       [bookingCode],
@@ -180,14 +180,14 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
     await connection.beginTransaction();
 
     const [rows] = await connection.query(
-      `SELECT
-        p.*,
-        b.id AS bookingId,
-        b.bookingCode,
-        b.status AS bookingStatus
-       FROM payments p
-       JOIN bookings b ON p.booking_id = b.id
-       WHERE p.id = ?
+      `select
+        payments.*,
+        bookings.id AS bookingId,
+        bookings.bookingCode,
+        bookings.status AS bookingStatus
+       from payments 
+       join bookings on payments.booking_id = bookings.id
+       where payments.id = ?
        FOR UPDATE`,
       [paymentId],
     );
@@ -230,9 +230,9 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
 
     if (isSuccess) {
       await connection.query(
-        `UPDATE payments
-         SET paymentStatus = 'paid', transaction_id = ?, paidAt = NOW()
-         WHERE id = ?`,
+        `update payments
+         set paymentStatus = 'paid', transaction_id = ?, paidAt = NOW()
+         where id = ?`,
         [params.vnp_TransactionNo || null, paymentId],
       );
 
@@ -247,15 +247,15 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
       }
 
       await connection.query(
-        "UPDATE bookings SET status = 'confirmed' WHERE id = ?",
+        "update bookings set status = 'confirmed' where id = ?",
         [payment.bookingId],
       );
 
       // Nếu tồn tại payment pending cũ, đóng chúng lại sau khi một lần đã thành công.
       await connection.query(
-        `UPDATE payments
-         SET paymentStatus = 'failed'
-         WHERE booking_id = ? AND id <> ? AND paymentStatus = 'pending'`,
+        `update payments
+         set paymentStatus = 'failed'
+         where booking_id = ? and id <> ? and paymentStatus = 'pending'`,
         [payment.bookingId, paymentId],
       );
 
@@ -264,11 +264,10 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
     }
 
     await connection.query(
-      "UPDATE payments SET paymentStatus = 'failed' WHERE id = ?",
+      "update payments set paymentStatus = 'failed' where id = ?",
       [paymentId],
     );
 
-    // Booking vẫn pending để khách có thể bấm thanh toán lại.
     await connection.commit();
     return {
       success: false,
@@ -287,20 +286,20 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
 
 module.exports.getPaymentStatusService = async (bookingCode) => {
   const [rows] = await pool.query(
-    `SELECT
-      b.id AS bookingId,
-      b.bookingCode,
-      b.status AS bookingStatus,
-      p.id AS paymentId,
-      p.paymentStatus,
-      p.amount,
-      p.transaction_id AS transactionId,
-      p.paidAt
-     FROM bookings b
-     JOIN payments p ON p.booking_id = b.id
-     WHERE b.bookingCode = ? AND p.paymentMethod = 'vnpay'
-     ORDER BY CASE WHEN p.paymentStatus = 'paid' THEN 0 ELSE 1 END, p.id DESC
-     LIMIT 1`,
+    `select
+      bookings.id as bookingId,
+      bookings.bookingCode,
+      bookings.status as bookingStatus,
+      payments.id as paymentId,
+      payments.paymentStatus,
+      payments.amount,
+      payments.transaction_id as transactionId,
+      payments.paidAt
+     from bookings 
+     join payments on payments.booking_id = bookings.id
+     where bookings.bookingCode = ? and payments.paymentMethod = 'vnpay'
+     order by case when payments.paymentStatus = 'paid' then 0 else 1 end, payments.id desc
+     limit 1`,
     [bookingCode],
   );
 
@@ -318,38 +317,38 @@ module.exports.getPaymentStatusService = async (bookingCode) => {
 // Redirect qua cổng thanh toán làm mất location.state của React.
 module.exports.getBookingSuccessDataService = async (bookingId) => {
   const [bookingRows] = await pool.query(
-    `SELECT
-      b.id,
-      b.bookingCode,
-      b.fullName,
-      b.phone,
-      b.email,
-      b.address,
-      b.quantityAdult,
-      b.quantityChildren,
-      b.quantityBaby,
-      b.subTotal,
-      b.discount,
-      b.total,
-      b.note,
-      b.status AS bookingStatus,
-      d.startDate,
-      t.title AS tourTitle,
-      t.thumbnail AS tourThumbnail,
-      p.paymentMethod,
-      p.paymentType,
-      p.amount AS payableAmount,
-      p.paymentStatus
-     FROM bookings b
-     JOIN departures d ON b.departure_id = d.id
-     JOIN tours t ON d.tour_id = t.id
-     JOIN payments p ON p.booking_id = b.id
-     WHERE b.id = ?
-       AND b.deleted = 0
-       AND p.paymentMethod = 'vnpay'
-       AND p.paymentStatus = 'paid'
-     ORDER BY p.id DESC
-     LIMIT 1`,
+    `select
+      bookings.id,
+      bookings.bookingCode,
+      bookings.fullName,
+      bookings.phone,
+      bookings.email,
+      bookings.address,
+      bookings.quantityAdult,
+      bookings.quantityChildren,
+      bookings.quantityBaby,
+      bookings.subTotal,
+      bookings.discount,
+      bookings.total,
+      bookings.note,
+      bookings.status AS bookingStatus,
+      departures.startDate,
+      tours.title AS tourTitle,
+      tours.thumbnail AS tourThumbnail,
+      payments.paymentMethod,
+      payments.paymentType,
+      payments.amount AS payableAmount,
+      payments.paymentStatus
+     from bookings
+     join departures on departures.id = bookings.departure_id
+     join tours on tours.id = departures.tour_id
+     join payments on payments.booking_id = bookings.id
+     where bookings.id = ?
+       and bookings.deleted = 0
+       and payments.paymentMethod = 'vnpay'
+       and payments.paymentStatus = 'paid'
+     order by payments.id desc
+     limit 1`,
     [bookingId],
   );
 
@@ -357,10 +356,10 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
 
   const booking = bookingRows[0];
   const [passengerRows] = await pool.query(
-    `SELECT fullName, dob, gender, identity_card, phone, passengerType
-     FROM passengers
-     WHERE booking_id = ?
-     ORDER BY id ASC`,
+    `select fullName, dob, gender, identity_card, phone, passengerType
+     from passengers
+     where booking_id = ?
+     order by id asc`,
     [bookingId],
   );
 
@@ -425,94 +424,3 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
   };
 };
 
-module.exports.expireBookingForTestService = async (bookingCode) => {
-  const connection = await pool.getConnection();
-
-  try {
-    await connection.beginTransaction();
-
-    const [bookingRows] = await connection.query(
-      `SELECT * FROM bookings WHERE bookingCode = ? FOR UPDATE`,
-      [bookingCode],
-    );
-
-    if (bookingRows.length === 0) {
-      throw createBusinessError("Không tìm thấy đơn hàng");
-    }
-
-    const booking = bookingRows[0];
-    if (booking.status !== "pending") {
-      throw createBusinessError("Chỉ đơn đang chờ mới có thể giả lập hết hạn");
-    }
-
-    const [paymentRows] = await connection.query(
-      `SELECT * FROM payments
-       WHERE booking_id = ? AND paymentMethod = 'vnpay'
-       ORDER BY CASE WHEN paymentStatus = 'paid' THEN 0 ELSE 1 END, id DESC
-       LIMIT 1
-       FOR UPDATE`,
-      [booking.id],
-    );
-
-    if (paymentRows.length === 0) {
-      throw createBusinessError("Đơn hàng không sử dụng VNPay");
-    }
-
-    if (paymentRows[0].paymentStatus === "paid") {
-      throw createBusinessError("Đơn hàng đã thanh toán, không thể hết hạn");
-    }
-
-    await connection.query(
-      "UPDATE bookings SET status = 'cancelled' WHERE id = ?",
-      [booking.id],
-    );
-    await connection.query(
-      `UPDATE payments SET paymentStatus = 'failed'
-       WHERE booking_id = ? AND paymentStatus = 'pending'`,
-      [booking.id],
-    );
-    await connection.query(
-      `UPDATE departures
-       SET stockAdult = stockAdult + ?,
-           stockChildren = stockChildren + ?,
-           stockBaby = stockBaby + ?
-       WHERE id = ?`,
-      [
-        booking.quantityAdult,
-        booking.quantityChildren,
-        booking.quantityBaby,
-        booking.departure_id,
-      ],
-    );
-
-    if (booking.coupon_id) {
-      await connection.query(
-        `UPDATE coupons
-         SET usedCount = GREATEST(usedCount - 1, 0)
-         WHERE id = ?`,
-        [booking.coupon_id],
-      );
-
-      if (booking.user_id) {
-        await connection.query(
-          "DELETE FROM user_coupons WHERE user_id = ? AND coupon_id = ?",
-          [booking.user_id, booking.coupon_id],
-        );
-      }
-    }
-
-    await connection.commit();
-    return {
-      bookingCode: booking.bookingCode,
-      bookingStatus: "cancelled",
-      paymentStatus: "failed",
-      releasedStock: true,
-      releasedCoupon: Boolean(booking.coupon_id),
-    };
-  } catch (error) {
-    await connection.rollback();
-    throw error;
-  } finally {
-    connection.release();
-  }
-};
