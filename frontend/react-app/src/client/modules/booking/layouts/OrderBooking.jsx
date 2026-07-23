@@ -1,17 +1,22 @@
 import { useLocation, Outlet, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Breadcrumb } from "../../../shared";
 import { buildBookingBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { BookingStepper, BookingSidebar } from "../components";
 import { validateBookingStep1 } from "../validations/booking.validator";
-import { createBookingService, checkCouponService } from "../services";
+import {
+  createBookingService,
+  checkCouponService,
+  createVnPayUrlService,
+} from "../services";
 import { formatPrice } from "../../../utils/format.helper";
 
 function OrderBooking() {
   const location = useLocation();
   const navigate = useNavigate();
+  const locationStateRef = useRef(location.state);
 
   const {
     tour = {},
@@ -86,10 +91,14 @@ function OrderBooking() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    locationStateRef.current = location.state;
+  }, [location.state]);
+
+  useEffect(() => {
     navigate(location.pathname, {
       replace: true,
       state: {
-        ...location.state,
+        ...locationStateRef.current,
         passengers: {
           adults: adultCount,
           children: childCount,
@@ -113,6 +122,8 @@ function OrderBooking() {
     couponId,
     paymentType,
     paymentMethod,
+    location.pathname,
+    navigate,
   ]);
 
   const priceAdult = Number(selectedDate.newPriceAdult) || 0;
@@ -203,7 +214,7 @@ function OrderBooking() {
         setCouponId(null);
         toast.error(response.message || "Mã giảm giá không hợp lệ");
       }
-    } catch (error) {
+    } catch {
       setDiscount(0);
       setCouponId(null);
       toast.error("Mã giảm giá không hợp lệ");
@@ -215,6 +226,22 @@ function OrderBooking() {
     setDiscount(0);
     setCouponId(null);
     toast.success("Đã xóa mã giảm giá");
+  };
+
+  const startVnPayPayment = async (bookingCode) => {
+    const paymentResponse = await createVnPayUrlService(bookingCode);
+    const paymentUrl = paymentResponse?.data?.paymentUrl;
+
+    if (!paymentResponse?.success || !paymentUrl) {
+      toast.error(
+        paymentResponse?.message || "Không thể khởi tạo thanh toán VNPAY",
+      );
+      return false;
+    }
+
+    toast.success("Đang chuyển đến cổng thanh toán VNPAY...");
+    window.location.assign(paymentUrl);
+    return true;
   };
 
   const handleNextStep = async () => {
@@ -268,6 +295,19 @@ function OrderBooking() {
       if (isSubmitting) return;
 
       if (location.state?.bookingCode) {
+        if (paymentMethod === "vnpay") {
+          setIsSubmitting(true);
+          try {
+            await startVnPayPayment(location.state.bookingCode);
+          } catch (error) {
+            console.error("Lỗi khởi tạo thanh toán VNPAY:", error);
+            toast.error("Lỗi kết nối khi khởi tạo thanh toán VNPAY");
+          } finally {
+            setIsSubmitting(false);
+          }
+          return;
+        }
+
         toast.error("Đơn đặt tour đã được tạo thành công!");
         navigate("/booking/success", { replace: true, state: location.state });
         return;
@@ -309,32 +349,45 @@ function OrderBooking() {
 
         if (data.success) {
           const bookingResult = data.data || {};
+          const successState = {
+            ...location.state,
+            bookingCode: bookingResult.bookingCode,
+            passengers: {
+              adults: bookingResult.quantityAdult ?? adultCount,
+              children: bookingResult.quantityChildren ?? childCount,
+              infants: bookingResult.quantityBaby ?? infantCount,
+            },
+            subtotal: bookingResult.subTotal ?? subtotal,
+            couponId: bookingResult.coupon_id ?? couponId,
+            discount: bookingResult.discount ?? discount,
+            total: bookingResult.total ?? total,
+            payableAmount: bookingResult.payableAmount ?? payableAmount,
+            remainingAmount: bookingResult.remainingAmount ?? remainingAmount,
+            paymentType: bookingResult.paymentType ?? paymentType,
+            paymentMethod: bookingResult.paymentMethod ?? paymentMethod,
+            formData,
+          };
+
+          if (paymentMethod === "vnpay") {
+            // Lưu bookingCode vào history state để người dùng có thể bấm lại
+            // nếu bước tạo URL VNPAY gặp lỗi mạng sau khi booking đã được tạo.
+            navigate(location.pathname, {
+              replace: true,
+              state: successState,
+            });
+            await startVnPayPayment(bookingResult.bookingCode);
+            return;
+          }
+
           toast.success("Đặt tour thành công!");
           navigate("/booking/success", {
             replace: true,
-            state: {
-              ...location.state,
-              bookingCode: bookingResult.bookingCode,
-              passengers: {
-                adults: bookingResult.quantityAdult ?? adultCount,
-                children: bookingResult.quantityChildren ?? childCount,
-                infants: bookingResult.quantityBaby ?? infantCount,
-              },
-              subtotal: bookingResult.subTotal ?? subtotal,
-              couponId: bookingResult.coupon_id ?? couponId,
-              discount: bookingResult.discount ?? discount,
-              total: bookingResult.total ?? total,
-              payableAmount: bookingResult.payableAmount ?? payableAmount,
-              remainingAmount: bookingResult.remainingAmount ?? remainingAmount,
-              paymentType: bookingResult.paymentType ?? paymentType,
-              paymentMethod: bookingResult.paymentMethod ?? paymentMethod,
-              formData,
-            },
+            state: successState,
           });
         } else {
           toast.error(data.message || "Đặt tour thất bại");
         }
-      } catch (error) {
+      } catch {
         toast.error("Lỗi kết nối đến máy chủ");
       } finally {
         setIsSubmitting(false);
