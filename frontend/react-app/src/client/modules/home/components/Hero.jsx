@@ -5,23 +5,15 @@ function Hero() {
   const navigate = useNavigate();
 
   const [searchData, setSearchData] = useState({
-    locationFrom: "",
+    destination: "",
     quantity: "",
     departureDate: "",
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSearchData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (searchData.locationFrom)
-      params.append("locationFrom", searchData.locationFrom);
+    if (searchData.destination)
+      params.append("destination", searchData.destination);
     if (searchData.quantity) params.append("quantity", searchData.quantity);
     if (searchData.departureDate)
       params.append("date", searchData.departureDate);
@@ -48,9 +40,11 @@ function Hero() {
               <input
                 type="text"
                 placeholder="Bạn muốn đi đâu?"
-                name="locationFrom"
-                value={searchData.locationFrom}
-                onChange={handleInputChange}
+                name="destination"
+                value={searchData.destination}
+                onChange={(e) =>
+                  setSearchData({ ...searchData, destination: e.target.value })
+                }
               />
               <i className="fa-solid fa-chevron-down icon-right"></i>
             </div>
@@ -65,7 +59,9 @@ function Hero() {
                 name="quantity"
                 min="1"
                 value={searchData.quantity}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  setSearchData({ ...searchData, quantity: e.target.value });
+                }}
               />
               <i className="fa-solid fa-chevron-down icon-right"></i>
             </div>
@@ -77,7 +73,12 @@ function Hero() {
                 placeholder="Lịch khởi hành"
                 name="departureDate"
                 value={searchData.departureDate}
-                onChange={handleInputChange}
+                onChange={(e) =>
+                  setSearchData({
+                    ...searchData,
+                    departureDate: e.target.value,
+                  })
+                }
               />
             </div>
 

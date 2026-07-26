@@ -8,7 +8,7 @@ function SearchPage() {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const locationFrom = searchParams.get("locationFrom") || "";
+  const destination = searchParams.get("destination") || "";
   const quantity = searchParams.get("quantity") || "";
   const date = searchParams.get("date") || "";
 
@@ -17,7 +17,7 @@ function SearchPage() {
       setLoading(true);
 
       try {
-        const response = await searchTours({ locationFrom, quantity, date });
+        const response = await searchTours({ destination, quantity, date });
         if (response.success) {
           setTours(response.data);
         } else {
@@ -32,7 +32,7 @@ function SearchPage() {
     };
 
     fetchTours();
-  }, [locationFrom, quantity, date]);
+  }, [destination, quantity, date]);
 
   return (
     <div className="search-page-wrapper">
@@ -48,7 +48,7 @@ function SearchPage() {
             <span className="summary-label">Bạn đang tìm:</span>
             <div className="tag">
               <i className="fa-solid fa-location-dot"></i>
-              {locationFrom ? locationFrom : "Tất cả địa điểm"}
+              {destination ? destination : "Tất cả địa điểm"}
             </div>
             {quantity && (
               <div className="tag">

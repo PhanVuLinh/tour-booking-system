@@ -595,6 +595,15 @@ body {
   color: #999;
 }
 
+.search-input-group input:-webkit-autofill,
+.search-input-group input:-webkit-autofill:hover,
+.search-input-group input:-webkit-autofill:focus,
+.search-input-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: var(--text-dark) !important;
+  transition: background-color 50000s ease-in-out 0s;
+}
+
 .btn-search {
   background-color: var(--color-primary);
   color: var(--white);
@@ -3754,15 +3763,19 @@ input:checked + .slider:before {
 .text-primary {
   color: var(--color-primary) !important;
 }
+
 .text-success {
   color: #10b981 !important;
 }
+
 .text-warning {
   color: #f59e0b !important;
 }
+
 .text-red {
   color: var(--red-main) !important;
 }
+
 .success-warning-text {
   color: #f59e0b !important;
   display: flex;
@@ -3860,7 +3873,8 @@ input:checked + .slider:before {
 
 .btn-action {
   min-height: 50px;
-  border-radius: 25px; /* Bo tròn mạnh cho nút */
+  border-radius: 25px;
+  /* Bo tròn mạnh cho nút */
   padding: 0 30px;
   display: inline-flex;
   align-items: center;
@@ -3892,6 +3906,7 @@ input:checked + .slider:before {
   background: #31009c;
   border-color: #31009c;
 }
+
 .user-dropdown-wrapper {
   position: relative;
   display: inline-block;
@@ -5201,14 +5216,17 @@ input:checked + .slider:before {
   padding: 2px 8px;
   border-radius: 4px;
 }
+
 .type-adult {
   background: #e0f2fe;
   color: #0284c7;
 }
+
 .type-child {
   background: #fef3c7;
   color: #d97706;
 }
+
 .type-baby {
   background: #fce7f3;
   color: #059669;
@@ -5265,6 +5283,7 @@ input:checked + .slider:before {
 .bd-price-row.discount {
   color: #10b981;
 }
+
 .bd-price-row.total strong {
   color: #333;
   font-size: 16px;
@@ -5934,49 +5953,61 @@ input:checked + .slider:before {
     align-items: flex-start;
     gap: 12px;
   }
+
   .hc-date {
     border-left: none;
     padding-left: 0;
   }
+
   .hc-body {
     flex-direction: column;
   }
+
   .hc-img {
     width: 100%;
     height: 180px;
   }
+
   .hc-footer {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
+
   .hc-actions {
     width: 100%;
     justify-content: flex-end;
   }
+
   .bd-tour-card {
     flex-direction: column;
     align-items: flex-start;
   }
+
   .bd-tour-img {
     width: 100%;
     height: auto;
     aspect-ratio: 16/9;
   }
+
   .bd-grid-info {
     grid-template-columns: 1fr;
   }
+
   .bd-pd-body {
     flex-direction: column;
     gap: 5px;
   }
+
   .bd-payment-summary {
     flex-direction: column;
   }
+
   .bd-ps-left {
     border-right: none;
     border-bottom: 1px dashed #ddd;
   }
+
   .bd-ps-right {
     width: 100%;
   }

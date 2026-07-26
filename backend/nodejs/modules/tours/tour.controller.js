@@ -28,9 +28,13 @@ module.exports.getTourDetail = async (req, res) => {
 
 module.exports.searchTours = async (req, res) => {
   try {
-    const { locationFrom, quantity, date } = req.query;
+    const { destination, quantity, date } = req.query;
 
-    const tours = await tourService.searchTours({ locationFrom, quantity, date });
+    const tours = await tourService.searchTours({
+      destination,
+      quantity,
+      date,
+    });
 
     return res.status(200).json({
       success: true,

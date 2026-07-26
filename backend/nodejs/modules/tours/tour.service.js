@@ -107,7 +107,7 @@ module.exports.getTourDetailBySlug = async (slug) => {
   };
 };
 
-module.exports.searchTours = async ({ locationFrom, quantity, date }) => {
+module.exports.searchTours = async ({ destination, quantity, date }) => {
   let sql = `
     SELECT 
       tours.id,
@@ -141,11 +141,9 @@ module.exports.searchTours = async ({ locationFrom, quantity, date }) => {
   `;
   const queryParams = [];
 
-  if (locationFrom) {
-    sql +=
-      " AND (tours.title LIKE ? OR categories.title LIKE ? OR departures.departure_from LIKE ?)";
-    queryParams.push(`%${locationFrom}%`, `%${locationFrom}%`);
-    queryParams.push(`%${locationFrom}%`);
+  if (destination) {
+    sql += " AND (tours.title LIKE ? OR categories.title LIKE ?)";
+    queryParams.push(`%${destination}%`, `%${destination}%`);
   }
 
   if (date) {
