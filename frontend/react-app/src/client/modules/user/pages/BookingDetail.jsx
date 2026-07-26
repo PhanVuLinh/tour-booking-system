@@ -34,6 +34,17 @@ function BookingDetail() {
       });
   }, [id]);
 
+  if (loading) {
+    return (
+      <main className="profile-main b-box">
+        <div className="client-loading-state" style={{ minHeight: "300px" }}>
+          <div className="client-spinner"></div>
+          <p>Đang tải chi tiết đơn đặt tour...</p>
+        </div>
+      </main>
+    );
+  }
+
   if (error || !booking) {
     return (
       <main className="profile-main b-box">

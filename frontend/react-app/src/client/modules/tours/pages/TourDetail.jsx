@@ -10,6 +10,7 @@ function TourDetail() {
   const { slug } = useParams();
 
   const [tourData, setTourData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
 
@@ -18,6 +19,7 @@ function TourDetail() {
   const [infants, setInfants] = useState(0);
 
   useEffect(() => {
+    setLoading(true);
     getTourDetail(slug)
       .then((result) => {
         if (result.success && result.data) {
@@ -31,8 +33,20 @@ function TourDetail() {
       })
       .catch((error) => {
         console.error("Lỗi khi tải chi tiết tour:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="client-loading-state" style={{ minHeight: "60vh" }}>
+        <div className="client-spinner"></div>
+        <p>Đang tải thông tin chi tiết tour...</p>
+      </div>
+    );
+  }
 
   const tourDetail = tourData || {};
   const departures = tourData?.departures || [];

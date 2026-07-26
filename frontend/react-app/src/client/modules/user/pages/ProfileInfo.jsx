@@ -5,7 +5,7 @@ import { updateProfile } from "../services/userService";
 import { validateProfileForm } from "../validations/user.validator";
 
 function ProfileInfo() {
-  const { profile, setProfile } = useOutletContext();
+  const { profile, setProfile, isProfileLoaded } = useOutletContext();
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -73,6 +73,17 @@ function ProfileInfo() {
     setErrors({});
     setIsEditing(false);
   };
+
+  if (isProfileLoaded === false) {
+    return (
+      <main className="profile-main b-box">
+        <div className="client-loading-state" style={{ padding: "60px 0" }}>
+          <div className="client-spinner"></div>
+          <p>Đang tải thông tin cá nhân...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="profile-main b-box">

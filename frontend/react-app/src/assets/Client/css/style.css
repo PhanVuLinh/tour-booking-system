@@ -1105,7 +1105,7 @@ body {
 
 /* Các thẻ Tags tóm tắt thông tin tìm kiếm */
 .search-summary-tags {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
@@ -1114,7 +1114,6 @@ body {
   padding: 15px 25px;
   border-radius: 50px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-  display: inline-flex;
 }
 
 .summary-label {
@@ -1160,7 +1159,6 @@ body {
   gap: 25px;
 }
 
-/* --- TRẠNG THÁI LOADING (ĐANG TẢI) --- */
 /* --- TRẠNG THÁI TRỐNG (KHÔNG CÓ KẾT QUẢ) --- */
 .search-empty-state {
   display: flex;

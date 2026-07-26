@@ -45,7 +45,12 @@ function ProfileHistory() {
       </div>
 
       <div className="history-list-wrapper">
-        {bookings.length > 0 ? (
+        {loading ? (
+          <div className="client-loading-state" style={{ padding: "60px 0" }}>
+            <div className="client-spinner"></div>
+            <p>Đang tải lịch sử đặt tour...</p>
+          </div>
+        ) : bookings.length > 0 ? (
           <div className="history-list">
             {bookings.map((booking) => (
               <HistoryCard key={booking.id} booking={booking} />
