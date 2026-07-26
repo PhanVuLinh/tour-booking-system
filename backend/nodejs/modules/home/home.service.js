@@ -1,17 +1,6 @@
 const { pool } = require("../../config/database");
 
 module.exports.getFlashSales = async () => {
-  // const sql = `
-  //   select *
-  //   from tours join departures on tours.id = departures.tour_id
-  //   where tours.deleted = 0 and departures.deleted = 0
-  //   ORDER BY departures.start_date ASC
-
-  // `;
-
-  // const sql =
-  //   "SELECT * FROM tours JOIN departures ON tours.id = departures.tour_id;";
-
   const sql = `
     SELECT 
         tours.id,
@@ -30,11 +19,11 @@ module.exports.getFlashSales = async () => {
         vehicles.vehicle_type AS vehicle_type
     FROM tours 
     JOIN departures ON tours.id = departures.tour_id
-    join vehicles ON vehicles.id = departures.vehicle_id
+    LEFT JOIN vehicles ON vehicles.id = departures.vehicle_id
     WHERE tours.deleted = 0 
-      AND tours.status ="active"
+      AND tours.status ='active'
       AND departures.deleted = 0
-      AND departures.status ="active"
+      AND departures.status ='active'
       AND departures.discount_percentage > 0
       AND departures.start_date >= NOW()
     ORDER BY departures.start_date ASC
@@ -102,8 +91,7 @@ module.exports.getForeignTours = async () => {
     "SELECT id FROM categories WHERE parent_id = ? AND deleted = 0 AND status = 'active'";
   const [children] = await pool.query(sqlChildren, [parent_id]);
 
-  const categoryIds =
-    children.length > 0 ? children.map((item) => item.id) : [parent_id];
+  const categoryIds = [parent_id, ...children.map((item) => item.id)];
 
   const sqlTours = `
     SELECT 
@@ -139,8 +127,12 @@ module.exports.getForeignTours = async () => {
 };
 
 module.exports.getBlogs = async () => {
-  const sql =
-    "SELECT id,title,slug,thumbnail,description,created_at FROM blogs WHERE deleted = 0 AND status = 'active' LIMIT 5";
+  const sql = `SELECT id,title,slug,thumbnail,description,created_at 
+      FROM blogs 
+      WHERE deleted = 0 
+        AND status = 'active' 
+      ORDER BY created_at DESC
+      LIMIT 5`;
 
   const [rows] = await pool.query(sql);
 
