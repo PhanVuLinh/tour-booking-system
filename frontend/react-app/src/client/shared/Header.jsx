@@ -277,14 +277,14 @@ function Header() {
               )}
 
               {/* Nút Admin */}
-              <div className="nav-actions">
+              {/* <div className="nav-actions">
                 <Link to="/admin/login" className="action-btn">
                   <button className="btn-login-header">
                     <i className="fa-solid fa-user-shield"></i>
                     <span>Admin</span>
                   </button>
                 </Link>
-              </div>
+              </div> */}
             </div>
           </div>
         </nav>

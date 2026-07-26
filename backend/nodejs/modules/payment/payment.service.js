@@ -231,7 +231,7 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
     if (isSuccess) {
       await connection.query(
         `update payments
-         set payment_status = 'paid', transaction_id = ?, paidAt = NOW()
+         set payment_status = 'paid', transaction_id = ?, paid_at = NOW()
          where id = ?`,
         [params.vnp_TransactionNo || null, paymentId],
       );
@@ -309,7 +309,8 @@ module.exports.getPaymentStatusService = async (booking_code) => {
   return {
     ...payment,
     canRetry:
-      payment.bookingStatus === "pending" && payment.payment_status === "failed",
+      payment.bookingStatus === "pending" &&
+      payment.payment_status === "failed",
   };
 };
 
@@ -423,4 +424,3 @@ module.exports.getBookingSuccessDataService = async (bookingId) => {
     bookingStatus: booking.bookingStatus,
   };
 };
-
