@@ -5,9 +5,9 @@ import {
   News,
   BannerAd,
   BannerForeign,
+  DomesticTours,
+  ForeignTours,
 } from "../components";
-
-import { DomesticTours, ForeignTours } from "../../tours/components";
 
 function Home() {
   return (

@@ -1,36 +1,36 @@
-import TourCard from "./TourCard";
+import TourCard from "../../tours/components/TourCard";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getDomesticTours } from "../../home/services/homeService";
+import { getForeignTours } from "../services/homeService";
 
-function DomesticTours() {
-  const [tourDomesticTours, setTourDomesticTours] = useState([]);
+function ForeignTours() {
+  const [tourForeignTours, setTourForeignTours] = useState([]);
 
   useEffect(() => {
-    getDomesticTours()
+    getForeignTours()
       .then((result) => {
         if (result.success) {
-          setTourDomesticTours(result.data);
+          setTourForeignTours(result.data);
         }
       })
       .catch((error) => {
-        console.error("Lỗi khi tải tour domestic tours:", error);
+        console.error("Lỗi khi tải tour Foreign tours:", error);
       });
   }, []);
 
   return (
     <section className="tour-section">
       <div className="container">
-        <h2 className="section-title">Khám Phá Tour Trong Nước</h2>
+        <h2 className="section-title">Khám Phá Tour Nước Ngoài</h2>
 
         <div className="tour-grid-4">
-          {tourDomesticTours.map((item) => (
+          {tourForeignTours.map((item) => (
             <TourCard key={item.id} tour={item} />
           ))}
         </div>
 
         <div className="btn-view-all-wrap">
-          <Link to="/category/tour-trong-nuoc" className="btn-view-all">
+          <Link to="/category/tour-quoc-te" className="btn-view-all">
             Xem tất cả
           </Link>
         </div>
@@ -39,4 +39,4 @@ function DomesticTours() {
   );
 }
 
-export default DomesticTours;
+export default ForeignTours;

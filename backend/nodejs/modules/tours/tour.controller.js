@@ -28,24 +28,27 @@ module.exports.getTourDetail = async (req, res) => {
 
 module.exports.searchTours = async (req, res) => {
   try {
-    const { destination, quantity, date } = req.query;
+    const { destination, quantity, date, page = 1, limit = 8 } = req.query;
 
     const tours = await tourService.searchTours({
       destination,
       quantity,
       date,
+      page,
+      limit,
     });
 
     return res.status(200).json({
       success: true,
-      message: "Tim kiem tour thanh cong!",
-      data: tours,
+      message: "Tìm kiếm tour thành công!",
+      data: tours.tours,
+      pagination: tours.pagination,
     });
   } catch (error) {
-    console.error("Loi Controller searchTours:", error);
+    console.error("Lỗi Controller searchTours:", error);
     return res.status(500).json({
       success: false,
-      message: "Da xay ra loi he thong ben Server!",
+      message: "Đã xảy ra lỗi hệ thống bên Server!",
     });
   }
 };

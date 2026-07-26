@@ -34,15 +34,31 @@ export const getTourDetail = async (slug) => {
   return result;
 };
 
-export const searchTours = async (filterParams = {}) => {
-  const queryParams = new URLSearchParams();
+export const searchTours = async ({
+  destination = "",
+  quantity = "",
+  date = "",
+  page = 1,
+  limit = 8,
+} = {}) => {
+  const queryParams = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
 
-  if (filterParams.destination)
-    queryParams.append("destination", filterParams.destination);
-  if (filterParams.quantity)
-    queryParams.append("quantity", filterParams.quantity);
-  if (filterParams.date) queryParams.append("date", filterParams.date);
+  if (destination) {
+    queryParams.append("destination", destination);
+  }
+
+  if (quantity) {
+    queryParams.append("quantity", quantity);
+  }
+
+  if (date) {
+    queryParams.append("date", date);
+  }
 
   const result = await get(`/tours/search?${queryParams.toString()}`);
+
   return result;
 };

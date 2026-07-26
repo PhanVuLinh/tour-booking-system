@@ -70,6 +70,7 @@ module.exports.getTourDetailBySlug = async (slug) => {
     WHERE departures.tour_id = ? 
       AND departures.deleted = 0 
       AND departures.status = 'active'
+      AND departures.start_date >= NOW()
     ORDER BY departures.start_date ASC
   `;
 
@@ -107,43 +108,39 @@ module.exports.getTourDetailBySlug = async (slug) => {
   };
 };
 
-module.exports.searchTours = async ({ destination, quantity, date }) => {
+module.exports.searchTours = async ({
+  destination,
+  quantity,
+  date,
+  page = 1,
+  limit = 8,
+}) => {
+  const currentPage = Math.max(Number.parseInt(page, 10) || 1, 1);
+  const pageLimit = Math.max(Number.parseInt(limit, 10) || 8, 1);
+  const offset = (currentPage - 1) * pageLimit;
+
   let sql = `
-    SELECT 
-      tours.id,
-      tours.slug,
-      tours.title,
-      tours.thumbnail,
-      tours.time,
-      departures.id AS departure_id,
-      departures.departure_from,
-      departures.start_date,
-      departures.price_adult AS oldPrice,
-      departures.discount_percentage,
-      (
-        departures.price_adult - (
-          departures.price_adult * IFNULL(departures.discount_percentage, 0) / 100
-        )
-      ) AS newPrice,
-      (
-        departures.stock_adult + departures.stock_children + departures.stock_baby
-      ) AS slots,
-      vehicles.name AS vehicleName,
-      vehicles.vehicle_type AS vehicle_type
-    FROM tours 
+    FROM tours
     LEFT JOIN categories ON tours.category_id = categories.id
-    LEFT JOIN departures ON tours.id = departures.tour_id
+    JOIN departures ON tours.id = departures.tour_id
     LEFT JOIN vehicles ON departures.vehicle_id = vehicles.id
     WHERE tours.deleted = 0
-      AND tours.status = 'active' 
-      AND departures.deleted = 0 
+      AND tours.status = 'active'
+      AND departures.deleted = 0
       AND departures.status = 'active'
+      AND departures.start_date >= NOW()
   `;
   const queryParams = [];
 
-  if (destination) {
-    sql += " AND (tours.title LIKE ? OR categories.title LIKE ?)";
-    queryParams.push(`%${destination}%`, `%${destination}%`);
+  if (destination?.trim()) {
+    const keyword = `%${destination.trim()}%`;
+    sql += `
+    AND (
+      tours.title LIKE ?
+      OR categories.title LIKE ?
+    )
+  `;
+    queryParams.push(keyword, keyword);
   }
 
   if (date) {
@@ -152,15 +149,79 @@ module.exports.searchTours = async ({ destination, quantity, date }) => {
   }
 
   if (quantity) {
-    const num = parseInt(quantity, 10);
-    if (!isNaN(num)) {
-      sql += ` AND (departures.stock_adult + departures.stock_children + departures.stock_baby) >= ?`;
+    const num = Number.parseInt(quantity, 10);
+    if (!Number.isNaN(num) && num > 0) {
+      sql += `
+      AND (
+        departures.stock_adult +
+        departures.stock_children +
+        departures.stock_baby
+      ) >= ?
+    `;
       queryParams.push(num);
     }
   }
 
-  sql += ` ORDER BY departures.start_date ASC, tours.created_at DESC`;
+  const countSql = `
+    SELECT COUNT(*) AS totalTours
+    ${sql}
+  `;
 
-  const [tours] = await pool.query(sql, queryParams);
-  return tours;
+  const [countRows] = await pool.query(countSql, queryParams);
+
+  const totalTours = Number(countRows[0].totalTours);
+  const totalPages = Math.max(Math.ceil(totalTours / pageLimit), 1);
+
+  const dataSql = `
+    SELECT
+      tours.id,
+      tours.slug,
+      tours.title,
+      tours.thumbnail,
+      tours.time,
+
+      departures.id AS departure_id,
+      departures.departure_from,
+      departures.start_date,
+      departures.price_adult AS oldPrice,
+      departures.discount_percentage,
+
+      (
+        departures.price_adult -
+        (
+          departures.price_adult *
+          IFNULL(departures.discount_percentage, 0) / 100
+        )
+      ) AS newPrice,
+
+      (
+        departures.stock_adult +
+        departures.stock_children +
+        departures.stock_baby
+      ) AS slots,
+
+      vehicles.name AS vehicleName,
+      vehicles.vehicle_type AS vehicle_type
+
+    ${sql}
+
+    ORDER BY
+      departures.start_date ASC,
+      tours.created_at DESC
+
+    LIMIT ? OFFSET ?
+  `;
+
+  const dataParams = [...queryParams, pageLimit, offset];
+
+  const [tours] = await pool.query(dataSql, dataParams);
+  return {
+    tours: tours,
+    pagination: {
+      currentPage: currentPage,
+      totalPages: totalPages,
+      totalTours: totalTours,
+      limit: pageLimit,
+    },
+  };
 };
