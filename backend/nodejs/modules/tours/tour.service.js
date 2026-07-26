@@ -1,5 +1,10 @@
 const { pool } = require("../../config/database");
 
+const {
+  getPagination,
+  getPaginationMeta,
+} = require("../../helpers/pagination.helper");
+
 module.exports.getTourDetailBySlug = async (slug) => {
   const sqlTour = `
     SELECT 
@@ -115,9 +120,7 @@ module.exports.searchTours = async ({
   page = 1,
   limit = 8,
 }) => {
-  const currentPage = Math.max(Number.parseInt(page, 10) || 1, 1);
-  const pageLimit = Math.max(Number.parseInt(limit, 10) || 8, 1);
-  const offset = (currentPage - 1) * pageLimit;
+  const { currentPage, pageLimit, offset } = getPagination(page, limit, 8);
 
   let sql = `
     FROM tours
@@ -169,8 +172,11 @@ module.exports.searchTours = async ({
 
   const [countRows] = await pool.query(countSql, queryParams);
 
-  const totalTours = Number(countRows[0].totalTours);
-  const totalPages = Math.max(Math.ceil(totalTours / pageLimit), 1);
+  const paginationMeta = getPaginationMeta(
+    countRows[0].totalTours,
+    currentPage,
+    pageLimit,
+  );
 
   const dataSql = `
     SELECT
@@ -218,10 +224,10 @@ module.exports.searchTours = async ({
   return {
     tours: tours,
     pagination: {
-      currentPage: currentPage,
-      totalPages: totalPages,
-      totalTours: totalTours,
-      limit: pageLimit,
+      currentPage: paginationMeta.currentPage,
+      totalPages: paginationMeta.totalPages,
+      totalTours: paginationMeta.totalItems,
+      limit: paginationMeta.limit,
     },
   };
 };

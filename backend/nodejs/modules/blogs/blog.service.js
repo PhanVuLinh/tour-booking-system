@@ -1,8 +1,12 @@
 const { pool } = require("../../config/database");
+const {
+  getPagination,
+  getPaginationMeta,
+} = require("../../helpers/pagination.helper");
 
 module.exports.getBlogs = async (page = 1, limit = 9, sort = "created_at") => {
   try {
-    const offset = (page - 1) * limit;
+    const { currentPage, pageLimit, offset } = getPagination(page, limit, 9);
 
     let orderBy = "ORDER BY created_at DESC";
     if (sort === "oldest") orderBy = "ORDER BY created_at ASC";
@@ -15,7 +19,7 @@ module.exports.getBlogs = async (page = 1, limit = 9, sort = "created_at") => {
     limit ? offset ?
   `;
 
-    const [blogs] = await pool.query(sql, [parseInt(limit), parseInt(offset)]);
+    const [blogs] = await pool.query(sql, [pageLimit, offset]);
 
     const countSql = `
     select count(*) as total
@@ -24,13 +28,15 @@ module.exports.getBlogs = async (page = 1, limit = 9, sort = "created_at") => {
   `;
     const [countResult] = await pool.query(countSql);
     const total = countResult[0].total;
+    const paginationMeta = getPaginationMeta(total, currentPage, pageLimit);
 
     return {
       blogs,
       pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(total / limit),
-        totalBlogs: total,
+        currentPage: paginationMeta.currentPage,
+        totalPages: paginationMeta.totalPages,
+        totalBlogs: paginationMeta.totalItems,
+        limit: paginationMeta.limit,
       },
     };
   } catch (error) {

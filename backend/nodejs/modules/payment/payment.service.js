@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const moment = require("moment");
 const querystring = require("qs");
 const { pool } = require("../../config/database");
-const sortPayHelper = require("../../utils/sortPay.helper");
+const sortPayHelper = require("../../helpers/sortPay.helper");
 
 const createBusinessError = (message) => {
   const error = new Error(message);

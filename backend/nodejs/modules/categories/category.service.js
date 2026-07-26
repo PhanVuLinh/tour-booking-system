@@ -1,4 +1,8 @@
 const { pool } = require("../../config/database");
+const {
+  getPagination,
+  getPaginationMeta,
+} = require("../../helpers/pagination.helper");
 
 const buildCategoryTree = (categories, parent_id = null) => {
   const tree = [];
@@ -32,7 +36,20 @@ module.exports.getCategoryTree = async () => {
   return categoryTree;
 };
 
-module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, departure_from = null, priceLevel = null, start_date = null, adults = 0, children = 0, babies = 0, sort = null) => {
+module.exports.getCategoryAndToursBySlug = async (
+  slug,
+  page = 1,
+  limit = 9,
+  departure_from = null,
+  priceLevel = null,
+  start_date = null,
+  adults = 0,
+  children = 0,
+  babies = 0,
+  sort = null,
+) => {
+  const { currentPage, pageLimit, offset } = getPagination(page, limit, 9);
+
   const [categories] = await pool.query(
     `SELECT 
         c1.id, 
@@ -59,6 +76,7 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, dep
         AND tours.status = 'active'
         AND departures.deleted = 0
         AND departures.status = 'active'
+        AND departures.start_date >= NOW()
   `;
   const queryParams = [category.id, category.id];
 
@@ -125,8 +143,7 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, dep
 
   const [countResult] = await pool.query(countSql, queryParams);
   const totalTours = countResult[0].total;
-  const totalPages = Math.ceil(totalTours / limit);
-  const offset = (page - 1) * limit;
+  const paginationMeta = getPaginationMeta(totalTours, currentPage, pageLimit);
 
   let sortQuery = "ORDER BY tours.id DESC";
   if (sort === "priceAsc") {
@@ -139,17 +156,18 @@ module.exports.getCategoryAndToursBySlug = async (slug, page = 1, limit = 9, dep
 
   const [tours] = await pool.query(
     sqlTours + ` ${sortQuery} LIMIT ? OFFSET ?`,
-    [...queryParams, limit, offset],
+    [...queryParams, pageLimit, offset],
   );
 
   return {
     category: category,
     tours: tours,
     pagination: {
-      currentPage: page,
-      totalPages: totalPages,
-      totalTours: totalTours
-    }
+      currentPage: paginationMeta.currentPage,
+      totalPages: paginationMeta.totalPages,
+      totalTours: paginationMeta.totalItems,
+      limit: paginationMeta.limit,
+    },
   };
 };
 
@@ -160,5 +178,5 @@ module.exports.getDepartureLocations = async () => {
     WHERE deleted = 0 AND status = 'active' AND departure_from IS NOT NULL AND departure_from != ''
   `;
   const [rows] = await pool.query(sql);
-  return rows.map(row => row.departure_from);
+  return rows.map((row) => row.departure_from);
 };
