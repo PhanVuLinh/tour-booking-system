@@ -86,7 +86,7 @@ module.exports.getCategoryAndToursBySlug = async (
   }
 
   if (priceLevel) {
-    const priceCalc = `(departures.price_adult - (departures.price_adult * IFNULL(departures.discount_percentage, 0) / 100))`;
+    const priceCalc = `(departures.price_adult - (departures.price_adult * departures.discount_percentage / 100))`;
     if (priceLevel === "1") {
       sqlConditions += ` AND ${priceCalc} < 5000000`;
     } else if (priceLevel === "2") {
@@ -126,7 +126,7 @@ module.exports.getCategoryAndToursBySlug = async (
         departures.start_date,
         departures.price_adult AS oldPrice,
         departures.discount_percentage,
-        (departures.price_adult - (departures.price_adult * IFNULL(departures.discount_percentage, 0) / 100)) AS newPrice,
+        (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) AS newPrice,
         (departures.stock_adult + departures.stock_children + departures.stock_baby) AS slots,
         vehicles.name AS vehicleName,
         vehicles.vehicle_type AS vehicle_type

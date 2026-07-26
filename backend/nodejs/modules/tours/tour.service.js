@@ -196,7 +196,7 @@ module.exports.searchTours = async ({
         departures.price_adult -
         (
           departures.price_adult *
-          IFNULL(departures.discount_percentage, 0) / 100
+          departures.discount_percentage / 100
         )
       ) AS newPrice,
 
