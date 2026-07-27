@@ -20,16 +20,7 @@ export default function BookingLookup() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!code) {
-      setInputCode("");
-      setBooking(null);
-      setLoading(false);
-      return;
-    }
-
-    const bookingCode = code.trim().toUpperCase();
-
+  const fetchBooking = (bookingCode) => {
     setInputCode(bookingCode);
     setBooking(null);
     setLoading(true);
@@ -53,6 +44,18 @@ export default function BookingLookup() {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    if (!code) {
+      setInputCode("");
+      setBooking(null);
+      setLoading(false);
+      return;
+    }
+
+    const bookingCode = code.trim().toUpperCase();
+    fetchBooking(bookingCode);
   }, [code]);
 
   const handleSearchSubmit = (e) => {
@@ -65,7 +68,11 @@ export default function BookingLookup() {
       return;
     }
 
-    navigate(`/booking/lookup/${encodeURIComponent(bookingCode)}`);
+    if (code && code.trim().toUpperCase() === bookingCode) {
+      fetchBooking(bookingCode);
+    } else {
+      navigate(`/booking/lookup/${encodeURIComponent(bookingCode)}`);
+    }
   };
 
   return (
@@ -110,7 +117,7 @@ export default function BookingLookup() {
               disabled={loading}
             >
               <i className="fa-solid fa-search"></i>
-              {loading ? " Đang tra cứu..." : " Tra cứu"}
+              {loading ? " Tra cứu..." : " Tra cứu"}
             </button>
           </form>
         </div>

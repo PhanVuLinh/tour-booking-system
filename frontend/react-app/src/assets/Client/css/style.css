@@ -5314,7 +5314,6 @@ input:checked + .slider:before {
 /* =========================================
    LAYOUT TRANG TRA CỨU ĐƠN HÀNG (BOOKING LOOKUP)
    ========================================= */
-/* 1. Khối tìm kiếm */
 .lookup-search-box {
   max-width: 700px;
   margin: 0 auto 40px;
@@ -5324,27 +5323,32 @@ input:checked + .slider:before {
   border-radius: 16px;
   background-color: var(--white);
 }
+
 .lookup-title {
   font-size: 24px;
   color: var(--text-dark);
   margin-bottom: 10px;
   font-weight: 600;
 }
+
 .lookup-title-icon {
   color: var(--color-primary);
   margin-right: 10px;
 }
+
 .lookup-desc {
   color: #666;
   font-size: 15px;
   margin-bottom: 25px;
 }
+
 .lookup-form {
   display: flex;
   gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
 }
+
 .lookup-input {
   flex: 1;
   min-width: 250px;
@@ -5354,6 +5358,7 @@ input:checked + .slider:before {
   border-radius: 10px;
   border: 1.5px solid #ccc;
 }
+
 .lookup-submit-btn {
   padding: 12px 28px;
   font-size: 16px;
@@ -5363,7 +5368,7 @@ input:checked + .slider:before {
   gap: 8px;
   cursor: pointer;
 }
-/* 2. Khối hiển thị chi tiết đơn hàng */
+
 .lookup-detail-card {
   max-width: 900px;
   margin: 0 auto;
@@ -5372,6 +5377,7 @@ input:checked + .slider:before {
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
+
 .lookup-detail-header {
   flex-direction: column;
   align-items: flex-start;
@@ -5380,6 +5386,7 @@ input:checked + .slider:before {
   padding-bottom: 20px;
   margin-bottom: 25px;
 }
+
 .lookup-header-inner {
   display: flex;
   justify-content: space-between;
@@ -5388,39 +5395,49 @@ input:checked + .slider:before {
   flex-wrap: wrap;
   gap: 10px;
 }
+
 .lookup-header-title {
   margin: 0;
   font-size: 22px;
 }
+
 .lookup-highlight-code {
   color: var(--color-primary);
 }
+
 .lookup-section {
   margin-bottom: 30px;
 }
+
 .lookup-section-title {
   font-size: 18px;
   margin-bottom: 15px;
 }
+
 .lookup-section-icon {
   margin-right: 8px;
   color: var(--color-primary);
 }
+
 .lookup-tour-title {
   font-size: 18px;
   margin-bottom: 12px;
 }
+
 .lookup-note-box {
   margin-top: 15px;
 }
+
 .lookup-status-unpaid {
   color: #d97706;
   font-weight: 600;
 }
+
 .lookup-status-paid {
   color: #16a34a;
   font-weight: 600;
 }
+
 .lookup-amount-red {
   font-size: 18px;
   color: var(--red-main);
