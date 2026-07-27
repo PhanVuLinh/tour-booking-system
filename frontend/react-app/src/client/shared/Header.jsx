@@ -201,6 +201,18 @@ function Header() {
                 </li>
                 <li>
                   <Link
+                    to="/booking/lookup"
+                    className={
+                      location.pathname.startsWith("/booking/lookup")
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    Tra Cứu Đơn
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/support"
                     className={
                       location.pathname.startsWith("/support") ? "active" : ""

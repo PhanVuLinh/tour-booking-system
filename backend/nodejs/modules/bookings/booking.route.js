@@ -12,4 +12,6 @@ router.post(
   bookingController.createBooking,
 );
 
+router.get("/lookup/:code", bookingController.lookupBooking);
+
 module.exports = router;

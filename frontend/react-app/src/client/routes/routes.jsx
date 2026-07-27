@@ -25,6 +25,7 @@ import {
   BookingPayment,
   BookingSuccess,
   BookingFailed,
+  BookingLookup,
 } from "../modules/booking";
 
 import {
@@ -119,6 +120,10 @@ export const clientRoutes = [
       {
         path: "booking/failed",
         element: <BookingFailed />,
+      },
+      {
+        path: "booking/lookup/:code?",
+        element: <BookingLookup />,
       },
       {
         element: <PrivateRoute />,

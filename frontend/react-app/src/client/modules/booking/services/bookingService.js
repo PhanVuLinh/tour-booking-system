@@ -21,3 +21,7 @@ export const getVnPayPaymentStatusService = async (booking_code) => {
 export const getVnPayBookingResultService = async (bookingId) => {
   return await get(`/payments/booking/${bookingId}/result`);
 };
+
+export const lookupBookingService = async (code) => {
+  return await get(`/booking/lookup/${encodeURIComponent(code)}`);
+};

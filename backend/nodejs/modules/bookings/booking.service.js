@@ -220,7 +220,8 @@ module.exports.createBooking = async (bookingData) => {
 
     // Bước 6: Backend tự tính tổng tiền phải thanh toán
     const total = Math.max(sub_total - discount, 0);
-    const payable_amount = payment_type === "50" ? Math.ceil(total * 0.5) : total;
+    const payable_amount =
+      payment_type === "50" ? Math.ceil(total * 0.5) : total;
     const remainingAmount = Math.max(total - payable_amount, 0);
 
     // Bước 7: Kiểm tra danh sách hành khách
@@ -474,5 +475,98 @@ module.exports.createBooking = async (bookingData) => {
     };
   } finally {
     connection.release();
+  }
+};
+
+module.exports.getBookingByCode = async (code) => {
+  try {
+    const sqlBooking = `
+    select 
+      bookings.id,
+      bookings.booking_code,
+      bookings.full_name AS contactName,
+      bookings.phone AS contactPhone,
+      bookings.email AS contactEmail,
+      bookings.address AS contactAddress,
+      bookings.sub_total,
+      bookings.discount,
+      bookings.total,
+      bookings.note,
+      bookings.status,
+      bookings.created_at,
+      departures.start_date,
+      departures.departure_from,
+      tours.title AS tourTitle,
+      tours.thumbnail AS tourThumbnail
+    from bookings 
+      join departures on  bookings.departure_id = departures.id
+      join tours on departures.tour_id = tours.id
+    where bookings.booking_code = ? 
+        and bookings.deleted = 0
+  `;
+    const [bookings] = await pool.query(sqlBooking, [code]);
+
+    if (bookings.length === 0) return null;
+    const booking = bookings[0];
+
+    const sqlPassengers = `
+    select id, full_name, dob, gender, identity_card, passenger_type 
+    from passengers
+    where booking_id = ?
+  `;
+    const [passengers] = await pool.query(sqlPassengers, [booking.id]);
+
+    const sqlPayment = `
+    select payment_method, payment_type, amount AS payable_amount, payment_status
+    from payments
+    where booking_id = ?
+    order by id desc 
+    limit 1
+  `;
+
+    const [payments] = await pool.query(sqlPayment, [booking.id]);
+    const payment = payments[0];
+
+    return {
+      id: booking.id,
+      booking_code: booking.booking_code,
+      tour: {
+        title: booking.tourTitle,
+        thumbnail: booking.tourThumbnail,
+        start_date: booking.start_date,
+        departure_from: booking.departure_from,
+      },
+      contact: {
+        full_name: booking.contactName,
+        phone: booking.contactPhone,
+        email: booking.contactEmail,
+        address: booking.contactAddress,
+      },
+      passengers: passengers.map((item) => ({
+        id: item.id,
+        full_name: item.full_name,
+        dob: item.dob,
+        gender: item.gender,
+        identity_card: item.identity_card,
+        passenger_type: item.passenger_type,
+      })),
+      payment: {
+        method: payment.payment_method,
+        type: payment.payment_type,
+        payable_amount: Number(payment.payable_amount),
+        status: payment.payment_status,
+      },
+      pricing: {
+        sub_total: Number(booking.sub_total),
+        discount: Number(booking.discount),
+        total: Number(booking.total),
+      },
+      note: booking.note,
+      status: booking.status,
+      created_at: booking.created_at,
+    };
+  } catch (error) {
+    console.error("Lỗi getBookingByCode Service:", error);
+    throw new Error("Lỗi CSDL khi tra cứu đơn tour");
   }
 };

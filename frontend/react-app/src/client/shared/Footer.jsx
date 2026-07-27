@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { postCreateContact, getHeaderCategories } from "./services/sharedService";
+import {
+  postCreateContact,
+  getHeaderCategories,
+} from "./services/sharedService";
 
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 
@@ -82,7 +85,10 @@ function Footer() {
               <Link to="/article">Tin Tức</Link>
             </li>
             <li>
-              <Link to="/contact">Liên Hệ</Link>
+              <Link to="/booking/lookup">Tra Cứu Đơn</Link>
+            </li>
+            <li>
+              <Link to="/support">Hỗ Trợ</Link>
             </li>
           </ul>
 

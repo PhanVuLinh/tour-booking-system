@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { toast } from "sonner";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
+import { getPaymentTypeName } from "../../../utils/booking.helper";
 import {
   getVnPayBookingResultService,
 } from "../services";
@@ -108,8 +109,7 @@ export default function BookingSuccess() {
   ];
 
   const totalPassengers = adultCount + childCount + infantCount;
-  const paymentLabel =
-    payment_type === "50" ? "Đặt cọc 50%" : "Thanh toán toàn bộ 100%";
+  const paymentLabel = getPaymentTypeName(payment_type);
 
   return (
     <div className="step3-success-wrapper">

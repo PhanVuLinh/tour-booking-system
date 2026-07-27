@@ -25,3 +25,14 @@ export const getPaymentMethodName = (method) => {
       return method || "Chưa xác định";
   }
 };
+
+export const getPaymentTypeName = (type) => {
+  switch (String(type)) {
+    case "50":
+      return "Đặt cọc 50%";
+    case "100":
+      return "Thanh toán toàn bộ 100%";
+    default:
+      return "Thanh toán toàn bộ 100%";
+  }
+};
