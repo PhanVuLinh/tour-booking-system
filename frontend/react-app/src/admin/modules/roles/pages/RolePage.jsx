@@ -36,7 +36,7 @@ const RolePage = () => {
         isAdmin: isSuperAdmin,
         canManagePermissions: isSuperAdmin || permissions.includes("UPDATE_ROLE"), 
         canCreateRole: isSuperAdmin || permissions.includes("CREATE_ROLE"),      
-      };
+       };
     } catch (e) {
       return { isAdmin: false, canManagePermissions: false, canCreateRole: false };
     }

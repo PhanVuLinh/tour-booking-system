@@ -32,7 +32,7 @@ public class BookingController {
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_BOOKING_STATUS')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_BOOKING')")
     public ResponseEntity<ApiResponse<BookingResponse>> updateStatus(
             @PathVariable Integer id,
             @Valid @RequestBody BookingStatusUpdateRequest request) {

@@ -37,10 +37,10 @@ const PermissionMatrix = ({ roles, allPermissions, rolePermissions, onSave, isLo
       modules[groupName].allIds.push(p.id);
 
       const key = p.permissionKey.toUpperCase();
-      if (key.includes("VIEW")) modules[groupName].view = p;
-      else if (key.includes("CREATE") || key.includes("ADD")) modules[groupName].create = p;
-      else if (key.includes("UPDATE") || key.includes("EDIT")) modules[groupName].edit = p;
-      else if (key.includes("DELETE") || key.includes("REMOVE")) modules[groupName].delete = p;
+      if (key.includes("VIEW_")) modules[groupName].view = p;
+      else if (key.includes("CREATE_") || key.includes("ADD_")) modules[groupName].create = p;
+      else if (key.includes("UPDATE_") || key.includes("EDIT_")) modules[groupName].edit = p;
+      else if (key.includes("DELETE_") || key.includes("REMOVE_")) modules[groupName].delete = p;
     });
     return Object.values(modules);
   }, [allPermissions]);

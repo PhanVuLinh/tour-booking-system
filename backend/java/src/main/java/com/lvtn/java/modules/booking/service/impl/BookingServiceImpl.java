@@ -20,7 +20,7 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
-    private static final Set<String> ALLOWED_STATUSES = Set.of("approved", "cancelled", "completed");
+    private static final Set<String> ALLOWED_STATUSES = Set.of("confirmed", "ongoing", "cancelled", "completed");
     private static final Set<String> FINAL_STATUSES = Set.of("cancelled", "completed");
 
     private final BookingRepository bookingRepository;

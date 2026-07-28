@@ -1,4 +1,4 @@
-import { Eye, Lock, Unlock, ShieldCheck, User, Trash2 } from "lucide-react";
+import { Eye, Lock, Unlock, ShieldCheck, User, Trash2, Edit } from "lucide-react";
 
 const RoleBadge = ({ roleId, roleName }) => {
   if (roleId === 1) {
@@ -15,7 +15,7 @@ const RoleBadge = ({ roleId, roleName }) => {
   );
 };
 
-export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
+export function EmployeeTable({ data, onView, onToggleLock, onDelete, onEdit }) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[900px]">
@@ -64,8 +64,19 @@ export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
               </td>
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
-                  <button onClick={() => onView(employee)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" title="Xem / Sửa chi tiết">
+                  <button 
+                    onClick={() => onView(employee)} 
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" 
+                    title="Xem chi tiết"
+                  >
                     <Eye className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => onEdit(employee)} 
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" 
+                    title="Sửa thông tin"
+                  >
+                    <Edit className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => onToggleLock(employee.id, "employee", employee.status)} 
@@ -76,15 +87,13 @@ export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
                   >
                     {employee.status === "active" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                   </button>
-                  {onDelete && (
-                    <button 
-                      onClick={() => onDelete(employee.id, "employee")} 
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
-                      title="Chuyển vào thùng rác"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => onDelete(employee.id, "employee")} 
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
+                    title="Chuyển vào thùng rác"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </td>
             </tr>

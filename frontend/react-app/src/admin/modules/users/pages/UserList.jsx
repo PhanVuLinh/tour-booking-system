@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Lock } from "lucide-react";
 import { CustomerTable } from "../components/UserTable";
 import { EmployeeTable } from "../components/AccountTable";
+import { TrashTable } from "../components/TrashTable";
 import { UserDetailModal } from "../components/UserDetailModal";
 import { EmployeeFormModal } from "../components/EmployeeFormModal";
 import { accountService } from "../services/accountService";
@@ -16,6 +17,7 @@ export default function UserManagement() {
 
   const [customers, setCustomers] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [trashItems, setTrashItems] = useState([]);
   const [roles, setRoles] = useState([]);
   const [customerSearch, setCustomerSearch] = useState("");
   const [employeeSearch, setEmployeeSearch] = useState("");
@@ -28,6 +30,8 @@ export default function UserManagement() {
     fullName: "", email: "", phone: "", password: "", jobTitle: "", roleId: null, status: "active"
   };
   const [employeeFormData, setEmployeeFormData] = useState(defaultEmployeeForm);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const loadCustomers = async () => {
     try {
@@ -48,6 +52,18 @@ export default function UserManagement() {
       setEmployees(data);
     } catch (error) {
       alert(error.message || "Lỗi tải danh sách nhân viên");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadTrash = async () => {
+    try {
+      setLoading(true);
+      const data = await accountService.getAllTrash();
+      setTrashItems(data);
+    } catch (error) {
+      alert(error.message || "Lỗi tải thùng rác");
     } finally {
       setLoading(false);
     }
@@ -89,6 +105,12 @@ export default function UserManagement() {
     }
   }, [isAdmin]);
 
+  useEffect(() => {
+    if (activeTab === "trash") {
+      loadTrash();
+    }
+  }, [activeTab]);
+
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
     customer.email.toLowerCase().includes(customerSearch.toLowerCase()) ||
@@ -110,7 +132,14 @@ export default function UserManagement() {
     if (userType === "customer") {
       try {
         const user = await userService.getById(id);
-        await userService.update(id, { ...user, fullName: user.name, status: newStatus, password: "" });
+        const payload = {
+          fullName: user.name,
+          email: user.email,
+          phone: user.phone || "",
+          status: newStatus,
+          password: ""
+        };
+        await userService.update(id, payload);
         loadCustomers();
         alert(`Đã ${action} tài khoản khách hàng thành công!`);
       } catch (error) {
@@ -119,7 +148,16 @@ export default function UserManagement() {
     } else {
       try {
         const account = await accountService.getById(id);
-        await accountService.update(id, { ...account, status: newStatus, password: "" });
+        const payload = {
+          fullName: account.fullName,
+          email: account.email,
+          phone: account.phone || "",
+          jobTitle: account.jobTitle || "",
+          roleId: account.roleId,
+          status: newStatus,
+          password: ""
+        };
+        await accountService.update(id, payload);
         loadEmployees();
         alert(`Đã ${action} tài khoản nhân viên thành công!`);
       } catch (error) {
@@ -128,25 +166,81 @@ export default function UserManagement() {
     }
   };
 
-  const handleDelete = async (id, userType) => {
-    if (!window.confirm("Đưa tài khoản này vào thùng rác?")) return;
+  const handleEditEmployee = (employee) => {
+    setEditingEmployee(employee);
+    setEmployeeFormData({
+      fullName: employee.fullName,
+      email: employee.email,
+      phone: employee.phone || "",
+      password: "",
+      jobTitle: employee.jobTitle || "",
+      roleId: employee.roleId,
+      status: employee.status || "active"
+    });
+    setIsEditMode(true);
+    setIsEmployeeFormOpen(true);
+  };
 
-    if (userType === "customer") {
-      try {
-        await userService.softDelete(id);
-        loadCustomers();
-        alert("Đã chuyển khách hàng vào thùng rác!");
-      } catch (error) {
-        alert(error.message || "Lỗi xóa khách hàng");
-      }
-    } else {
-      try {
-        await accountService.softDelete(id);
-        loadEmployees();
-        alert("Đã chuyển nhân viên vào thùng rác!");
-      } catch (error) {
-        alert(error.message || "Lỗi xóa nhân viên");
-      }
+  const handleUpdateEmployee = async () => {
+    if (!employeeFormData.fullName || !employeeFormData.email) {
+      alert("Vui lòng điền đầy đủ thông tin bắt buộc");
+      return;
+    }
+
+    try {
+      const payload = {
+        fullName: employeeFormData.fullName,
+        email: employeeFormData.email,
+        phone: employeeFormData.phone || "",
+        jobTitle: employeeFormData.jobTitle || "",
+        roleId: Number(employeeFormData.roleId),
+        status: employeeFormData.status || "active",
+        password: employeeFormData.password || "" // không đổi mật khẩu
+      };
+      await accountService.update(editingEmployee.id, payload);
+      alert("Cập nhật nhân viên thành công!");
+      setIsEmployeeFormOpen(false);
+      setIsEditMode(false);
+      setEditingEmployee(null);
+      setEmployeeFormData(defaultEmployeeForm);
+      loadEmployees();
+      loadTrash();
+    } catch (error) {
+      alert(error.message || "Cập nhật thất bại");
+    }
+  };
+
+  const handleDeleteEmployee = async (id) => {
+    if (!window.confirm("Đưa nhân viên này vào thùng rác?")) return;
+    try {
+      await accountService.softDelete(id);
+      loadEmployees();
+      alert("Đã chuyển nhân viên vào thùng rác!");
+    } catch (error) {
+      alert(error.message || "Lỗi xóa nhân viên");
+    }
+  };
+
+  const handleRestoreEmployee = async (id) => {
+    if (!window.confirm("Khôi phục nhân viên này?")) return;
+    try {
+      await accountService.restore(id);
+      await loadTrash();
+      await loadEmployees();
+      alert("Khôi phục nhân viên thành công!");
+    } catch (error) {
+      alert(error.message || "Khôi phục thất bại");
+    }
+  };
+
+  const handleForceDeleteEmployee = async (id) => {
+    if (!window.confirm("Xóa vĩnh viễn nhân viên này? Hành động không thể hoàn tác!")) return;
+    try {
+      await accountService.hardDelete(id);
+      await loadTrash();
+      alert("Đã xóa vĩnh viễn nhân viên!");
+    } catch (error) {
+      alert(error.message || "Xóa vĩnh viễn thất bại");
     }
   };
 
@@ -215,9 +309,19 @@ export default function UserManagement() {
             {!isAdmin && <Lock className="w-3.5 h-3.5" />}
             Nhân viên {isAdmin && `(${employees.length})`}
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab("trash")}
+              className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
+                activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Thùng rác ({trashItems.length})
+            </button>
+          )}
         </div>
 
-        {activeTab === "customers" || !isAdmin ? (
+        {activeTab === "customers" ? (
           <div className="animate-in fade-in duration-300">
             <div className="relative max-w-sm mb-6">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -236,11 +340,10 @@ export default function UserManagement() {
                 data={filteredCustomers}
                 onView={(user) => viewDetail(user, 'customer')}
                 onToggleLock={handleToggleLock}
-                onDelete={handleDelete}
               />
             )}
           </div>
-        ) : (
+        ) : activeTab === "employees" ? (
           <div className="animate-in fade-in duration-300">
             <div className="flex justify-between items-center mb-6">
               <div className="relative w-full max-w-sm">
@@ -254,7 +357,12 @@ export default function UserManagement() {
                 />
               </div>
               <button
-                onClick={() => setIsEmployeeFormOpen(true)}
+                onClick={() => {
+                  setIsEditMode(false);
+                  setEditingEmployee(null);
+                  setEmployeeFormData(defaultEmployeeForm);
+                  setIsEmployeeFormOpen(true);
+                }}
                 className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-colors font-medium shadow-sm"
               >
                 <Plus className="w-4 h-4" /> Tạo tài khoản nhân viên
@@ -268,7 +376,20 @@ export default function UserManagement() {
                 data={filteredEmployees}
                 onView={(user) => viewDetail(user, 'employee')}
                 onToggleLock={handleToggleLock}
-                onDelete={handleDelete}
+                onDelete={handleDeleteEmployee}
+                onEdit={handleEditEmployee}
+              />
+            )}
+          </div>
+        ) : (
+          <div className="animate-in fade-in duration-300">
+            {loading ? (
+              <div className="text-center py-10 text-gray-500">Đang tải thùng rác...</div>
+            ) : (
+              <TrashTable
+                data={trashItems}
+                onRestore={handleRestoreEmployee}
+                onForceDelete={handleForceDeleteEmployee}
               />
             )}
           </div>
@@ -279,15 +400,28 @@ export default function UserManagement() {
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
         user={selectedUser}
+        onEdit={(user) => {
+          if (user.role === "employee") {
+            setIsDetailOpen(false);
+            handleEditEmployee(user);
+          }
+        }}
       />
 
       <EmployeeFormModal
         isOpen={isEmployeeFormOpen}
-        onClose={() => setIsEmployeeFormOpen(false)}
+        onClose={() => {
+          setIsEmployeeFormOpen(false);
+          setIsEditMode(false);
+          setEditingEmployee(null);
+          setEmployeeFormData(defaultEmployeeForm);
+        }}
         formData={employeeFormData}
         setFormData={setEmployeeFormData}
-        onSubmit={handleCreateEmployee}
+        onSubmit={isEditMode ? handleUpdateEmployee : handleCreateEmployee}
         roles={roles}
+        isEdit={isEditMode}
+        loading={false}
       />
     </div>
   );
