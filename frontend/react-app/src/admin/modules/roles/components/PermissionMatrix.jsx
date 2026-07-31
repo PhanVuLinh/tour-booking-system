@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Shield, Check, X } from "lucide-react";
 
 const ACTIONS = [
-  { key: "view", label: "Xem", prefix: "VIEW" },
   { key: "create", label: "Tạo", prefix: "CREATE" },
   { key: "edit", label: "Sửa", prefix: "UPDATE" },
   { key: "delete", label: "Xóa", prefix: "DELETE" },

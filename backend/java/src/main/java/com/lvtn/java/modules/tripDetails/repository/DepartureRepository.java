@@ -30,8 +30,8 @@ public interface DepartureRepository extends JpaRepository<Departure, Integer> {
             "WHERE guide_id = :guideId " +
             "AND deleted = 0 " +
             "AND (:excludeId IS NULL OR id <> :excludeId) " +
-            "AND DATE(startDate) <= :endDate " +
-            "AND endDate >= DATE(:startDate)",
+            "AND start_date <= :endDate " +
+            "AND end_date >= :startDate",
             nativeQuery = true)
     List<Departure> findConflictingByGuide(@Param("guideId") Integer guideId,
                                            @Param("startDate") LocalDateTime startDate,

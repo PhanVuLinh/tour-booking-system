@@ -4,9 +4,9 @@ import { loginService } from '../services/authService';
 
 const DEMO_ACCOUNTS = [
   { label: "Admin",     role: "Toàn quyền hệ thống", email: "dovanhin04@gmail.com",  password: "password123" },
-  { label: "Nhân viên", role: "Quản lý trang", email: "nhanvien.test@tour.com",   password: "password123" },
-  { label: "Nhân viên",   role: "Quản lý trang",   email: "staff.test@tour.com", password: "password123" },
-  { label: "Nhân viên",   role: "Quản lý trang",   email: "quanly@gmail.com", password: "password123" },
+  { label: "Nhân viên 1", role: "Staff", email: "nhanvien.test@tour.com",   password: "password123" },
+  { label: "Nhân viên 2",   role: "Staff",   email: "staff.test@tour.com", password: "password123" },
+  { label: "Hướng dẫn viên",   role: "Guide",   email: "hdv1@gmail.com", password: "password123" },
 ];
 
 const LoginPage = () => {

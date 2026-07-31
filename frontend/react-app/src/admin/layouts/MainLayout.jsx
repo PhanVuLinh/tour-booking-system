@@ -11,6 +11,7 @@ import UserProfileModal from "../modules/users/components/UserProfileModal";
 import { accountService } from "../modules/users/services/accountService";
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 
+import ConfirmModal from "../components/ConfirmModal";
 
 const navigation = [
   { name: "Tổng quan", href: "/admin", icon: LayoutDashboard },
@@ -52,6 +53,17 @@ export default function MainLayout() {
     fetchUser();
   }, []);
 
+  const [confirmCofig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
+  const closeConfirm=()=>{
+    setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  }
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -63,11 +75,17 @@ export default function MainLayout() {
   }, []);
 
   const handleLogout = () => {
-    if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+    setIsDropdownOpen(false);
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xác nhận đăng xuất",
+      message: "Bạn có chắc chắn muốn đăng xuất không?",
+      variant: "danger",
+      action:()=>{
       localStorage.removeItem("accessToken"); 
       localStorage.removeItem("refreshToken"); 
       navigate("/admin/login");
-    }
+    }});
   };
 
   const openProfileModal = () => {
@@ -177,6 +195,18 @@ export default function MainLayout() {
         user={user}
         onUpdateSuccess={fetchUser} 
       />
+      <ConfirmModal
+        isOpen={confirmCofig.isOpen}
+        title={confirmCofig.title}
+        message={confirmCofig.message}
+        variant={confirmCofig.variant}
+        onConfirm={() => {
+          if (confirmCofig.action) confirmCofig.action();
+          closeConfirm();
+        }}
+        onCancel={closeConfirm}
+      />
+      
     </div>
   );
 }

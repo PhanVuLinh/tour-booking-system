@@ -33,7 +33,7 @@ export function TourList() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 7;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -78,7 +78,6 @@ export function TourList() {
       }
     };
     
-    // 👉 [THAY ĐỔI] Bỏ điều kiện if (hasPermission("VIEW_TOUR")), cho phép gọi loadData() luôn
     loadData();
   }, [isAdmin, activeTab]);
 
@@ -148,7 +147,6 @@ export function TourList() {
     }
   };
 
-  // 👉 [THAY ĐỔI] Đã xóa toàn bộ khối if (!hasPermission("VIEW_TOUR")) { return ... } ở đây
 
   if (error) {
     return (

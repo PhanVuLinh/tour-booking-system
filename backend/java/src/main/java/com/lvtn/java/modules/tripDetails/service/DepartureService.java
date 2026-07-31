@@ -4,6 +4,7 @@ import com.lvtn.java.dto.departure.DepartureResponse;
 import com.lvtn.java.dto.departure.DepartureUpsertRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DepartureService {
     List<DepartureResponse> findAll();
@@ -14,4 +15,5 @@ public interface DepartureService {
     void restore(Integer id, Integer restorerId);
     void hardDelete(Integer id);
     List<DepartureResponse> findAllTrash();
+    List<Map<String, Object>> getAvailableGuides(String startDate, String endDate, Integer excludeDepartureId);
 }

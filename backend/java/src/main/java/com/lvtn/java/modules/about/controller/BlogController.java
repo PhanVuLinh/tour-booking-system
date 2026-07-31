@@ -40,13 +40,13 @@ public class BlogController {
     }
 
     @GetMapping("/trash")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<BlogResponse>> findAllTrash() {
         return ResponseEntity.ok(blogService.findAllTrash());
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<?> create(
             @RequestPart("request") String requestString,
             @RequestPart(value = "image", required = false) MultipartFile image) {
@@ -69,7 +69,7 @@ public class BlogController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<?> update(
             @PathVariable Long id,
             @RequestPart("request") String requestString,
@@ -92,7 +92,7 @@ public class BlogController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
             Integer deleterId = securityUtils.getCurrentAccountId();
@@ -116,7 +116,7 @@ public class BlogController {
     }
 
     @DeleteMapping("/{id}/force")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> hardDelete(@PathVariable Long id) {
         try {
             blogService.hardDelete(id);

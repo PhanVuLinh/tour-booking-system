@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
 import { Edit, Trash2, Eye, Bus, Plane, Train, Ship, RotateCcw, ChevronUp, ChevronDown } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 
 export function DepartureTable({ departures, onView, onEdit, onDelete }) {
-  
+  const { hasPermission } = usePermission();
+
   const [sortConfig, setSortConfig] = useState({ key: "tourTitle", direction: "asc" });
 
   const handleSort = (key) => {
@@ -57,7 +59,6 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
       <table className="w-full text-left border-collapse min-w-[1050px]">
         <thead>
           <tr className="border-b bg-gray-50/50">
-            {/* Đã gỡ bỏ hover:bg-gray-25/50 hoặc các class hover đổi màu nền */}
             <th onClick={() => handleSort("tourTitle")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto cursor-pointer select-none group">
               <div className="flex items-center gap-1.5">Tên Tour / Thông tin {renderSortIcon("tourTitle")}</div>
             </th>
@@ -92,9 +93,6 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
                 <td className="py-3 px-4">
                   <div className="font-bold text-gray-800 text-sm truncate max-w-[250px]" title={departure.tourTitle}>
                     {departure.tourTitle || "Tour chưa xác định"}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Mã lịch: #{departure.id}
                   </div>
                 </td>
                 
@@ -134,20 +132,26 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
                     >
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); onEdit(departure); }} 
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" 
-                      title="Sửa lịch"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); onDelete(departure.id); }} 
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
-                      title="Xóa lịch"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    
+                    {hasPermission("UPDATE_OPERATIONS") && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onEdit(departure); }} 
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" 
+                        title="Sửa lịch"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                    )}
+                    
+                    {hasPermission("DELETE_OPERATIONS") && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onDelete(departure.id); }} 
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
+                        title="Xóa lịch"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -168,6 +172,8 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
 }
 
 export function DepartureTrashTable({ departures, onRestore, onPermanentDelete, getAccountName }) {
+  const { hasPermission } = usePermission(); 
+
   const formatDate = (dateString) => {
     return dateString ? new Date(dateString).toLocaleString('vi-VN') : "—";
   };
@@ -193,7 +199,7 @@ export function DepartureTrashTable({ departures, onRestore, onPermanentDelete, 
               <td className="py-3 px-4 text-sm text-gray-600">{formatDate(departure.startTime)}</td>
               <td className="py-3 px-4 text-sm text-red-600 font-medium">
                 {departure.deletedBy 
-                  ? (getAccountName?.(departure.deletedBy) || `Nhân viên #${departure.deletedBy}`) 
+                  ? (getAccountName?.(departure.deletedBy) || `Nhân viên ${departure.deletedBy}`) 
                   : "Hệ thống"}
               </td>
               <td className="py-3 px-4 text-sm text-gray-600">
@@ -201,20 +207,24 @@ export function DepartureTrashTable({ departures, onRestore, onPermanentDelete, 
               </td>
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
-                  <button 
-                    onClick={() => onRestore(departure.id)} 
-                    className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" 
-                    title="Khôi phục"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => onPermanentDelete(departure.id)} 
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
-                    title="Xóa vĩnh viễn"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {hasPermission("OPERATIONS_TRASH") && (
+                    <>
+                      <button 
+                        onClick={() => onRestore(departure.id)} 
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" 
+                        title="Khôi phục"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => onPermanentDelete(departure.id)} 
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
+                        title="Xóa vĩnh viễn"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </td>
             </tr>

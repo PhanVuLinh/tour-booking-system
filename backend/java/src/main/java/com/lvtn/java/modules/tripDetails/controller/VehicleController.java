@@ -29,21 +29,18 @@ public class VehicleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<VehicleResponse> create(@RequestBody VehicleUpsertRequest request) {
         Integer creatorId = securityUtils.getCurrentAccountId();
         return ResponseEntity.ok(vehicleService.create(request, creatorId));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<VehicleResponse> update(@PathVariable Integer id, @RequestBody VehicleUpsertRequest request) {
         Integer updaterId = securityUtils.getCurrentAccountId();
         return ResponseEntity.ok(vehicleService.update(id, request, updaterId));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         Integer deleterId = securityUtils.getCurrentAccountId();
         vehicleService.delete(id, deleterId);
@@ -51,20 +48,17 @@ public class VehicleController {
     }
 
     @GetMapping("/trash")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<VehicleResponse>> getTrash() {
         return ResponseEntity.ok(vehicleService.findDeleted());
     }
 
     @PutMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VehicleResponse> restore(@PathVariable Integer id) {
         Integer updaterId = securityUtils.getCurrentAccountId();
         return ResponseEntity.ok(vehicleService.restore(id, updaterId));
     }
 
     @DeleteMapping("/{id}/force")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> hardDelete(@PathVariable Integer id) {
         vehicleService.hardDelete(id);
         return ResponseEntity.noContent().build();

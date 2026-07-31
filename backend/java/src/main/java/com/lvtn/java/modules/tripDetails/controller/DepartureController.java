@@ -26,19 +26,27 @@ public class DepartureController {
         return ResponseEntity.ok(departureService.findAll());
     }
 
+    @GetMapping("/guides")
+    public ResponseEntity<?> getAvailableGuides(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Integer excludeDepartureId) {
+        return ResponseEntity.ok(departureService.getAvailableGuides(startDate, endDate, excludeDepartureId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DepartureResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(departureService.findById(id));
     }
 
     @GetMapping("/trash")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'OPERATIONS_TRASH')")
     public ResponseEntity<List<DepartureResponse>> getAllTrash() {
         return ResponseEntity.ok(departureService.findAllTrash());
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CREATE_OPERATIONS')")
     public ResponseEntity<?> create(@RequestBody DepartureUpsertRequest request) {
         try {
             Integer creatorId = securityUtils.getCurrentAccountId();
@@ -49,14 +57,14 @@ public class DepartureController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_OPERATIONS')")
     public ResponseEntity<DepartureResponse> update(@PathVariable Integer id, @RequestBody DepartureUpsertRequest request) {
         Integer updaterId = securityUtils.getCurrentAccountId();
         return ResponseEntity.ok(departureService.update(id, request, updaterId));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'DELETE_OPERATIONS')")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         Integer userId = securityUtils.getCurrentAccountId();
         departureService.delete(id, userId);
@@ -64,7 +72,7 @@ public class DepartureController {
     }
 
     @PutMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'OPERATIONS_TRASH')")
     public ResponseEntity<Void> restore(@PathVariable Integer id) {
         Integer restorerId = securityUtils.getCurrentAccountId();
         departureService.restore(id, restorerId);
@@ -72,7 +80,7 @@ public class DepartureController {
     }
 
     @DeleteMapping("/{id}/force")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'OPERATIONS_TRASH')")
     public ResponseEntity<Void> hardDelete(@PathVariable Integer id) {
         departureService.hardDelete(id);
         return ResponseEntity.ok().build();

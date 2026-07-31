@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { Plus, Lock, RefreshCw } from "lucide-react"; 
+import { useState, useEffect } from "react";
+import { Plus, Lock, RefreshCw, Trash2 } from "lucide-react"; 
 import { DepartureTable, DepartureTrashTable } from "../components/DepartureTable";
 import { DepartureModal } from "../components/DepartureModal";
 import { DepartureDetailModal } from "../components/DepartureDetailModal"; 
@@ -8,10 +8,14 @@ import { vehicleService } from "../../vehicles/services/vehicleService";
 import { tourService } from "../../tours/services/tourService";
 import { accountService } from "../../users/services/accountService"; 
 
+import Pagination from "../../../components/Pagination";
+import ConfirmModal from "../../../components/ConfirmModal";
+import { usePermission } from "../../../hooks/usePermission"; 
+
 const initialFormState = {
-  tourId: "", vehicleId: "", guideId: "", startTime: "", departureFrom: "", 
+  tourId: "", vehicleId: "", guideId: "", startTime: "", endDate: "", departureFrom: "", 
   priceAdult: "", priceChildren: "", priceBaby: "",
-  stockAdult: "", stockChildren: "", stockBaby: "", status: "OPEN"
+  stockAdult: "", stockChildren: "", stockBaby: "", status: "active", discount: 0
 };
 
 const getCurrentUserId = () => {
@@ -20,17 +24,9 @@ const getCurrentUserId = () => {
 };
 
 export default function DepartureList() {
-  const isAdmin = useMemo(() => {
-    const userString = localStorage.getItem("user");
-    if (!userString) return false;
-    
-    try {
-      const user = JSON.parse(userString);
-      return user.role && String(user.role).toLowerCase() === "admin";
-    } catch (e) {
-      return false;
-    }
-  }, []);
+  const { hasPermission } = usePermission();
+  const canCreate = hasPermission("CREATE_OPERATIONS");
+  const canManageTrash = hasPermission("OPERATIONS_TRASH");
 
   const [departures, setDepartures] = useState([]);
   const [trashDepartures, setTrashDepartures] = useState([]);
@@ -45,7 +41,22 @@ export default function DepartureList() {
   const [selectedDeparture, setSelectedDeparture] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [accountList, setAccountList] = useState([]);
-  
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
+
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    variant: "info",
+    action: null
+  });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+
   const handleViewDetail = (departureData) => {
     setSelectedDeparture(departureData);
     setIsDetailModalOpen(true);
@@ -57,7 +68,7 @@ export default function DepartureList() {
       setError(null);
       const [depData, trashData, vehData, tourData, accData] = await Promise.all([
         departureService.getAll(),
-        isAdmin ? departureService.getAllTrash().catch(() => []) : Promise.resolve([]), 
+        canManageTrash ? departureService.getAllTrash().catch(() => []) : Promise.resolve([]), 
         vehicleService.getAll(),
         tourService.getAll(),
         accountService.getAllActive().catch(() => [])
@@ -77,47 +88,66 @@ export default function DepartureList() {
 
   useEffect(() => {
     fetchData();
-  }, [isAdmin, activeTab]);
+  }, [canManageTrash, activeTab]);
 
   const resetForm = () => {
     setFormData(initialFormState);
     setEditDeparture(null);
   };
 
-  const handleSubmit = async () => {
-    try {
-      const userId = getCurrentUserId();
-      const payload = {
-        tourId: parseInt(formData.tourId),
-        vehicleId: formData.vehicleId ? parseInt(formData.vehicleId) : null,
-        guideId: formData.guideId ? parseInt(formData.guideId) : null,
-        startTime: formData.startTime,
-        departureFrom: formData.departureFrom,
-        priceAdult: parseFloat(formData.priceAdult),
-        priceChildren: parseFloat(formData.priceChildren),
-        priceBaby: parseFloat(formData.priceBaby),
-        stockAdult: parseInt(formData.stockAdult),
-        stockChildren: parseInt(formData.stockChildren),
-        stockBaby: parseInt(formData.stockBaby),
-        status: formData.status,
-        createdBy: editDeparture ? undefined : userId,
-        updatedBy: editDeparture ? userId : undefined
-      };
+  const closeConfirm = () => {
+    setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  };
 
-      if (editDeparture) {
-        await departureService.update(editDeparture.id, payload);
-        alert("Cập nhật thành công!");
-      } else {
-        await departureService.create(payload);
-        alert("Thêm mới thành công!");
-      }
-      
-      setIsDialogOpen(false);
-      resetForm();
-      fetchData(); 
-    } catch (error) {
-      alert("Lỗi: " + error.message);
+  const executeConfirmAction = async () => {
+    if (confirmConfig.action) {
+      await confirmConfig.action();
     }
+    closeConfirm();
+  };
+
+  const handleSubmit = () => {
+    setConfirmConfig({
+      isOpen: true,
+      title: editDeparture ? "Xác nhận cập nhật" : "Xác nhận thêm mới",
+      message: editDeparture ? "Bạn có chắc chắn muốn lưu các thay đổi cho chuyến đi này?" : "Bạn có chắc chắn muốn tạo lịch khởi hành mới?",
+      variant: "info",
+      action: async () => {
+        try {
+          const userId = getCurrentUserId();
+          const payload = {
+            tourId: parseInt(formData.tourId),
+            vehicleId: formData.vehicleId ? parseInt(formData.vehicleId) : null,
+            guideId: formData.guideId ? parseInt(formData.guideId) : null,
+            startTime: formData.startTime,
+            endDate: formData.endDate,
+            departureFrom: formData.departureFrom,
+            priceAdult: parseFloat(formData.priceAdult) || 0,
+            priceChildren: parseFloat(formData.priceChildren) || 0,
+            priceBaby: parseFloat(formData.priceBaby) || 0,
+            stockAdult: parseInt(formData.stockAdult) || 0,
+            stockChildren: parseInt(formData.stockChildren) || 0,
+            stockBaby: parseInt(formData.stockBaby) || 0,
+            discount: parseInt(formData.discount) || 0,
+            status: formData.status,
+            createdBy: editDeparture ? undefined : userId,
+            updatedBy: editDeparture ? userId : undefined
+          };
+
+          if (editDeparture) {
+            await departureService.update(editDeparture.id, payload);
+          } else {
+            await departureService.create(payload);
+          }
+          
+          setIsDialogOpen(false);
+          resetForm();
+          fetchData(); 
+        } catch (error) {
+          alert("Lỗi: " + error.message);
+        }
+      }
+    });
   };
 
   const handleEdit = (departure) => {
@@ -127,7 +157,9 @@ export default function DepartureList() {
       vehicleId: departure.vehicleId || "", 
       guideId: departure.guideId || "",
       startTime: departure.startTime,
+      endDate: departure.endDate || "",
       departureFrom: departure.departureFrom || "", 
+      discount: departure.discount || 0,
       priceAdult: departure.priceAdult,
       priceChildren: departure.priceChildren,
       priceBaby: departure.priceBaby,
@@ -139,38 +171,58 @@ export default function DepartureList() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn hủy chuyến đi này?")) {
-      try {
-        await departureService.delete(id);
-        alert("Đã hủy thành công");
-        fetchData(); 
-      } catch (error) {
-        alert("Lỗi: " + error.message);
+  const handleDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Hủy chuyến đi",
+      message: "Bạn có chắc chắn muốn hủy chuyến đi này?",
+      variant: "warning",
+      action: async () => {
+        try {
+          await departureService.delete(id);
+          alert("Đã hủy thành công");
+          fetchData(); 
+        } catch (error) {
+          alert("Lỗi: " + error.message);
+        }
       }
-    }
+    });
   };
 
-  const handleRestore = async (id) => {
-    try {
-      await departureService.restore(id);
-      alert("Khôi phục thành công!");
-      fetchData();
-    } catch (error) {
-      alert("Lỗi: " + error.message);
-    }
+  const handleRestore = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Khôi phục chuyến đi",
+      message: "Bạn có chắc chắn muốn khôi phục lịch khởi hành này từ thùng rác?",
+      variant: "info",
+      action: async () => {
+        try {
+          await departureService.restore(id);
+          alert("Khôi phục thành công!");
+          fetchData();
+        } catch (error) {
+          alert("Lỗi: " + error.message);
+        }
+      }
+    });
   };
 
-  const handlePermanentDelete = async (id) => {
-    if (window.confirm("Xóa vĩnh viễn không thể khôi phục. Bạn có chắc chắn?")) {
-      try {
-        await departureService.hardDelete(id);
-        alert("Đã xóa vĩnh viễn!");
-        fetchData();
-      } catch (error) {
-        alert("Lỗi: " + error.message);
+  const handlePermanentDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xóa vĩnh viễn",
+      message: "Hành động này không thể khôi phục. Bạn có chắc chắn muốn xóa vĩnh viễn chuyến đi này?",
+      variant: "danger",
+      action: async () => {
+        try {
+          await departureService.hardDelete(id);
+          alert("Đã xóa vĩnh viễn!");
+          fetchData();
+        } catch (error) {
+          alert("Lỗi: " + error.message);
+        }
       }
-    }
+    });
   };
 
   const getAccountName = (id) => {
@@ -178,17 +230,23 @@ export default function DepartureList() {
     return account ? account.fullName : null; 
   };
 
+  const currentList = activeTab === "active" ? departures : trashDepartures;
+  const totalPages = Math.ceil(currentList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedList = currentList.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className="w-full p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Lịch khởi hành</h1>
-          <p className="text-gray-500 mt-1">Quản lý chuyến đi</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm">
-            <Plus className="w-4 h-4" /> Thêm lịch
-          </button>
+          {canCreate && (
+            <button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm">
+              <Plus className="w-4 h-4" /> Thêm lịch
+            </button>
+          )}
         </div>
       </div>
 
@@ -198,22 +256,21 @@ export default function DepartureList() {
             onClick={() => setActiveTab("active")} 
             className={`py-2 px-6 font-medium text-sm rounded-lg transition-all ${activeTab === "active" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
           >
-            Lịch đang mở
+            Lịch đang mở ({departures.length})
           </button>
-          <button 
-            onClick={() => isAdmin && setActiveTab("trash")} 
-            disabled={!isAdmin}
-            title={!isAdmin ? "Cần quyền Admin để xem Thùng rác" : ""}
-            className={`flex items-center gap-1.5 py-2 px-6 font-medium text-sm rounded-lg transition-all ${
-              !isAdmin ? "opacity-50 cursor-not-allowed text-gray-400" : activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {!isAdmin && <Lock className="w-3.5 h-3.5" />}
-            Thùng rác {isAdmin && `(${trashDepartures.length})`}
-          </button>
+          {canManageTrash && (
+            <button 
+              onClick={() => setActiveTab("trash")} 
+              className={`flex items-center gap-1.5 py-2 px-6 font-medium text-sm rounded-lg transition-all ${
+                activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Trash2 className="w-4 h-4" />
+              Thùng rác ({trashDepartures.length})
+            </button>
+          )}
         </div>
 
-        {/* Cấu trúc wrapper cho bảng: Giữ nguyên min-h-64 để tránh co giật giao diện */}
         <div className="p-6 pt-2 min-h-[300px] flex flex-col justify-start">
           {isLoading ? (
             <div className="flex-1 flex flex-col items-center justify-center py-12 gap-2">
@@ -225,18 +282,40 @@ export default function DepartureList() {
               <p className="text-red-500 font-medium mb-1">Không thể tải dữ liệu</p>
               <p className="text-gray-400 text-xs">{error}</p>
             </div>
-          ) : activeTab === "active" ? (
-            <DepartureTable departures={departures} onView={handleViewDetail} onEdit={handleEdit} onDelete={handleDelete} />
           ) : (
-            <DepartureTrashTable departures={trashDepartures} onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} getAccountName={getAccountName} />
+            <>
+              {activeTab === "active" ? (
+                <DepartureTable 
+                  departures={paginatedList} 
+                  onView={handleViewDetail} 
+                  onEdit={handleEdit} 
+                  onDelete={handleDelete} 
+                />
+              ) : (
+                <DepartureTrashTable 
+                  departures={paginatedList} 
+                  onRestore={handleRestore} 
+                  onPermanentDelete={handlePermanentDelete} 
+                  getAccountName={getAccountName} 
+                />
+              )}
+              {totalPages > 0 && (
+                <div className="mt-4">
+                  <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={setCurrentPage} 
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
-
       <DepartureModal 
         isOpen={isDialogOpen} 
         onClose={() => setIsDialogOpen(false)} 
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit} 
         formData={formData} 
         setFormData={setFormData} 
         isEdit={!!editDeparture}
@@ -244,12 +323,19 @@ export default function DepartureList() {
         vehicles={vehicles}
         tourList={tourList}
       />
-
       <DepartureDetailModal 
         isOpen={isDetailModalOpen} 
         onClose={() => setIsDetailModalOpen(false)} 
         departure={selectedDeparture} 
         accountList={accountList}
+      />
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        onCancel={closeConfirm}
+        onConfirm={executeConfirmAction}
       />
     </div>
   );

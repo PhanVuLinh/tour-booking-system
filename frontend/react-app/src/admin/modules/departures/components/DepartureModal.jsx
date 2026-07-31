@@ -16,32 +16,31 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
 
   const calculateEndDate = (startDateString, tourTimeString) => {
     if (!startDateString || !tourTimeString) return "";
-        const match = tourTimeString.match(/(\d+)\s*(n|ng[aà]y)/i);
+    const match = tourTimeString.match(/(\d+)\s*(n|ng[aà]y)/i);
     let days = 1;
     if (match) days = Math.max(parseInt(match[1], 10), 1);
     
     const startDate = new Date(startDateString);
-    startDate.setDate(startDate.getDate() + (days - 1));
+    if (isNaN(startDate.getTime())) return "";
     
+    startDate.setDate(startDate.getDate() + (days - 1));
     startDate.setHours(23, 59, 0, 0);
-        const tzoffset = startDate.getTimezoneOffset() * 60000;
+    const tzoffset = startDate.getTimezoneOffset() * 60000;
     return new Date(startDate.getTime() - tzoffset).toISOString().slice(0, 16);
   };
 
   useEffect(() => {
     if (formData.startTime && formData.tourId && tourList.length > 0) {
       const selectedTour = tourList.find(t => String(t.id) === String(formData.tourId));
-      if (selectedTour && selectedTour.time) {
-        const autoEndDate = calculateEndDate(formData.startTime, selectedTour.time);
-        if (formData.endDate !== autoEndDate) {
+      if (selectedTour && selectedTour.duration) {
+        const autoEndDate = calculateEndDate(formData.startTime, selectedTour.duration);
+        if (autoEndDate && formData.endDate !== autoEndDate) {
           setFormData(prev => ({ ...prev, endDate: autoEndDate }));
         }
       }
     }
   }, [formData.startTime, formData.tourId, tourList]);
-  // ------------------------------------
 
-  // --- LOGIC TÌM HƯỚNG DẪN VIÊN RẢNH RỖI ---
   useEffect(() => {
     const fetchGuides = async () => {
       setIsLoadingGuides(true);
@@ -63,7 +62,6 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
       fetchGuides();
     }
   }, [formData.startTime, formData.endDate, editDepartureId, isOpen]);
-  // ------------------------------------
 
   useEffect(() => {
     if (formData.tourId && tourList.length > 0) {
@@ -85,7 +83,11 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
   }, []);
 
   const handleSelectTour = (tour) => {
-    setFormData({ ...formData, tourId: tour.id });
+    let newEndDate = formData.endDate;
+    if (formData.startTime && tour && tour.duration) {
+      newEndDate = calculateEndDate(formData.startTime, tour.duration);
+    }
+    setFormData({ ...formData, tourId: tour.id, endDate: newEndDate });
     setSearchTerm(getTourTitle(tour));
     setIsDropdownOpen(false);
   };
@@ -107,11 +109,13 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
     const sAdult = parseInt(formData.stockAdult || 0);
     const sChild = parseInt(formData.stockChildren || 0);
     const sBaby = parseInt(formData.stockBaby || 0);
+    const disc = parseInt(formData.discount || 0);
 
     if (pAdult < 0 || pChild < 0 || pBaby < 0) { alert("⚠️ Giá vé không được là số âm!"); return; }
     if (sAdult < 0 || sChild < 0 || sBaby < 0) { alert("⚠️ Số lượng chỗ không được là số âm!"); return; }
-    if (pAdult <= pChild) { alert("⚠️ Giá vé NGƯỜI LỚN phải LỚN HƠN giá vé TRẺ EM!"); return; }
-    if (pChild <= pBaby) { alert("⚠️ Giá vé TRẺ EM phải LỚN HƠN giá vé EM BÉ!"); return; }
+    if (disc < 0 || disc > 100) { alert("⚠️ Khuyến mãi phải từ 0 đến 100%!"); return; }
+    if (pChild > 0 && pAdult <= pChild) { alert("⚠️ Giá vé NGƯỜI LỚN phải LỚN HƠN giá vé TRẺ EM!"); return; }
+    if (pBaby > 0 && pChild <= pBaby) { alert("⚠️ Giá vé TRẺ EM phải LỚN HƠN giá vé EM BÉ!"); return; }
 
     onSubmit();
   };
@@ -143,9 +147,21 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
                 type="text"
                 value={searchTerm}
                 onChange={(e) => {
-                  setSearchTerm(e.target.value);
+                  const val = e.target.value;
+                  setSearchTerm(val);
                   setIsDropdownOpen(true);
-                  if (!e.target.value) setFormData({ ...formData, tourId: "", endDate: "", guideId: "" });
+                  const exactMatch = tourList.find(t => getTourTitle(t).toLowerCase() === val.toLowerCase());
+                  if (exactMatch) {
+                    let newEndDate = formData.endDate;
+                    if (formData.startTime && exactMatch.duration) {
+                      newEndDate = calculateEndDate(formData.startTime, exactMatch.duration);
+                    }
+                    setFormData({ ...formData, tourId: exactMatch.id, endDate: newEndDate, guideId: "" });
+                  } else {
+                    if (formData.tourId !== "") {
+                      setFormData({ ...formData, tourId: "", endDate: "", guideId: "" });
+                    }
+                  }
                 }}
                 onFocus={() => setIsDropdownOpen(true)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -153,6 +169,9 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
               />
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
             </div>
+            {!formData.tourId && searchTerm && (
+              <p className="text-xs text-red-500 font-medium animate-pulse mt-1">⚠️ Vui lòng nhấp chọn một Tour từ danh sách bên dưới!</p>
+            )}
             {isDropdownOpen && (
               <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-200 shadow-lg rounded-lg max-h-48 overflow-y-auto">
                 {filteredTours.length > 0 ? (
@@ -163,7 +182,7 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
                       className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-0"
                     >
                       <div className="font-bold text-gray-800">{getTourTitle(tour) || "Chưa có tên"}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Thời gian: {tour.time || "Chưa rõ"}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Thời gian: {tour.duration || "Chưa rõ"}</div>
                     </li>
                   ))
                 ) : (
@@ -180,7 +199,9 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Ngày đi <span className="text-red-500">*</span></label>
-              <input type="datetime-local" value={formData.startTime || ""} onChange={(e) => setFormData({ ...formData, startTime: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+              <input type="datetime-local" value={formData.startTime || ""} onChange={(e) => {
+                setFormData(prev => ({ ...prev, startTime: e.target.value }));
+              }} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Ngày về (Tự động)</label>
@@ -220,6 +241,11 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
                 <option value="active">Mở bán (OPEN)</option>
                 <option value="inactive">Đóng (CLOSED)</option>
               </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Khuyến mãi (%)</label>
+              <input type="number" min="0" max="100" placeholder="VD: 10" value={formData.discount || 0} onChange={(e) => setFormData({ ...formData, discount: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white" />
             </div>
           </div>
 
