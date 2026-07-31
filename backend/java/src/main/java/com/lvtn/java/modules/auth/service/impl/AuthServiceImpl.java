@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -106,13 +107,22 @@ public class AuthServiceImpl implements AuthService {
 
     private CurrentAccountResponse toCurrentUserResponse(Account account) {
         String roleName = account.getRole() != null ? account.getRole().getName() : "STAFF";
+
+        List<String> permissions = List.of();
+        if (account.getRole() != null && account.getRole().getPermissions() != null) {
+            permissions = account.getRole().getPermissions().stream()
+                    .map(p -> p.getPermissionKey())
+                    .toList();
+        }
+
         return new CurrentAccountResponse(
                 account.getId(),
                 account.getEmail(),
                 account.getFullName(),
                 roleName,
                 account.getAvatar(),
-                account.getJobTitle()
+                account.getJobTitle(),
+                permissions
         );
     }
 }

@@ -26,7 +26,7 @@ public class AccountController {
     private final ObjectMapper objectMapper;
 
     @GetMapping
-    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_USER')")
+//    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_USER')")
     public ResponseEntity<List<AccountResponse>> getAllActive() {
         return ResponseEntity.ok(accountService.findAllActive());
     }
@@ -38,7 +38,6 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_USER')")
     public ResponseEntity<?> getById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(accountService.findById(id));

@@ -1,6 +1,9 @@
 import { X, Edit } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 
-export function UserDetailModal({ isOpen, onClose, user, onEdit }) {
+export function UserDetailModal({ isOpen, onClose, user, onEdit, accounts = [] }) {
+  const { hasPermission } = usePermission();
+
   if (!isOpen || !user) return null;
 
   const isEmployee = user.role === "employee";
@@ -12,8 +15,9 @@ export function UserDetailModal({ isOpen, onClose, user, onEdit }) {
   };
 
   const getDisplayName = (id) => {
-    // Tạm thời hiển thị ID, sau này có thể map với danh sách nhân viên
-    return id ? `#${id}` : "—";
+    if (!id) return "—";
+    const foundAcc = accounts.find(acc => acc.id === id);
+    return foundAcc ? foundAcc.fullName : `Account #${id}`;
   };
 
   return (
@@ -63,7 +67,6 @@ export function UserDetailModal({ isOpen, onClose, user, onEdit }) {
             </div>
           </div>
 
-          {/* Thông tin riêng nhân viên */}
           {isEmployee && (
             <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
               <div>
@@ -123,7 +126,7 @@ export function UserDetailModal({ isOpen, onClose, user, onEdit }) {
 
         {/* Footer với nút hành động */}
         <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-          {isEmployee && onEdit && (
+          {isEmployee && onEdit && hasPermission("UPDATE_USER") && (
             <button
               onClick={() => onEdit(user)}
               className="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -131,6 +134,7 @@ export function UserDetailModal({ isOpen, onClose, user, onEdit }) {
               <Edit className="w-4 h-4" /> Sửa thông tin
             </button>
           )}
+          
           <button
             onClick={onClose}
             className="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"

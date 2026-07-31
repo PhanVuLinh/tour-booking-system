@@ -43,11 +43,6 @@ public class AccountServiceImpl implements AccountService {
         return account.getRole() != null && ADMIN_ROLE.equalsIgnoreCase(account.getRole().getName());
     }
 
-    private void checkAdmin(Integer accountId) {
-        if (!isAdmin(accountId)) {
-            throw new RuntimeException("Từ chối truy cập: Chỉ Quản trị viên (Admin) mới có quyền thực hiện hành động này!");
-        }
-    }
 
     @Override
     public List<AccountResponse> findAllActive() {
@@ -69,7 +64,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountResponse create(AccountRequest request, Integer creatorId) {
-        checkAdmin(creatorId);
 
         if (accountRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email này đã được sử dụng!");
@@ -102,11 +96,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountResponse update(Integer id, AccountRequest request, String avatarUrl, Integer updaterId) {
         boolean isSelfUpdate = id.equals(updaterId);
-        boolean isAdmin = isAdmin(updaterId);
 
-        if (!isSelfUpdate && !isAdmin) {
-            throw new RuntimeException("Từ chối truy cập!");
-        }
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản"));
@@ -131,7 +121,8 @@ public class AccountServiceImpl implements AccountService {
             account.setAvatar(request.getAvatar());
         }
 
-        if (isAdmin) {
+
+        if (!isSelfUpdate || isAdmin(updaterId)) {
             if (request.getRoleId() != null) {
                 Role role = roleRepository.findById(request.getRoleId())
                         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy role"));
@@ -147,7 +138,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void delete(Integer id, Integer deleterId) {
-        checkAdmin(deleterId);
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản với ID: " + id));
@@ -161,7 +151,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void restore(Integer id, Integer restorerId) {
-        checkAdmin(restorerId);
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản với ID: " + id));
@@ -175,8 +164,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void hardDelete(Integer id, Integer requesterId) {
-        checkAdmin(requesterId);
-
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản với ID: " + id));
         accountRepository.delete(account);

@@ -8,12 +8,14 @@ import { EmployeeFormModal } from "../components/EmployeeFormModal";
 import { accountService } from "../services/accountService";
 import { userService } from "../services/userService";
 import { roleService } from "../services/roleService";
-import { apiClient } from "../../login/services/authService";
+import Pagination from "../../../components/Pagination";
+import { usePermission } from "../../../hooks/usePermission";
 
 export default function UserManagement() {
+  const { hasPermission } = usePermission();
 
-  const [currentUserRole, setCurrentUserRole] = useState(null);
-  const isAdmin = (currentUserRole || "").toLowerCase() === "admin";
+  const canViewEmployee = hasPermission("VIEW_USER"); 
+  const canManageTrash = hasPermission("ACCOUNT_TRASH");
 
   const [customers, setCustomers] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -26,12 +28,20 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEmployeeFormOpen, setIsEmployeeFormOpen] = useState(false);
+  
   const defaultEmployeeForm = {
     fullName: "", email: "", phone: "", password: "", jobTitle: "", roleId: null, status: "active"
   };
   const [employeeFormData, setEmployeeFormData] = useState(defaultEmployeeForm);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [customerSearch, employeeSearch, activeTab]);
 
   const loadCustomers = async () => {
     try {
@@ -73,8 +83,7 @@ export default function UserManagement() {
     try {
       const data = await roleService.getAll();
       setRoles(data);
-      const defaultRole =
-        data.find((r) => r.name.toLowerCase() !== "admin") || data[0];
+      const defaultRole = data.find((r) => r.name.toLowerCase() !== "admin") || data[0];
       if (defaultRole) {
         setEmployeeFormData((prev) => ({ ...prev, roleId: defaultRole.id }));
       }
@@ -84,26 +93,15 @@ export default function UserManagement() {
   };
 
   useEffect(() => {
-    const loadCurrentUser = async () => {
-      try {
-        const res = await apiClient.get("/admin/auth/me");
-        setCurrentUserRole(res.data.role);
-      } catch (error) {
-        setCurrentUserRole(null);
-      }
-    };
-    loadCurrentUser();
     loadCustomers();
   }, []);
 
   useEffect(() => {
-    if (isAdmin) {
+    if (canViewEmployee || true) { 
       loadEmployees();
       loadRoles();
-    } else {
-      setActiveTab("customers");
     }
-  }, [isAdmin]);
+  }, [canViewEmployee]);
 
   useEffect(() => {
     if (activeTab === "trash") {
@@ -122,6 +120,16 @@ export default function UserManagement() {
     employee.email.toLowerCase().includes(employeeSearch.toLowerCase()) ||
     (employee.phone && employee.phone.includes(employeeSearch))
   );
+
+  const currentList = activeTab === "customers" 
+    ? filteredCustomers 
+    : activeTab === "employees" 
+      ? filteredEmployees 
+      : trashItems;
+
+  const totalPages = Math.ceil(currentList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedList = currentList.slice(startIndex, startIndex + itemsPerPage);
 
   const handleToggleLock = async (id, userType, currentStatus) => {
     const action = currentStatus === "active" ? "khóa" : "mở khóa";
@@ -186,7 +194,6 @@ export default function UserManagement() {
       alert("Vui lòng điền đầy đủ thông tin bắt buộc");
       return;
     }
-
     try {
       const payload = {
         fullName: employeeFormData.fullName,
@@ -195,7 +202,7 @@ export default function UserManagement() {
         jobTitle: employeeFormData.jobTitle || "",
         roleId: Number(employeeFormData.roleId),
         status: employeeFormData.status || "active",
-        password: employeeFormData.password || "" // không đổi mật khẩu
+        password: employeeFormData.password || "" 
       };
       await accountService.update(editingEmployee.id, payload);
       alert("Cập nhật nhân viên thành công!");
@@ -254,7 +261,6 @@ export default function UserManagement() {
       alert("Vui lòng điền đầy đủ các thông tin bắt buộc (*)");
       return;
     }
-
     try {
       await accountService.create({
         fullName: employeeFormData.fullName,
@@ -265,7 +271,6 @@ export default function UserManagement() {
         roleId: Number(employeeFormData.roleId),
         status: "active"
       });
-
       alert("Đã tạo tài khoản nhân viên thành công!");
       setIsEmployeeFormOpen(false);
       setEmployeeFormData(defaultEmployeeForm);
@@ -281,11 +286,10 @@ export default function UserManagement() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Người dùng</h1>
-          <p className="text-gray-500 mt-1">Quản lý tài khoản khách hàng và nhân viên hệ thống</p>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden p-6">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden p-6 pb-2">
         <div className="inline-flex bg-gray-100 rounded-xl p-1 mb-6">
           <button
             onClick={() => setActiveTab("customers")}
@@ -295,21 +299,19 @@ export default function UserManagement() {
           >
             Khách hàng ({customers.length})
           </button>
+          
           <button
-            onClick={() => isAdmin && setActiveTab("employees")}
-            disabled={!isAdmin}
+            onClick={() => setActiveTab("employees")}
             className={`flex items-center gap-1.5 py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
-              !isAdmin
-                ? "opacity-50 cursor-not-allowed"
-                : activeTab === "employees"
+              activeTab === "employees"
                 ? "bg-white text-gray-900 shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            {!isAdmin && <Lock className="w-3.5 h-3.5" />}
-            Nhân viên {isAdmin && `(${employees.length})`}
+            Nhân viên ({employees.length})
           </button>
-          {isAdmin && (
+
+          {canManageTrash && (
             <button
               onClick={() => setActiveTab("trash")}
               className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 ${
@@ -337,7 +339,8 @@ export default function UserManagement() {
               <div className="text-center py-10 text-gray-500">Đang tải dữ liệu khách hàng...</div>
             ) : (
               <CustomerTable
-                data={filteredCustomers}
+                data={paginatedList}
+                startIndex={startIndex}
                 onView={(user) => viewDetail(user, 'customer')}
                 onToggleLock={handleToggleLock}
               />
@@ -356,24 +359,29 @@ export default function UserManagement() {
                   className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:bg-white focus:border-gray-300 focus:ring-2 focus:ring-gray-100 text-sm transition-all"
                 />
               </div>
-              <button
-                onClick={() => {
-                  setIsEditMode(false);
-                  setEditingEmployee(null);
-                  setEmployeeFormData(defaultEmployeeForm);
-                  setIsEmployeeFormOpen(true);
-                }}
-                className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-colors font-medium shadow-sm"
-              >
-                <Plus className="w-4 h-4" /> Tạo tài khoản nhân viên
-              </button>
+              
+              {hasPermission("CREATE_USER") && (
+                <button
+                  onClick={() => {
+                    setIsEditMode(false);
+                    setEditingEmployee(null);
+                    setEmployeeFormData(defaultEmployeeForm);
+                    setIsEmployeeFormOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-colors font-medium shadow-sm"
+                >
+                  <Plus className="w-4 h-4" /> Tạo tài khoản nhân viên
+                </button>
+              )}
             </div>
 
             {loading ? (
               <div className="text-center py-10 text-gray-500">Đang tải dữ liệu nhân viên...</div>
             ) : (
               <EmployeeTable
-                data={filteredEmployees}
+                data={paginatedList}
+                startIndex={startIndex}
+                accounts={employees}
                 onView={(user) => viewDetail(user, 'employee')}
                 onToggleLock={handleToggleLock}
                 onDelete={handleDeleteEmployee}
@@ -387,11 +395,23 @@ export default function UserManagement() {
               <div className="text-center py-10 text-gray-500">Đang tải thùng rác...</div>
             ) : (
               <TrashTable
-                data={trashItems}
+                data={paginatedList}
+                startIndex={startIndex}
+                accounts={employees}
                 onRestore={handleRestoreEmployee}
                 onForceDelete={handleForceDeleteEmployee}
               />
             )}
+          </div>
+        )}
+
+        {totalPages > 0 && !loading && (
+          <div className="mt-4">
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
       </div>
@@ -400,6 +420,7 @@ export default function UserManagement() {
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
         user={selectedUser}
+        accounts={employees}
         onEdit={(user) => {
           if (user.role === "employee") {
             setIsDetailOpen(false);
