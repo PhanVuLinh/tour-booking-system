@@ -1,8 +1,43 @@
-import { useState, useMemo, Fragment } from "react";
-import { Edit, Trash2, ChevronDown, ChevronRight, CalendarDays, Eye, Bus, Plane, Train, Ship, RotateCcw } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Edit, Trash2, Eye, Bus, Plane, Train, Ship, RotateCcw, ChevronUp, ChevronDown } from "lucide-react";
 
 export function DepartureTable({ departures, onView, onEdit, onDelete }) {
   
+  const [sortConfig, setSortConfig] = useState({ key: "tourTitle", direction: "asc" });
+
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedDepartures = useMemo(() => {
+    const sorted = [...departures];
+    if (sortConfig.key) {
+      sorted.sort((a, b) => {
+        let aValue = a[sortConfig.key] !== null && a[sortConfig.key] !== undefined ? a[sortConfig.key] : "";
+        let bValue = b[sortConfig.key] !== null && b[sortConfig.key] !== undefined ? b[sortConfig.key] : "";
+
+        if (typeof aValue === "string") aValue = aValue.toLowerCase();
+        if (typeof bValue === "string") bValue = bValue.toLowerCase();
+
+        if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    return sorted;
+  }, [departures, sortConfig]);
+
+  const renderSortIcon = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <ChevronDown className="w-4 h-4 opacity-0 group-hover:opacity-40 transition-opacity" />;
+    }
+    return sortConfig.direction === "asc" ? <ChevronUp className="w-4 h-4 text-gray-800" /> : <ChevronDown className="w-4 h-4 text-gray-800" />;
+  };
+
   const renderVehicle = (type, name) => {
     if (!name) return <span className="text-gray-400 text-xs">—</span>;
     let Icon = Bus;
@@ -17,121 +52,109 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
     );
   };
 
-  const groupedDepartures = useMemo(() => {
-    return departures.reduce((acc, departure) => {
-      const title = departure.tourTitle || "Tour chưa xác định";
-      if (!acc[title]) {
-        acc[title] = [];
-      }
-      acc[title].push(departure);
-      return acc;
-    }, {});
-  }, [departures]);
-
-  const [expandedGroups, setExpandedGroups] = useState({});
-  const toggleGroup = (title) => {
-    setExpandedGroups((prev) => ({
-      ...prev,
-      [title]: !prev[title]
-    }));
-  };
-
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[1050px]">
         <thead>
           <tr className="border-b bg-gray-50/50">
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto">Tên Tour / Thông tin</th>
-            {/* THÊM CỘT ĐIỂM ĐI TẠI ĐÂY */}
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Điểm đi</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-48">Khởi hành & Xe</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-32">Giá NL</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ NL</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24">Chỗ TE/EB</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-28">Trạng thái</th>
+            {/* Đã gỡ bỏ hover:bg-gray-25/50 hoặc các class hover đổi màu nền */}
+            <th onClick={() => handleSort("tourTitle")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto cursor-pointer select-none group">
+              <div className="flex items-center gap-1.5">Tên Tour / Thông tin {renderSortIcon("tourTitle")}</div>
+            </th>
+            <th onClick={() => handleSort("departureFrom")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-32 cursor-pointer select-none group">
+              <div className="flex items-center gap-1.5">Điểm đi {renderSortIcon("departureFrom")}</div>
+            </th>
+            <th onClick={() => handleSort("startTime")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-48 cursor-pointer select-none group">
+              <div className="flex items-center gap-1.5">Khởi hành & Xe {renderSortIcon("startTime")}</div>
+            </th>
+            <th onClick={() => handleSort("priceAdult")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-32 cursor-pointer select-none group">
+              <div className="flex items-center gap-1.5">Giá NL {renderSortIcon("priceAdult")}</div>
+            </th>
+            <th onClick={() => handleSort("stockAdult")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-24 cursor-pointer select-none group">
+              <div className="flex items-center gap-1.5">Chỗ NL {renderSortIcon("stockAdult")}</div>
+            </th>
+            <th onClick={() => handleSort("stockChildren")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-24 cursor-pointer select-none group">
+              <div className="flex items-center gap-1.5">Chỗ TE/EB {renderSortIcon("stockChildren")}</div>
+            </th>
+            <th onClick={() => handleSort("status")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-28 cursor-pointer select-none group">
+              <div className="flex items-center gap-1.5">Trạng thái {renderSortIcon("status")}</div>
+            </th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24 text-right">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           
-          {Object.entries(groupedDepartures).map(([tourTitle, tourDepartures]) => {
-            const isExpanded = expandedGroups[tourTitle];
+          {sortedDepartures.map((departure) => {
+            const dateDisplay = departure.startTime ? new Date(departure.startTime).toLocaleString('vi-VN') : "N/A";
             return (
-              <Fragment key={tourTitle}>
-                <tr 
-                  onClick={() => toggleGroup(tourTitle)}
-                  className="bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group"
-                >
-                  <td colSpan={8} className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-400 group-hover:text-blue-600 transition-colors">
-                        {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-                      </span>
-                      <span className="font-bold text-gray-800 text-base">{tourTitle}</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-white border border-gray-200 text-gray-600 ml-2">
-                        <CalendarDays className="w-3.5 h-3.5" />
-                        {tourDepartures.length} lịch khởi hành
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-                {isExpanded && tourDepartures.map((departure) => {
-                  const dateDisplay = departure.startTime ? new Date(departure.startTime).toLocaleString('vi-VN') : "N/A";
-                  return (
-                    <tr key={departure.id} className="hover:bg-blue-50/50 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="flex items-center text-sm text-gray-500 pl-8">
-                            <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mr-2"></span>
-                            Mã lịch: #{departure.id}
-                        </div>
-                      </td>
-                      
-                      {/* HIỂN THỊ DỮ LIỆU ĐIỂM ĐI TẠI ĐÂY */}
-                      <td className="py-3 px-4">
-                        <div className="text-sm font-medium text-gray-700 truncate max-w-[120px]" title={departure.departureFrom}>
-                          {departure.departureFrom || "—"}
-                        </div>
-                      </td>
+              <tr key={departure.id} className="hover:bg-blue-50/50 transition-colors">
+                
+                <td className="py-3 px-4">
+                  <div className="font-bold text-gray-800 text-sm truncate max-w-[250px]" title={departure.tourTitle}>
+                    {departure.tourTitle || "Tour chưa xác định"}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Mã lịch: #{departure.id}
+                  </div>
+                </td>
+                
+                <td className="py-3 px-4">
+                  <div className="text-sm font-medium text-gray-700 truncate max-w-[120px]" title={departure.departureFrom}>
+                    {departure.departureFrom || "—"}
+                  </div>
+                </td>
 
-                      <td className="py-3 px-4">
-                        <div className="text-sm font-medium text-gray-900">{dateDisplay}</div>
-                        {renderVehicle(departure.vehicleType, departure.vehicleName)}
-                      </td>
-                      <td className="py-3 px-4 text-sm font-medium text-blue-600">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.priceAdult)}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-600">{departure.stockAdult}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600">{departure.stockChildren} / {departure.stockBaby}</td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          departure.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
-                        }`}>
-                          {departure.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex justify-end gap-1">
-                          <button onClick={(e) => { 
-                                  e.stopPropagation(); 
-                                  onView?.(departure);}} 
-                                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" title="Xem chi tiết nhật ký">
-                              <Eye className="w-4 h-4" /></button>
-                          <button onClick={(e) => { e.stopPropagation(); onEdit(departure); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Sửa lịch">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button onClick={(e) => { e.stopPropagation(); onDelete(departure.id); }} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Xóa lịch">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </Fragment>
+                <td className="py-3 px-4">
+                  <div className="text-sm font-medium text-gray-900">{dateDisplay}</div>
+                  {renderVehicle(departure.vehicleType, departure.vehicleName)}
+                </td>
+                
+                <td className="py-3 px-4 text-sm font-medium text-blue-600">
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.priceAdult)}
+                </td>
+                
+                <td className="py-3 px-4 text-sm text-gray-600">{departure.stockAdult}</td>
+                
+                <td className="py-3 px-4 text-sm text-gray-600">{departure.stockChildren} / {departure.stockBaby}</td>
+                
+                <td className="py-3 px-4">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                    departure.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                  }`}>
+                    {departure.status}
+                  </span>
+                </td>
+                
+                <td className="py-3 px-4 text-right">
+                  <div className="flex justify-end gap-1">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onView?.(departure); }} 
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" 
+                      title="Xem chi tiết"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onEdit(departure); }} 
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" 
+                      title="Sửa lịch"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onDelete(departure.id); }} 
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
+                      title="Xóa lịch"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
             );
           })}
           
-          {departures.length === 0 && (
+          {sortedDepartures.length === 0 && (
             <tr>
               <td colSpan={8} className="py-10 text-center text-gray-400 text-sm">
                 Không có dữ liệu lịch khởi hành
@@ -145,7 +168,6 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
 }
 
 export function DepartureTrashTable({ departures, onRestore, onPermanentDelete, getAccountName }) {
-  
   const formatDate = (dateString) => {
     return dateString ? new Date(dateString).toLocaleString('vi-VN') : "—";
   };

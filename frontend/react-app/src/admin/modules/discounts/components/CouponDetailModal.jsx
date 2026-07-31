@@ -15,8 +15,8 @@ export function CouponDetailModal({ isOpen, onClose, coupon, getAccountName }) {
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-lg font-bold text-gray-900">Chi tiết mã giảm giá</h2>
-          <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${coupon.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-            {coupon.status === 'ACTIVE' ? 'Đang hoạt động' : 'Không hoạt động'}
+          <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${coupon.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+            {coupon.status === 'active' ? 'Đang hoạt động' : 'Không hoạt động'}
           </span>
         </div>
         

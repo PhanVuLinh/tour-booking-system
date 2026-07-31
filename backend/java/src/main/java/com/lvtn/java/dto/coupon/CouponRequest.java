@@ -15,7 +15,7 @@ public class CouponRequest {
     private Integer quantity;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private String status;
+    private String status="active";
     private Integer createdBy;
     private Integer updatedBy;
     private Integer deletedBy;

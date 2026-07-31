@@ -1,11 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, Trash2, Lock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Search, Trash2, Lock, Loader2 } from "lucide-react";
 import { CouponTable } from "../components/CouponTable";
 import { CouponTrashTable } from "../components/CouponTrashTable";
 import { CouponModal } from "../components/DiscountModal";
 import { couponService } from "../services/couponService";
 import { accountService } from "../../users/services/accountService";
 import { CouponDetailModal } from "../components/CouponDetailModal";
+
+import Pagination from "../../../components/Pagination";
+import { usePermission } from "../../../hooks/usePermission";
 
 const initialFormState = {
   code: "", 
@@ -14,18 +17,12 @@ const initialFormState = {
   quantity: "",
   startDate: "", 
   endDate: "", 
-  status: "ACTIVE"
+  status: "active"
 };
 
 export default function CouponList() {
-  const isAdmin = useMemo(() => {
-    try {
-      const userString = localStorage.getItem("user");
-      if (!userString) return false;
-      const user = JSON.parse(userString);
-      return user.role && String(user.role).toLowerCase() === "admin";
-    } catch (e) { return false; }
-  }, []);
+  const { hasPermission } = usePermission();
+  const canManageTrash = hasPermission("ACCOUNT_TRASH"); 
 
   const [coupons, setCoupons] = useState([]);
   const [deletedCoupons, setDeletedCoupons] = useState([]);
@@ -39,13 +36,20 @@ export default function CouponList() {
   const [editCoupon, setEditCoupon] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, activeTab]);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
       setError(null);
       const [data, trashData, accData] = await Promise.all([
         couponService.getAll().catch(() => []),
-        isAdmin ? couponService.getAllTrash().catch(() => []) : Promise.resolve([]),
+        canManageTrash ? couponService.getAllTrash().catch(() => []) : Promise.resolve([]),
         accountService.getAllActive().catch(() => [])
       ]);
       setCoupons(Array.isArray(data) ? data : []);
@@ -60,7 +64,7 @@ export default function CouponList() {
 
   useEffect(() => {
     fetchData();
-  }, [isAdmin, activeTab]);
+  }, [canManageTrash, activeTab]);
 
   const getAccountName = (id) => {
     if (!id) return null;
@@ -75,6 +79,11 @@ export default function CouponList() {
   const filteredDeletedCoupons = deletedCoupons.filter(c => 
     c.code?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const currentList = activeTab === "active" ? filteredCoupons : filteredDeletedCoupons;
+  const totalPages = Math.ceil(currentList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedList = currentList.slice(startIndex, startIndex + itemsPerPage);
 
   const handleSubmit = async () => {
     if (!formData.code || !formData.code.trim()) {
@@ -141,27 +150,8 @@ export default function CouponList() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-64">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>
-        </div>
-      </div>
-    );
-  }
+  // 👉 Đã xóa bỏ đoạn chặn return khi isLoading ở đây để khung giao diện chính vẫn hiển thị bình thường.
 
-  if (error) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-64">
-        <div className="text-center">
-          <p className="text-red-500 font-medium mb-2">Không thể tải dữ liệu</p>
-          <p className="text-gray-400 text-sm">{error}</p>
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="w-full p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
       <div className="flex justify-between items-center mb-6">
@@ -169,7 +159,7 @@ export default function CouponList() {
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Mã giảm giá</h1>
         </div>
         <div className="flex gap-2">
-          {activeTab === "active" && (
+          {activeTab === "active" && hasPermission("CREATE_USER") && (
             <button 
               onClick={() => { setFormData(initialFormState); setEditCoupon(null); setIsDialogOpen(true); }} 
               className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm"
@@ -180,26 +170,27 @@ export default function CouponList() {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm w-full overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm w-full overflow-hidden pb-4">
         <div className="inline-flex bg-gray-100 rounded-xl p-1 m-6 mb-2">
           <button 
             onClick={() => setActiveTab("active")} 
             className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
               activeTab === "active" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}
-          > Đang hoạt động
+          > Đang hoạt động ({coupons.length})
           </button>
-          <button 
-            onClick={() => isAdmin && setActiveTab("trash")} 
-            disabled={!isAdmin} 
-            title={!isAdmin ? "Bạn cần quyền Admin để xem Thùng rác" : ""}
-            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
-              !isAdmin ? "opacity-50 cursor-not-allowed text-gray-400" : activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {!isAdmin ? <Lock className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
-            Thùng rác {isAdmin && `(${deletedCoupons.length})`}
-          </button>
+          
+          {canManageTrash && (
+            <button 
+              onClick={() => setActiveTab("trash")} 
+              className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Trash2 className="w-4 h-4" />
+              Thùng rác ({deletedCoupons.length})
+            </button>
+          )}
         </div>
 
         <div className="p-6 pt-2">
@@ -213,20 +204,47 @@ export default function CouponList() {
               className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:bg-white focus:border-gray-300 focus:ring-2 focus:ring-gray-100 text-sm transition-all" 
             />
           </div>
-          {activeTab === "active" ? (
-            <CouponTable 
-              coupons={filteredCoupons} 
-              onEdit={handleEdit} 
-              onDelete={handleDelete} 
-              onView={(coupon) => setViewCoupon(coupon)}
-            />
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+              Không thể tải dữ liệu: {error}
+            </div>
+          )}
+
+          {/* 👉 Hiển thị Loading ngay bên dưới phần tìm kiếm / trong khu vực bảng */}
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-3" />
+              <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>
+            </div>
           ) : (
-            <CouponTrashTable 
-              coupons={filteredDeletedCoupons} 
-              onRestore={handleRestore} 
-              onPermanentDelete={handlePermanentDelete} 
-              getAccountName={getAccountName} 
-            />
+            <>
+              {activeTab === "active" ? (
+                <CouponTable 
+                  coupons={paginatedList} 
+                  onEdit={handleEdit} 
+                  onDelete={handleDelete} 
+                  onView={(coupon) => setViewCoupon(coupon)}
+                />
+              ) : (
+                <CouponTrashTable 
+                  coupons={paginatedList} 
+                  onRestore={handleRestore} 
+                  onPermanentDelete={handlePermanentDelete} 
+                  getAccountName={getAccountName} 
+                />
+              )}
+
+              {totalPages > 0 && (
+                <div className="mt-4">
+                  <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={setCurrentPage} 
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

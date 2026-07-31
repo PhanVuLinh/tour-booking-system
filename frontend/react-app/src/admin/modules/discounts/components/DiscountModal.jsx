@@ -33,12 +33,12 @@ export function CouponModal({ isOpen, onClose, onSubmit, formData, setFormData, 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Trạng thái <span className="text-red-500">*</span></label>
               <select
-                value={formData.status || "ACTIVE"}
+                value={formData.status || "active"}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
-                <option value="ACTIVE">Kích hoạt</option>
-                <option value="INACTIVE">Tạm dừng</option>
+                <option value="active">Kích hoạt</option>
+                <option value="inactive">Tạm dừng</option>
               </select>
             </div>
           </div>

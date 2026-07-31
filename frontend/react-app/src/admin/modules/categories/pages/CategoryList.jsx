@@ -6,9 +6,14 @@ import { CategoryDetailModal } from "../components/CategoryDetailModal";
 import { categoryService } from "../services/categoryApi";
 import { accountService } from "../../users/services/accountService"; 
 
+import Pagination from "../../../components/Pagination";
+import { usePermission } from "../../../hooks/usePermission";
+
 const initialFormState = { title: "", description: "", parentId: "" };
 
 export default function CategoryList() {
+  const { hasPermission } = usePermission();
+
   const [categories, setCategories] = useState([]);
   const [deletedCategories, setDeletedCategories] = useState([]);
   const [accounts, setAccounts] = useState([]);
@@ -23,6 +28,9 @@ export default function CategoryList() {
   const [editCategory, setEditCategory] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   const isAdmin = useMemo(() => {
     try {
       const userString = localStorage.getItem("user");
@@ -31,6 +39,10 @@ export default function CategoryList() {
       return user.role && String(user.role).toLowerCase() === "admin";
     } catch (e) { return false; }
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, trashSearchTerm, activeTab]);
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -73,9 +85,13 @@ export default function CategoryList() {
     cat.title?.toLowerCase().includes(trashSearchTerm.toLowerCase())
   );
 
+  const currentList = activeTab === "active" ? filteredCategories : filteredDeletedCategories;
+  const totalPages = Math.ceil(currentList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedList = currentList.slice(startIndex, startIndex + itemsPerPage);
+
   const handleSubmit = async () => {
     if (!formData.title?.trim()) return alert("Vui lòng nhập tên danh mục!");
-
     try {
       const payload = {
         title: formData.title.trim(),
@@ -147,10 +163,15 @@ export default function CategoryList() {
     <div className="w-full p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Quản lý Danh mục</h1>
-        <button onClick={() => { setFormData(initialFormState); setEditCategory(null); setIsDialogOpen(true); }} 
-                className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Thêm danh mục
-        </button>
+        
+        {hasPermission("CREATE_CATEGORY") && (
+          <button 
+            onClick={() => { setFormData(initialFormState); setEditCategory(null); setIsDialogOpen(true); }} 
+            className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Thêm danh mục
+          </button>
+        )}
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm w-full">
@@ -177,10 +198,36 @@ export default function CategoryList() {
           
           {isLoading ? (
             <div className="text-center py-10"><RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-500" /></div>
-          ) : activeTab === "active" ? (
-            <CategoryTable categories={filteredCategories} onView={setViewCategory} onEdit={handleEdit} onDelete={handleDelete} />
           ) : (
-            <CategoryTrashTable categories={filteredDeletedCategories} accounts={accounts} onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} />
+            <>
+              {activeTab === "active" ? (
+                <CategoryTable 
+                  categories={paginatedList} 
+                  startIndex={startIndex} 
+                  onView={setViewCategory} 
+                  onEdit={handleEdit} 
+                  onDelete={handleDelete} 
+                />
+              ) : (
+                <CategoryTrashTable 
+                  categories={paginatedList} 
+                  startIndex={startIndex} 
+                  accounts={accounts} 
+                  onRestore={handleRestore} 
+                  onPermanentDelete={handlePermanentDelete} 
+                />
+              )}
+
+              {totalPages > 0 && (
+                <div className="mt-4">
+                  <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={setCurrentPage} 
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

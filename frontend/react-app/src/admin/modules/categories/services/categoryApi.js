@@ -1,17 +1,9 @@
 import { apiClient } from '../../login/services/authService';
-const getAuthHeaders = () => {
-  const userId = localStorage.getItem("userId");
-  return {
-    headers: {
-      'X-User-Id': userId || ""
-    }
-  };
-};
 
 export const categoryService = {
   getAllActive: async () => {
     try {
-      const response = await apiClient.get('/category?status=active', getAuthHeaders());
+      const response = await apiClient.get('/category?status=active');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || "Lỗi khi tải dữ liệu");
@@ -20,7 +12,7 @@ export const categoryService = {
 
   getAllTrash: async () => {
     try {
-      const response = await apiClient.get('/category/trash', getAuthHeaders());
+      const response = await apiClient.get('/category/trash');
       return response.data;
     } catch (error) {
       if (error.response?.status === 403) return [];
@@ -30,7 +22,7 @@ export const categoryService = {
 
   create: async (data) => {
     try {
-      const response = await apiClient.post('/category', data, getAuthHeaders());
+      const response = await apiClient.post('/category', data);
       return response.data;
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.response?.data || "Lỗi khi tạo danh mục";
@@ -40,7 +32,7 @@ export const categoryService = {
 
   update: async (id, data) => {
     try {
-      const response = await apiClient.put(`/category/${id}`, data, getAuthHeaders());
+      const response = await apiClient.put(`/category/${id}`, data);
       return response.data;
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.response?.data || "Lỗi khi cập nhật danh mục";
@@ -50,7 +42,7 @@ export const categoryService = {
 
   softDelete: async (id) => {
     try {
-      const response = await apiClient.delete(`/category/${id}`, getAuthHeaders());
+      const response = await apiClient.delete(`/category/${id}`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.response?.data || "Lỗi khi xóa danh mục";
@@ -60,7 +52,7 @@ export const categoryService = {
 
   restore: async (id) => {
     try {
-      const response = await apiClient.put(`/category/${id}/restore`, {}, getAuthHeaders());
+      const response = await apiClient.put(`/category/${id}/restore`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.response?.data || "Khôi phục danh mục thất bại";
@@ -70,7 +62,7 @@ export const categoryService = {
 
   hardDelete: async (id) => {
     try {
-      const response = await apiClient.delete(`/category/${id}/force`, getAuthHeaders());
+      const response = await apiClient.delete(`/category/${id}/force`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.response?.data || "Xóa vĩnh viễn thất bại";

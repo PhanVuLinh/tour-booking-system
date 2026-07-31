@@ -27,7 +27,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CREATE_CATEGORY')")
     public ResponseEntity<?> save(@RequestBody CategoryUpsertRequest request) {
         try {
             Integer creatorId = securityUtils.getCurrentAccountId();
@@ -39,7 +39,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_CATEGORY')")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody CategoryUpsertRequest request) {
         try {
             Integer updaterId = securityUtils.getCurrentAccountId();
@@ -51,7 +51,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'DELETE_CATEGORY')")
     public ResponseEntity<String> deleteById(@PathVariable Integer id) {
         try {
             Integer deleterId = securityUtils.getCurrentAccountId();
@@ -63,7 +63,7 @@ public class CategoryController {
     }
 
     @GetMapping("/trash")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CATEGORY_TRASH')")
     public ResponseEntity<?> findAllTrash() {
         try {
             return ResponseEntity.ok(categoryService.findAllTrash());
@@ -73,7 +73,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CATEGORY_TRASH')")
     public ResponseEntity<?> restore(@PathVariable Integer id) {
         try {
             Integer restorerId = securityUtils.getCurrentAccountId();
@@ -85,7 +85,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}/force")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CATEGORY_TRASH')")
     public ResponseEntity<?> hardDelete(@PathVariable Integer id) {
         try {
             categoryService.hardDelete(id);

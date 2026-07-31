@@ -41,11 +41,11 @@ export function CouponTable({ coupons, onEdit, onDelete, onView }) {
               
               <td className="px-4 py-3">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  coupon.status === 'ACTIVE' 
+                  coupon.status === 'active' 
                     ? 'bg-green-100 text-green-700' 
                     : 'bg-gray-100 text-gray-700'
                 }`}>
-                  {coupon.status === 'ACTIVE' ? 'Đang hoạt động' : 'Không hoạt động'}
+                  {coupon.status === 'active' ? 'Đang hoạt động' : 'Không hoạt động'}
                 </span>
               </td>
               <td className="px-4 py-3 text-right">

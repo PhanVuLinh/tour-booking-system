@@ -1,6 +1,9 @@
 import { Edit, Trash2, RotateCcw, Eye } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 
-export function CategoryTable({ categories, onView, onEdit, onDelete }) {
+export function CategoryTable({ categories, onView, onEdit, onDelete, startIndex = 0 }) {
+  const { hasPermission } = usePermission();
+
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[800px]">
@@ -16,7 +19,7 @@ export function CategoryTable({ categories, onView, onEdit, onDelete }) {
         <tbody className="divide-y divide-gray-100">
           {categories.map((category, index) => (
             <tr key={category.id} className="hover:bg-gray-50 transition-colors">
-              <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
+              <td className="py-3 px-4 text-sm text-gray-500">{startIndex + index + 1}</td>
               <td className="py-3 px-4 font-medium text-gray-900">{category.title}</td>
               <td className="py-3 px-4 text-sm text-gray-600">{category.description || "—"}</td>
               
@@ -31,20 +34,27 @@ export function CategoryTable({ categories, onView, onEdit, onDelete }) {
                     title="Xem chi tiết">
                     <Eye className="w-4 h-4" />
                   </button>
-                  <button 
-                    onClick={() => onEdit(category)} 
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                    title="Chỉnh sửa"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => onDelete(category.id)} 
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                    title="Chuyển vào thùng rác"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  
+                  {hasPermission("UPDATE_CATEGORY") && (
+                    <button 
+                      onClick={() => onEdit(category)} 
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      title="Chỉnh sửa"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  )}
+                  
+                  {/* 👉 [THÊM MỚI] Phân quyền xóa danh mục */}
+                  {hasPermission("DELETE_CATEGORY") && (
+                    <button 
+                      onClick={() => onDelete(category.id)} 
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      title="Chuyển vào thùng rác"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>
@@ -55,7 +65,9 @@ export function CategoryTable({ categories, onView, onEdit, onDelete }) {
   );
 }
 
-export function CategoryTrashTable({ categories, onRestore, onPermanentDelete, accounts = [] }) {
+export function CategoryTrashTable({ categories, onRestore, onPermanentDelete, accounts = [], startIndex = 0 }) {
+  const { hasPermission } = usePermission();
+
   const getFullName = (id) => {
     const account = accounts.find(acc => acc.id === id);
     return account ? account.fullName : `Account #${id}`;
@@ -76,7 +88,7 @@ export function CategoryTrashTable({ categories, onRestore, onPermanentDelete, a
         <tbody className="divide-y divide-gray-100">
           {categories.map((category, index) => (
             <tr key={category.id} className="hover:bg-gray-50 transition-colors opacity-75">
-              <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
+              <td className="py-3 px-4 text-sm text-gray-500">{startIndex + index + 1}</td>
               <td className="py-3 px-4 font-medium text-gray-500">{category.title}</td>
               <td className="py-3 px-4 text-sm text-gray-600">
                 {category.deletedBy ? getFullName(category.deletedBy) : "—"}
@@ -87,20 +99,24 @@ export function CategoryTrashTable({ categories, onRestore, onPermanentDelete, a
               
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
-                  <button 
-                    onClick={() => onRestore(category.id)} 
-                    className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
-                    title="Khôi phục danh mục"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => onPermanentDelete(category.id)} 
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                    title="Xóa vĩnh viễn"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {hasPermission("DELETE_CATEGORY") && (
+                    <>
+                      <button 
+                        onClick={() => onRestore(category.id)} 
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                        title="Khôi phục danh mục"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => onPermanentDelete(category.id)} 
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        title="Xóa vĩnh viễn"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </td>
             </tr>

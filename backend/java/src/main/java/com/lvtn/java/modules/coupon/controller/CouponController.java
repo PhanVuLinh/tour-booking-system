@@ -25,21 +25,21 @@ public class CouponController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CREATE_COUPON')")
     public ResponseEntity<CouponResponse> create(@RequestBody CouponRequest request) {
         Integer creatorId = securityUtils.getCurrentAccountId();
         return ResponseEntity.ok(couponService.create(request, creatorId));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_COUPON')")
     public ResponseEntity<CouponResponse> update(@PathVariable Integer id, @RequestBody CouponRequest request) {
         Integer updaterId = securityUtils.getCurrentAccountId();
         return ResponseEntity.ok(couponService.update(id, request, updaterId));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'DELETE_COUPON')")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         Integer deleterId = securityUtils.getCurrentAccountId();
         couponService.delete(id, deleterId);
@@ -47,20 +47,20 @@ public class CouponController {
     }
 
     @GetMapping("/trash")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'COUPON_TRASH')")
     public ResponseEntity<List<CouponResponse>> getTrash() {
         return ResponseEntity.ok(couponService.findDeleted());
     }
 
     @PutMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'COUPON_TRASH')")
     public ResponseEntity<CouponResponse> restore(@PathVariable Integer id) {
         Integer restorerId = securityUtils.getCurrentAccountId();
         return ResponseEntity.ok(couponService.restore(id, restorerId));
     }
 
     @DeleteMapping("/{id}/force")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'COUPON_TRASH')")
     public ResponseEntity<Void> hardDelete(@PathVariable Integer id) {
         couponService.hardDelete(id);
         return ResponseEntity.noContent().build();

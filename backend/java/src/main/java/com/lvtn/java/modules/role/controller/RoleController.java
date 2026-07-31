@@ -23,7 +23,7 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_ROLE')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getRoleById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(roleService.getRoleById(id));
