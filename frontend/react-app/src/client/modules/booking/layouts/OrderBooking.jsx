@@ -319,7 +319,7 @@ function OrderBooking() {
         phone: formData.contact.phone,
         email: formData.contact.email,
         address: formData.contact.address,
-        departure_id: selectedDate.departure_id || selectedDate.id,
+        departure_id: selectedDate.departure_id,
         quantity_adult: adultCount,
         quantity_children: childCount,
         quantity_baby: infantCount,
@@ -344,26 +344,27 @@ function OrderBooking() {
       };
 
       try {
-        const data = await createBookingService(payload);
+        const response = await createBookingService(payload);
 
-        if (data.success) {
-          const bookingResult = data.data || {};
+        if (response.success) {
+          const bookingResult = response.data;
+
           const successState = {
             ...location.state,
             booking_code: bookingResult.booking_code,
             passengers: {
-              adults: bookingResult.quantity_adult ?? adultCount,
-              children: bookingResult.quantity_children ?? childCount,
-              infants: bookingResult.quantity_baby ?? infantCount,
+              adults: bookingResult.quantity_adult,
+              children: bookingResult.quantity_children,
+              infants: bookingResult.quantity_baby,
             },
-            subtotal: bookingResult.sub_total ?? subtotal,
-            coupon_id: bookingResult.coupon_id ?? coupon_id,
-            discount: bookingResult.discount ?? discount,
-            total: bookingResult.total ?? total,
-            payable_amount: bookingResult.payable_amount ?? payable_amount,
-            remainingAmount: bookingResult.remainingAmount ?? remainingAmount,
-            payment_type: bookingResult.payment_type ?? payment_type,
-            payment_method: bookingResult.payment_method ?? payment_method,
+            subtotal: bookingResult.sub_total,
+            coupon_id: bookingResult.coupon_id,
+            discount: bookingResult.discount,
+            total: bookingResult.total,
+            payable_amount: bookingResult.payable_amount,
+            remainingAmount: bookingResult.remainingAmount,
+            payment_type: bookingResult.payment_type,
+            payment_method: bookingResult.payment_method,
             formData,
           };
 
@@ -384,7 +385,7 @@ function OrderBooking() {
             state: successState,
           });
         } else {
-          toast.error(data.message || "Đặt tour thất bại");
+          toast.error(response?.message || "Đặt tour thất bại");
         }
       } catch {
         toast.error("Lỗi kết nối đến máy chủ");

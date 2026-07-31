@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   Link,
   useLocation,
-  useOutletContext,
   useParams,
   useSearchParams,
 } from "react-router-dom";
@@ -14,60 +13,32 @@ import {
 } from "../services";
 
 export default function BookingSuccess() {
-  const contextData = useOutletContext();
   const location = useLocation();
   const { id: bookingId } = useParams();
   const [searchParams] = useSearchParams();
   const [bookingData, setBookingData] = useState(null);
   const bookingState = location.state || {};
 
-  const formData =
-    bookingData?.formData ||
-    contextData?.formData ||
-    bookingState.formData ||
-    {};
-  const contactInfo = formData?.contact || {};
-  const selectedDate =
-    bookingData?.selectedDate || bookingState.selectedDate || {};
-  const tour = bookingData?.tour || bookingState.tour || {};
+  const data = bookingData || bookingState || {};
 
-  const adultCount =
-    bookingData?.passengers?.adults ??
-    contextData?.adultCount ??
-    bookingState.passengers?.adults ??
-    0;
-  const childCount =
-    bookingData?.passengers?.children ??
-    contextData?.childCount ??
-    bookingState.passengers?.children ??
-    0;
-  const infantCount =
-    bookingData?.passengers?.infants ??
-    contextData?.infantCount ??
-    bookingState.passengers?.infants ??
-    0;
+  const formData = data.formData || {};
+  const contactInfo = formData.contact || {};
+  const selectedDate = data.selectedDate || {};
+  const tour = data.tour || {};
 
-  const subtotal = Number(bookingData?.subtotal ?? bookingState.subtotal) || 0;
-  const discount = Number(bookingData?.discount ?? bookingState.discount) || 0;
-  const total = Number(bookingData?.total ?? bookingState.total) || 0;
-  const payable_amount =
-    Number(
-      bookingData?.payable_amount ??
-      bookingState.payable_amount
-    ) || total;
-  const remainingAmount =
-    Number(bookingData?.remainingAmount ?? bookingState.remainingAmount) || 0;
-  const payment_type =
-    bookingData?.payment_type ||
-    contextData?.payment_type ||
-    bookingState.payment_type;
+  const adultCount = Number(data.passengers?.adults) || 0;
+  const childCount = Number(data.passengers?.children) || 0;
+  const infantCount = Number(data.passengers?.infants) || 0;
+
+  const subtotal = Number(data.subtotal) || 0;
+  const discount = Number(data.discount) || 0;
+  const total = Number(data.total) || 0;
+  const payable_amount = Number(data.payable_amount) || total;
+  const remainingAmount = Number(data.remainingAmount) || 0;
+  const payment_type = data.payment_type || "100";
   const booking_code =
-    bookingData?.booking_code ||
-    bookingState.booking_code ||
-    searchParams.get("booking_code") ||
-    "Đang cập nhật";
-  const payment_status =
-    bookingData?.payment_status || bookingState.payment_status;
+    data.booking_code || searchParams.get("booking_code") || "Đang cập nhật";
+  const payment_status = data.payment_status || "pending";
 
   useEffect(() => {
     if (!bookingId) return;

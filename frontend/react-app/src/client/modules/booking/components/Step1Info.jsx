@@ -1,16 +1,15 @@
 import PassengerCard from "./PassengerCard";
-import { useOutletContext, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const Step1Info = () => {
-  const {
-    adultCount,
-    childCount,
-    infantCount,
-    updatePassenger,
-    formData,
-    setFormData,
-    formErrors,
-  } = useOutletContext();
+const Step1Info = ({
+  adultCount,
+  childCount,
+  infantCount,
+  updatePassenger,
+  formData,
+  setFormData,
+  formErrors,
+}) => {
 
   const handleContactChange = (field, value) => {
     setFormData((prev) => ({

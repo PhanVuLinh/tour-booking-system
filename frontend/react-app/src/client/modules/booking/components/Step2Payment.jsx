@@ -1,15 +1,13 @@
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const Step2Payment = () => {
+const Step2Payment = ({
+  formData,
+  payment_type,
+  setPaymentType,
+  payment_method,
+  setPaymentMethod,
+}) => {
   const navigate = useNavigate();
-  const {
-    formData,
-    payment_type,
-    setPaymentType,
-    payment_method,
-    setPaymentMethod,
-  } = useOutletContext();
-
   const contactInfo = formData?.contact || {};
 
   return (
