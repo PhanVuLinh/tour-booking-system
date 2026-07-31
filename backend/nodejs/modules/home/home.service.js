@@ -26,7 +26,9 @@ module.exports.getFlashSales = async () => {
       AND departures.status ='active'
       AND departures.discount_percentage > 0
       AND departures.start_date >= NOW()
-    ORDER BY departures.start_date ASC
+      AND departures.start_date <= DATE_ADD(NOW(), INTERVAL 30 DAY)
+    ORDER BY departures.start_date ASC, departures.discount_percentage DESC
+    LIMIT 10
   `;
 
   const [rows] = await pool.query(sql);
