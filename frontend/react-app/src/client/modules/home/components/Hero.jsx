@@ -28,8 +28,7 @@ function Hero() {
           Đi nơi đâu bạn muốn
         </h1>
         <p className="hero-desc">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua
+          Trải nghiệm dịch vụ đặt tour du lịch uy tín, tiện lợi với hàng ngàn hành trình hấp dẫn trong và ngoài nước cùng TravelGo!
         </p>
 
         <div className="hero-search-box">

@@ -41,15 +41,34 @@ export const validateBookingStep1 = (formData) => {
     if (passenger.dob && passenger.dob.trim() !== "") {
       const dobDate = new Date(passenger.dob);
       const today = new Date();
-      let age = today.getFullYear() - dobDate.getFullYear();
-      const m = today.getMonth() - dobDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
-        age--;
-      }
-      
-      if (age >= 14) {
-        if (!passenger.identity_card || passenger.identity_card.trim() === "") {
-          errors[`${prefix}.identity_card`] = "Hành khách từ 14 tuổi trở lên bắt buộc nhập CMND/CCCD/Passport";
+
+      if (isNaN(dobDate.getTime())) {
+        errors[`${prefix}.dob`] = "Ngày sinh không đúng định dạng";
+      } else if (dobDate > today) {
+        errors[`${prefix}.dob`] = "Ngày sinh không được ở tương lai";
+      } else {
+        let age = today.getFullYear() - dobDate.getFullYear();
+        const m = today.getMonth() - dobDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+          age--;
+        }
+
+        if (type === "adults" && age < 12) {
+          errors[`${prefix}.dob`] = "Người lớn phải từ 12 tuổi trở lên";
+        } else if (type === "children" && (age < 2 || age >= 12)) {
+          errors[`${prefix}.dob`] = "Trẻ em phải từ 2 đến dưới 12 tuổi";
+        } else if (type === "infants" && age >= 2) {
+          errors[`${prefix}.dob`] = "Em bé phải dưới 2 tuổi";
+        }
+
+        if (age >= 14) {
+          if (
+            !passenger.identity_card ||
+            passenger.identity_card.trim() === ""
+          ) {
+            errors[`${prefix}.identity_card`] =
+              "Hành khách từ 14 tuổi trở lên bắt buộc nhập CMND/CCCD/Passport";
+          }
         }
       }
     }
@@ -58,7 +77,8 @@ export const validateBookingStep1 = (formData) => {
       if (!passenger.phone || passenger.phone.trim() === "") {
         errors[`${prefix}.phone`] = "Số điện thoại không được để trống";
       } else if (!phoneRegex.test(passenger.phone)) {
-        errors[`${prefix}.phone`] = "Số điện thoại không hợp lệ (phải đủ 10 số)";
+        errors[`${prefix}.phone`] =
+          "Số điện thoại không hợp lệ (phải đủ 10 số)";
       }
     }
   };
