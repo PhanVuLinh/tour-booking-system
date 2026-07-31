@@ -20,13 +20,7 @@ export default function BookingList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  const [confirmConfig, setConfirmConfig] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    variant: "info",
-    action: null
-  });
+  const [confirmConfig, setConfirmConfig] = useState({isOpen: false,title: "",message: "",variant: "info",action: null});
 
   const loadData = async () => {
     try {
