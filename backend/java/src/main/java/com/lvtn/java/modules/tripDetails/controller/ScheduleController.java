@@ -25,7 +25,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/tour/{tourId}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<?> saveSchedules(@PathVariable Integer tourId, @RequestBody List<ScheduleUpsertRequest> requests) {
         try {
             scheduleService.saveAll(tourId, requests);

@@ -26,7 +26,7 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE tours SET deleted = 0, deletedAt = NULL, deletedBy = NULL, updatedBy = :updaterId WHERE id = :id", nativeQuery = true)
+    @Query(value = "UPDATE tours SET deleted = 0, deleted_at = NULL, deleted_by = NULL, updated_by = :updaterId WHERE id = :id", nativeQuery = true)
     void restoreTourNative(@Param("id") Integer id, @Param("updaterId") Integer updaterId);
 
     @Transactional

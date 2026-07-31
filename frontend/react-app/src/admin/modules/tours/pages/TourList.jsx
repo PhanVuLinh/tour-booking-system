@@ -6,7 +6,12 @@ import { TourDetailModal } from "../components/TourDetailModal";
 import { tourService } from "../services/tourService";
 import { accountService } from "../../users/services/accountService";
 
+import Pagination from "../../../components/Pagination";
+import { usePermission } from "../../../hooks/usePermission";
+
 export function TourList() {
+  const { hasPermission } = usePermission();
+
   const isAdmin = useMemo(() => {
     try {
       const userString = localStorage.getItem("user");
@@ -26,6 +31,13 @@ export function TourList() {
   const [activeTab, setActiveTab] = useState("active");
   const [selectedTour, setSelectedTour] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, trashSearchTerm, activeTab]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,8 +78,9 @@ export function TourList() {
       }
     };
     
+    // 👉 [THAY ĐỔI] Bỏ điều kiện if (hasPermission("VIEW_TOUR")), cho phép gọi loadData() luôn
     loadData();
-  }, [isAdmin,activeTab]);
+  }, [isAdmin, activeTab]);
 
   const getAccountName = (id) => {
     if (!id) return null;
@@ -82,6 +95,11 @@ export function TourList() {
   const filteredDeletedTours = deletedTours.filter((tour) =>
     (tour.title || tour.name || "").toLowerCase().includes(trashSearchTerm.toLowerCase())
   );
+
+  const currentList = activeTab === "active" ? filteredTours : filteredDeletedTours;
+  const totalPages = Math.ceil(currentList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedList = currentList.slice(startIndex, startIndex + itemsPerPage);
 
   const handleViewDetail = (tour) => {
     setSelectedTour(tour);
@@ -106,8 +124,7 @@ export function TourList() {
   };
 
   const handleRestore = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn khôi phục tour này?")) 
-      return;
+    if (!window.confirm("Bạn có chắc chắn muốn khôi phục tour này?")) return;
     try {
       await tourService.restore(id); 
       const tour = deletedTours.find((t) => t.id === id);
@@ -131,16 +148,7 @@ export function TourList() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-64">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Đang tải dữ liệu...</p>
-        </div>
-      </div>
-    );
-  }
+  // 👉 [THAY ĐỔI] Đã xóa toàn bộ khối if (!hasPermission("VIEW_TOUR")) { return ... } ở đây
 
   if (error) {
     return (
@@ -159,15 +167,18 @@ export function TourList() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Tour</h1>
         </div>
-        <Link
-          to="/admin/tours/new"
-          className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-colors font-medium shadow-sm"
-        >
-          <Plus className="w-4 h-4" /> Thêm Tour mới
-        </Link>
+        
+        {hasPermission("CREATE_TOUR") && (
+          <Link
+            to="/admin/tours/new"
+            className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-colors font-medium shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> Thêm Tour mới
+          </Link>
+        )}
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden p-6">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm w-full overflow-hidden p-6 pb-2">
         <div className="inline-flex bg-gray-100 rounded-xl p-1 mb-6">
           <button
             onClick={() => setActiveTab("active")}
@@ -178,7 +189,6 @@ export function TourList() {
             Tour ({tours.length})
           </button>
           
-          {/* 3. Logic UI Khóa Tab Thùng rác */}
           <button
             onClick={() => isAdmin && setActiveTab("trash")}
             disabled={!isAdmin}
@@ -208,16 +218,37 @@ export function TourList() {
             />
           </div>
 
-          {activeTab === "active" ? (
-            <TourTable tours={filteredTours} onView={handleViewDetail} onDelete={handleDelete} getAccountName={getAccountName} />
+          {loading ? (
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mb-3" />
+              <p className="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
+            </div>
           ) : (
-            <TourTrashTable
-              tours={filteredDeletedTours}
-              onRestore={handleRestore}
-              onPermanentDelete={handlePermanentDelete}
-              getAccountName={getAccountName}
-            />
+            <>
+              {activeTab === "active" ? (
+                <TourTable 
+                  tours={paginatedList} 
+                  onView={handleViewDetail} 
+                  onDelete={handleDelete} 
+                  getAccountName={getAccountName} 
+                />
+              ) : (
+                <TourTrashTable
+                  tours={paginatedList}
+                  onRestore={handleRestore}
+                  onPermanentDelete={handlePermanentDelete}
+                  getAccountName={getAccountName}
+                />
+              )}
+              
+              <Pagination 
+                currentPage={currentPage} 
+                totalPages={totalPages} 
+                onPageChange={setCurrentPage} 
+              />
+            </>
           )}
+
         </div>
       </div>
 

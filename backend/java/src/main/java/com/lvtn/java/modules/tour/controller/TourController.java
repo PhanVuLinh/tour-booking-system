@@ -30,7 +30,7 @@ public class TourController {
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'CREATE_TOUR')")
     public ResponseEntity<TourResponse> createTour(
             @RequestPart("data") String dataJson,
             @RequestPart(value = "file", required = false) MultipartFile file,
@@ -60,7 +60,7 @@ public class TourController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'UPDATE_TOUR')")
     public ResponseEntity<TourResponse> updateTour(
             @PathVariable Integer id,
             @RequestPart("data") String dataJson,
@@ -84,7 +84,7 @@ public class TourController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'DELETE_TOUR')")
     public ResponseEntity<?> deleteTour(@PathVariable Integer id) {
         try {
             Integer deleterId = securityUtils.getCurrentAccountId();
@@ -107,7 +107,7 @@ public class TourController {
     }
 
     @GetMapping("/trash")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'TOUR_TRASH')")
     public ResponseEntity<?> getAllTrashTours() {
         try {
             return ResponseEntity.ok(tourService.findAllTrash());
@@ -117,7 +117,7 @@ public class TourController {
     }
 
     @PutMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'TOUR_TRASH')")
     public ResponseEntity<?> restoreTour(@PathVariable Integer id) {
         try {
             Integer restorerId = securityUtils.getCurrentAccountId();
@@ -129,7 +129,7 @@ public class TourController {
     }
 
     @DeleteMapping("/{id}/force")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'TOUR_TRASH')")
     public ResponseEntity<?> hardDeleteTour(@PathVariable Integer id) {
         try {
             tourService.hardDelete(id);
