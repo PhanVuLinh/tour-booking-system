@@ -252,7 +252,7 @@ function OrderBooking() {
 
     if (currentStep === 1) {
       const errors = validateBookingStep1(formData);
-      if (Object.keys(errors).length > 0) {
+      if (errors) {
         setFormErrors(errors);
 
         const contactErrors = Object.entries(errors).filter(([key]) =>

@@ -73,5 +73,5 @@ export const validateBookingStep1 = (formData) => {
     }
   });
 
-  return errors;
+  return Object.keys(errors).length > 0 ? errors : null;
 };
