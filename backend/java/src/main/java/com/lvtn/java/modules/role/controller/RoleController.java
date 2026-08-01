@@ -17,7 +17,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
-    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_ROLE')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getAllRoles() {
         return ResponseEntity.ok(roleService.getAllRoles());
     }

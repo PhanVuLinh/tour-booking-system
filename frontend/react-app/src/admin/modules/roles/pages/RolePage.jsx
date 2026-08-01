@@ -169,7 +169,7 @@ const RolePage = () => {
         )}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-black  mb-4" />
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-4" />
             <span className="text-sm font-medium text-gray-500">Đang tải dữ liệu...</span>
           </div>
         ) : activeTab === "roles" ? (

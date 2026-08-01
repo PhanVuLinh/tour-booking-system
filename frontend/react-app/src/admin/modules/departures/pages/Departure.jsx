@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Lock, RefreshCw, Trash2 } from "lucide-react"; 
+import { Plus, Lock, Loader2, Trash2 } from "lucide-react"; 
 import { DepartureTable, DepartureTrashTable } from "../components/DepartureTable";
 import { DepartureModal } from "../components/DepartureModal";
 import { DepartureDetailModal } from "../components/DepartureDetailModal"; 
@@ -274,7 +274,7 @@ export default function DepartureList() {
         <div className="p-6 pt-2 min-h-[300px] flex flex-col justify-start">
           {isLoading ? (
             <div className="flex-1 flex flex-col items-center justify-center py-12 gap-2">
-              <RefreshCw className="w-8 h-8 animate-spin text-gray-900" />
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               <p className="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
             </div>
           ) : error ? (

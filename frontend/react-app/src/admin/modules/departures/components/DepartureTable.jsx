@@ -60,24 +60,18 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
         <thead>
           <tr className="border-b bg-gray-50/50">
             <th onClick={() => handleSort("tourTitle")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-auto cursor-pointer select-none group">
-              <div className="flex items-center gap-1.5">Tên Tour / Thông tin {renderSortIcon("tourTitle")}</div>
+              <div className="flex items-center gap-1.5">Tên Tou {renderSortIcon("tourTitle")}</div>
             </th>
             <th onClick={() => handleSort("departureFrom")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-32 cursor-pointer select-none group">
               <div className="flex items-center gap-1.5">Điểm đi {renderSortIcon("departureFrom")}</div>
             </th>
             <th onClick={() => handleSort("startTime")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-48 cursor-pointer select-none group">
-              <div className="flex items-center gap-1.5">Khởi hành & Xe {renderSortIcon("startTime")}</div>
+              <div className="flex items-center gap-1.5">Khởi hành & HDV {renderSortIcon("startTime")}</div>
             </th>
             <th onClick={() => handleSort("priceAdult")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-32 cursor-pointer select-none group">
-              <div className="flex items-center gap-1.5">Giá NL {renderSortIcon("priceAdult")}</div>
+              <div className="flex items-center gap-1.5">Giá vé {renderSortIcon("priceAdult")}</div>
             </th>
-            <th onClick={() => handleSort("stockAdult")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-24 cursor-pointer select-none group">
-              <div className="flex items-center gap-1.5">Chỗ NL {renderSortIcon("stockAdult")}</div>
-            </th>
-            <th onClick={() => handleSort("stockChildren")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-24 cursor-pointer select-none group">
-              <div className="flex items-center gap-1.5">Chỗ TE/EB {renderSortIcon("stockChildren")}</div>
-            </th>
-            <th onClick={() => handleSort("status")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-28 cursor-pointer select-none group">
+            <th onClick={() => handleSort("status")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-35 cursor-pointer select-none group">
               <div className="flex items-center gap-1.5">Trạng thái {renderSortIcon("status")}</div>
             </th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-24 text-right">Thao tác</th>
@@ -91,7 +85,7 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
               <tr key={departure.id} className="hover:bg-blue-50/50 transition-colors">
                 
                 <td className="py-3 px-4">
-                  <div className="font-bold text-gray-800 text-sm truncate max-w-[250px]" title={departure.tourTitle}>
+                  <div className="font-bold text-gray-800 text-sm truncate max-w-[300px]" title={departure.tourTitle}>
                     {departure.tourTitle || "Tour chưa xác định"}
                   </div>
                 </td>
@@ -104,22 +98,21 @@ export function DepartureTable({ departures, onView, onEdit, onDelete }) {
 
                 <td className="py-3 px-4">
                   <div className="text-sm font-medium text-gray-900">{dateDisplay}</div>
-                  {renderVehicle(departure.vehicleType, departure.vehicleName)}
+                  <div className="text-sm font-medium text-blue-600">{departure.guideName || "Đang cập nhật"}</div>
+                  
                 </td>
                 
                 <td className="py-3 px-4 text-sm font-medium text-blue-600">
                   {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(departure.priceAdult)}
                 </td>
                 
-                <td className="py-3 px-4 text-sm text-gray-600">{departure.stockAdult}</td>
-                
-                <td className="py-3 px-4 text-sm text-gray-600">{departure.stockChildren} / {departure.stockBaby}</td>
+
                 
                 <td className="py-3 px-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                     departure.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
                   }`}>
-                    {departure.status}
+                    {(departure.status==="active")?"Đang mở":"Đang đóng"}
                   </span>
                 </td>
                 

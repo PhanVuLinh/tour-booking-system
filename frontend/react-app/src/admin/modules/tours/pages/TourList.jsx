@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, Lock } from "lucide-react";
+import { Plus, Search, Loader2, Lock } from "lucide-react";
 import { TourTable, TourTrashTable } from "../components/TourTable";
 import { TourDetailModal } from "../components/TourDetailModal"; 
 import { tourService } from "../services/tourService";
@@ -218,7 +218,7 @@ export function TourList() {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center min-h-[300px]">
-              <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mb-3" />
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               <p className="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
             </div>
           ) : (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, RefreshCw, Lock } from "lucide-react";
+import { Plus, Search, RefreshCw, Lock, Loader2 } from "lucide-react";
 import { CategoryTable, CategoryTrashTable } from "../components/CategoryTable";
 import { CategoryModal } from "../components/CategoryModal";
 import { CategoryDetailModal } from "../components/CategoryDetailModal";
@@ -197,7 +197,10 @@ export default function CategoryList() {
           </div>
           
           {isLoading ? (
-            <div className="text-center py-10"><RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-500" /></div>
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <p className="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
+            </div>
           ) : (
             <>
               {activeTab === "active" ? (

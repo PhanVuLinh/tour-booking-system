@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, RefreshCw, Trash2, Lock } from "lucide-react";
+import { Plus, Search, RefreshCw, Trash2, Lock, Loader2 } from "lucide-react";
 import { VehicleTable, VehicleTrashTable } from "../components/VehicleTable";
 import { VehicleModal } from "../components/VehicleModal";
 import { vehicleService } from "../services/vehicleService";
@@ -11,7 +11,6 @@ const initialFormState = {
 };
 
 export default function VehicleList() {
-  // 1. Kiểm tra quyền Admin
   const isAdmin = useMemo(() => {
     try {
       const userString = localStorage.getItem("user");
@@ -213,9 +212,9 @@ export default function VehicleList() {
           </div>
           
           {isLoading ? (
-            <div className="text-center py-10 text-gray-500 flex flex-col items-center justify-center gap-2">
-              <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
-              <span>Đang đồng bộ dữ liệu...</span>
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <p className="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
             </div>
           ) : activeTab === "active" ? (
             <VehicleTable 

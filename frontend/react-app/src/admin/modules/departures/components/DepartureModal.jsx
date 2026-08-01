@@ -1,6 +1,7 @@
 import { X, Search, UserCheck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { departureService } from "../services/departureService";
+import AlertModal from "../../../components/AlertModal";
 
 export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormData, isEdit, editDepartureId, tourList = [], vehicles = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -8,6 +9,8 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
   const [availableGuides, setAvailableGuides] = useState([]);
   const [isLoadingGuides, setIsLoadingGuides] = useState(false);
   const dropdownRef = useRef(null);
+
+  const [alertMessage, setAlertMessage] = useState("");
 
   const getTourTitle = (tour) => {
     if (!tour) return "";
@@ -99,9 +102,9 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
   });
 
   const handleLocalSubmit = () => {
-    if (!formData.tourId) { alert("Vui lòng chọn một Tour từ danh sách!"); return; }
-    if (!formData.departureFrom) { alert("Vui lòng nhập điểm khởi hành!"); return; }
-    if (!formData.startTime) { alert("Vui lòng chọn ngày khởi hành!"); return; }
+    if (!formData.tourId) { setAlertMessage("Vui lòng chọn một Tour từ danh sách!"); return; }
+    if (!formData.departureFrom) { setAlertMessage("Vui lòng nhập điểm khởi hành!"); return; }
+    if (!formData.startTime) { setAlertMessage("Vui lòng chọn ngày khởi hành!"); return; }
 
     const pAdult = parseFloat(formData.priceAdult || 0);
     const pChild = parseFloat(formData.priceChildren || 0);
@@ -111,11 +114,11 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
     const sBaby = parseInt(formData.stockBaby || 0);
     const disc = parseInt(formData.discount || 0);
 
-    if (pAdult < 0 || pChild < 0 || pBaby < 0) { alert("⚠️ Giá vé không được là số âm!"); return; }
-    if (sAdult < 0 || sChild < 0 || sBaby < 0) { alert("⚠️ Số lượng chỗ không được là số âm!"); return; }
-    if (disc < 0 || disc > 100) { alert("⚠️ Khuyến mãi phải từ 0 đến 100%!"); return; }
-    if (pChild > 0 && pAdult <= pChild) { alert("⚠️ Giá vé NGƯỜI LỚN phải LỚN HƠN giá vé TRẺ EM!"); return; }
-    if (pBaby > 0 && pChild <= pBaby) { alert("⚠️ Giá vé TRẺ EM phải LỚN HƠN giá vé EM BÉ!"); return; }
+    if (pAdult < 0 || pChild < 0 || pBaby < 0) { setAlertMessage("⚠️ Giá vé không được là số âm!"); return; }
+    if (sAdult < 0 || sChild < 0 || sBaby < 0) { setAlertMessage("⚠️ Số lượng chỗ không được là số âm!"); return; }
+    if (disc < 0 || disc > 100) { setAlertMessage("⚠️ Khuyến mãi phải từ 0 đến 100%!"); return; }
+    if (pChild > 0 && pAdult <= pChild) { setAlertMessage("⚠️ Giá vé NGƯỜI LỚN phải LỚN HƠN giá vé TRẺ EM!"); return; }
+    if (pBaby > 0 && pChild <= pBaby) { setAlertMessage("⚠️ Giá vé TRẺ EM phải LỚN HƠN giá vé EM BÉ!"); return; }
 
     onSubmit();
   };
@@ -123,6 +126,7 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
   if (!isOpen) return null;
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-10">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto">
         
@@ -277,5 +281,11 @@ export function DepartureModal({ isOpen, onClose, onSubmit, formData, setFormDat
 
       </div>
     </div>
+    <AlertModal 
+        isOpen={!!alertMessage} 
+        message={alertMessage} 
+        onClose={() => setAlertMessage("")} 
+      />
+    </>
   );
 }

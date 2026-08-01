@@ -25,7 +25,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
     <div className="flex items-center justify-between pt-5 border-t border-gray-100 mt-5">
       <div className="hidden sm:block">
         <p className="text-sm text-gray-500">
-          Đang xem trang <span className="font-semibold text-gray-900">{currentPage}</span> trên tổng số <span className="font-semibold text-gray-900">{totalPages}</span>
+          Trang <span className="font-semibold text-gray-900">{currentPage}</span> / <span className="font-semibold text-gray-900">{totalPages}</span>
         </p>
       </div>
 

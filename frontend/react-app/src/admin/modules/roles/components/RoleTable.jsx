@@ -1,7 +1,13 @@
 import React from "react";
 import { Edit, Shield, Eye, Lock, Unlock } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 
 export const RoleTable = ({ roles, onView, onEdit, onToggleLock }) => {
+  const { hasPermission } = usePermission();
+
+  const canEditRole = hasPermission("UPDATE_ROLE");
+  const canDeleteRole = hasPermission("DELETE_ROLE");
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm text-left">
@@ -61,26 +67,32 @@ export const RoleTable = ({ roles, onView, onEdit, onToggleLock }) => {
                       >
                         <Eye className="w-4 h-4" />
                       </button>
+
                       {!isAdmin ? (
                         <>
-                          <button 
-                            onClick={() => onEdit(role.id)}
-                            className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                            title="Sửa vai trò"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => onToggleLock(role)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              isLocked 
-                                ? 'text-green-600 hover:bg-green-50' 
-                                : 'text-red-500 hover:bg-red-50'
-                            }`}
-                            title={isLocked ? "Mở khóa vai trò" : "Khóa vai trò"}
-                          >
-                            {isLocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                          </button>
+                          {/* Ẩn/Hiện nút Sửa dựa trên quyền UPDATE_ROLE */}
+                          {canEditRole && (
+                            <button 
+                              onClick={() => onEdit(role.id)}
+                              className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                              title="Sửa vai trò"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          )}
+                          {canDeleteRole && (
+                            <button 
+                              onClick={() => onToggleLock(role)}
+                              className={`p-2 rounded-lg transition-colors ${
+                                isLocked 
+                                  ? 'text-green-600 hover:bg-green-50' 
+                                  : 'text-red-500 hover:bg-red-50'
+                              }`}
+                              title={isLocked ? "Mở khóa vai trò" : "Khóa vai trò"}
+                            >
+                              {isLocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                            </button>
+                          )}
                         </>
                       ) : (
                         <div 
