@@ -1,104 +1,165 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Breadcrumb, Pagination } from "../../../shared";
 import { TourFilter, TourCard } from "../components";
+import { buildCategoryBreadcrumb } from "../../../utils/breadcrumb.helper";
+import { getToursByCategory } from "../services/tourService";
 
 function TourList() {
-  // Trạng thái lưu tiêu chí sắp xếp đang được chọn
-  const [activeSort, setActiveSort] = useState("hot");
+  const { slug } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const departure_from = searchParams.get("departure_from") || null;
+  const priceLevel = searchParams.get("priceLevel") || null;
+  const start_date = searchParams.get("start_date") || null;
+  const adults = parseInt(searchParams.get("adults")) || 0;
+  const children = parseInt(searchParams.get("children")) || 0;
+  const babies = parseInt(searchParams.get("babies")) || 0;
+  const sort = searchParams.get("sort") || null;
 
-  // Dữ liệu này sau này bạn dùng fetch() hoặc axios để gọi từ API Node.js về nhé
-  const breadcrumbData = {
-    title: "Tour Nước Ngoài",
-    image:
-      "https://ik.imagekit.io/tvlk/blog/2024/03/du-lich-nuoc-ngoai-cover.jpg",
-    list: [
-      { url: "/", title: "Trang Chủ" },
-      { url: "/tours", title: "Tour Nước Ngoài" },
-      { url: "/tours/detail", title: "phú quốc" },
-    ],
+  const [tours, setTours] = useState([]);
+  const [categoryInfo, setCategoryInfo] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalTours: 0,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [activeSort, setActiveSort] = useState(sort);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const filterParams = {
+      departure_from,
+      priceLevel,
+      start_date,
+      adults,
+      children,
+      babies,
+    };
+    getToursByCategory(slug, page, filterParams, sort)
+      .then((result) => {
+        if (result.success) {
+          setCategoryInfo(result.data.category);
+          setTours(result.data.tours);
+          if (result.data.pagination) {
+            setPagination(result.data.pagination);
+          }
+        }
+      })
+      .catch((error) => console.log("Lỗi khi tải danh mục: ", error))
+      .finally(() => setIsLoading(false));
+  }, [
+    slug,
+    page,
+    departure_from,
+    priceLevel,
+    start_date,
+    adults,
+    children,
+    babies,
+    sort,
+  ]);
+
+  const handleSort = (sortType) => {
+    setActiveSort(sortType);
+    const params = new URLSearchParams(searchParams);
+    if (sortType) {
+      params.set("sort", sortType);
+    } else {
+      params.delete("sort");
+    }
+    params.set("page", "1");
+    setSearchParams(params);
   };
 
-  const tours = Array.from({ length: 6 }).map((_, index) => ({
-    id: index + 1,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdeWlMKbtuouVVFgxVTZcUgMFAg69DGLq6gA&s",
-    title: "Combo Đà Nẵng 2026: ĐÀ NẴNG - HỘI AN - BÀ NÀ HILL",
-    oldPrice: "13.650.000đ",
-    newPrice: "2.590.000 đ",
-    code: "123456789",
-    date: "22/07/2026",
-    time: "10 Ngày 9 Đêm",
-    slots: 10,
-  }));
+  const breadcrumbList = buildCategoryBreadcrumb(categoryInfo, slug);
 
+  const breadcrumbData = {
+    title: categoryInfo?.title || "Đang tải...",
+    thumbnail:
+      categoryInfo?.thumbnail ||
+      "https://ik.imagekit.io/tvlk/blog/2024/03/du-lich-nuoc-ngoai-cover.jpg",
+    list: breadcrumbList,
+  };
   return (
     <div className="tour-list-page">
       <Breadcrumb
         title={breadcrumbData.title}
         list={breadcrumbData.list}
-        image={breadcrumbData.image}
+        thumbnail={breadcrumbData.thumbnail}
       />
 
       <div className="container">
         <div className="tour-list-layout">
-          {/* CỘT TRÁI: BỘ LỌC */}
           <TourFilter />
-
-          {/* CỘT PHẢI: NỘI DUNG TOUR */}
           <main className="tour-list-content">
-            {/* THÊM TIÊU ĐỀ Ở ĐÂY: Tự động lấy tên từ breadcrumbData */}
             <h2 className="tour-list-title">{breadcrumbData.title}</h2>
 
-            <p className="tour-list-desc">
-              Du lịch Châu Á: là châu lục lớn và đông dân nhất thế giới... Hãy
-              cùng TravelGo du lịch Châu Á để tận hưởng những dịch vụ tốt nhất.
-            </p>
-
-            {/* Thanh sắp xếp */}
             <div className="sort-bar">
               <div className="sort-options">
                 <span>Sắp xếp:</span>
                 <button
                   className={`sort-btn ${activeSort === "priceAsc" ? "active" : ""}`}
-                  onClick={() => setActiveSort("priceAsc")}
+                  onClick={() => handleSort("priceAsc")}
                 >
                   Giá tăng dần{" "}
                   <i className="fa-solid fa-arrow-up-short-wide"></i>
                 </button>
                 <button
                   className={`sort-btn ${activeSort === "priceDesc" ? "active" : ""}`}
-                  onClick={() => setActiveSort("priceDesc")}
+                  onClick={() => handleSort("priceDesc")}
                 >
                   Giá giảm dần{" "}
                   <i className="fa-solid fa-arrow-down-wide-short"></i>
                 </button>
                 <button
                   className={`sort-btn ${activeSort === "hot" ? "active" : ""}`}
-                  onClick={() => setActiveSort("hot")}
+                  onClick={() => handleSort("hot")}
                 >
                   Khuyến Mại Hot <i className="fa-solid fa-fire"></i>
                 </button>
-                <button
-                  className={`sort-btn ${activeSort === "view" ? "active" : ""}`}
-                  onClick={() => setActiveSort("view")}
-                >
-                  Xem Nhiều <i className="fa-solid fa-eye"></i>
-                </button>
+                {activeSort && (
+                  <button
+                    className="sort-btn reset-sort-btn"
+                    onClick={() => handleSort(null)}
+                  >
+                    Đặt lại <i className="fa-solid fa-rotate-right"></i>
+                  </button>
+                )}
               </div>
               <div className="sort-total">
-                Tất cả: <strong>101 Tour</strong>
+                Tất cả: <strong>{pagination.totalTours} Tour</strong>
               </div>
             </div>
 
-            {/* Lưới chứa danh sách Tour (3 cột) */}
             <div className="tour-grid-3">
-              {tours.map((tour) => (
-                <TourCard key={tour.id} tour={tour} />
-              ))}
+              {isLoading ? (
+                <div className="client-loading-state">
+                  <div className="client-spinner"></div>
+                  <p>Hệ thống đang tìm kiếm Tour tốt nhất cho bạn...</p>
+                </div>
+              ) : tours.length > 0 ? (
+                tours.map((tour) => <TourCard key={tour.id} tour={tour} />)
+              ) : (
+                <div className="tour-list-empty">
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/11759/11759502.png"
+                    alt="No tours"
+                  />
+                  <h3>Rất tiếc, không có Tour nào phù hợp!</h3>
+                  <p>
+                    Vui lòng thử thay đổi ngày khởi hành, điểm đi hoặc mức giá.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Thanh phân trang */}
-            <Pagination />
+            <Pagination
+              currentPage={Number(pagination.currentPage)}
+              totalPages={Number(pagination.totalPages)}
+            />
           </main>
         </div>
       </div>

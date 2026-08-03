@@ -1,8 +1,55 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import {
+  postCreateContact,
+  getHeaderCategories,
+} from "./services/sharedService";
 
 import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 
 function Footer() {
+  const [email, setEmail] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    getHeaderCategories()
+      .then((result) => {
+        if (result.success) {
+          setCategories(result.data);
+        }
+      })
+      .catch((error) => console.error("Lỗi khi tải danh mục Footer:", error));
+  }, []);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+
+    if (!email.trim()) {
+      toast.error("Vui lòng nhập email!");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Vui lòng nhập đúng định dạng email!");
+      return;
+    }
+
+    try {
+      const response = await postCreateContact(email);
+      if (response && response.success) {
+        toast.success("Đăng ký nhận bản tin thành công!");
+        setEmail("");
+      } else {
+        toast.error(response?.message || "Có lỗi xảy ra khi đăng ký!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi đăng ký nhận tin:", error);
+      toast.error("Lỗi kết nối máy chủ, vui lòng thử lại sau!");
+    }
+  };
+
   return (
     <footer className="footer">
       <div className="container">
@@ -12,8 +59,13 @@ function Footer() {
             Đăng Ký Ngay Để Không Bỏ Lỡ Các <br className="hide-on-mobile" />
             Chương Trình Của Chúng Tôi
           </h3>
-          <form className="newsletter-form">
-            <input type="email" placeholder="Nhập email của bạn..." required />
+          <form className="newsletter-form" onSubmit={handleSubscribe}>
+            <input
+              type="text"
+              placeholder="Nhập email của bạn..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
             <button type="submit">Đăng Ký Ngay</button>
           </form>
         </div>
@@ -24,17 +76,19 @@ function Footer() {
             <li>
               <Link to="/">Trang Chủ</Link>
             </li>
-            <li>
-              <Link to="/category/tour-trong-nuoc">Tour Trong Nước</Link>
-            </li>
-            <li>
-              <Link to="/category/tour-nuoc-ngoai">Tour Nước Ngoài</Link>
-            </li>
+            {categories.map((parent) => (
+              <li key={parent.id}>
+                <Link to={`/category/${parent.slug}`}>{parent.title}</Link>
+              </li>
+            ))}
             <li>
               <Link to="/article">Tin Tức</Link>
             </li>
             <li>
-              <Link to="/contact">Liên Hệ</Link>
+              <Link to="/booking/lookup">Tra Cứu Đơn</Link>
+            </li>
+            <li>
+              <Link to="/support">Hỗ Trợ</Link>
             </li>
           </ul>
 

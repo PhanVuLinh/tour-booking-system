@@ -4,3 +4,5 @@ export { default as Promotions } from "./Promotions";
 export { default as News } from "./News";
 export { default as BannerAd } from "./BannerAd";
 export { default as BannerForeign } from "./BannerForeign";
+export { default as DomesticTours } from "./DomesticTours";
+export { default as ForeignTours } from "./ForeignTours";

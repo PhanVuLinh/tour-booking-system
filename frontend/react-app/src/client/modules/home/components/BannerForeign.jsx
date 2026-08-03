@@ -1,6 +1,6 @@
 function BannerForeign() {
   return (
-    <section className="banner-ad">
+    <section className={`banner-ad`}>
       <div className="container">
         {/* Dùng thẻ <a> bọc ngoài để banner có thể click được */}
         <a href="#" className="banner-ad__link">

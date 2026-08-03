@@ -1,77 +1,74 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { TourCard } from "../../tours";
+import { getFlashSales } from "../services/homeService";
+import { useCountdown } from "../hooks/useCountdown";
+import { formatPrice } from "../../../utils/format.helper";
 
 function FlashSale() {
   const trackRef = useRef(null);
+  const [tourFlashSales, setTourFlashSales] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Lấy ngày khởi hành của tour cận kề nhất làm mốc đếm ngược
+  const targetDate = tourFlashSales.length > 0 ? tourFlashSales[0].start_date : null;
+  const timeLeft = useCountdown(targetDate);
+
+  // Tính số tiền giảm tối đa thực tế từ danh sách tour flash sale
+  const maxDiscountAmount = tourFlashSales.reduce((max, tour) => {
+    const discount = (tour.oldPrice || 0) - (tour.newPrice || 0);
+    return discount > max ? discount : max;
+  }, 0);
+
+  useEffect(() => {
+    setLoading(true);
+    getFlashSales()
+      .then((result) => {
+        if (result.success) {
+          setTourFlashSales(result.data || []);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải tour flash sale:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const padZero = (num) => String(num).padStart(2, "0");
+
+  const getScrollAmount = () => {
+    if (trackRef.current && trackRef.current.children.length > 0) {
+      const cardWidth = trackRef.current.children[0].offsetWidth;
+      const gap = 20; // 20px gap từ CSS
+      return cardWidth + gap;
+    }
+    return 0;
+  };
 
   const handlePrev = () => {
-    if (trackRef.current) {
+    const amount = getScrollAmount();
+    if (trackRef.current && amount > 0) {
       trackRef.current.scrollBy({
-        left: -trackRef.current.clientWidth,
+        left: -amount,
         behavior: "smooth",
       });
     }
   };
 
   const handleNext = () => {
-    if (trackRef.current) {
+    const amount = getScrollAmount();
+    if (trackRef.current && amount > 0) {
       trackRef.current.scrollBy({
-        left: trackRef.current.clientWidth,
+        left: amount,
         behavior: "smooth",
       });
     }
   };
 
-  const tours = [
-    {
-      id: 1,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdeWlMKbtuouVVFgxVTZcUgMFAg69DGLq6gA&s",
-      title: "Hà Nội - Lào Cai - SaPa 4N3Đ",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-    {
-      id: 2,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKI9T9qERj6SwONzi-NysVP7teUnRQJ-h8fA&s",
-      title: "Tour 2026 Phú Quốc - Thiên Đường Đảo Ngọc (3N2D)",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-    {
-      id: 3,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdMadsoH9dgFVmJCZwsPKI7Eizq12E_h-wmA&s",
-      title: "Combo Đà Nẵng 2026: ĐÀ NẴNG - HỘI AN - BÀ NÀ HILL",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-    {
-      id: 4,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdMadsoH9dgFVmJCZwsPKI7Eizq12E_h-wmA&s",
-      title: "Combo Đà Nẵng 2026: ĐÀ NẴNG - HỘI AN - BÀ NÀ HILL",
-      oldPrice: "13.650.000đ",
-      newPrice: "2.590.000 đ",
-      code: "123456789",
-      date: "22/07/2026",
-      time: "10 Ngày 9 Đêm",
-      slots: 10,
-    },
-  ];
+  if (!loading && tourFlashSales.length === 0) {
+    return null;
+  }
 
   return (
     <section className="flash-sale">
@@ -82,60 +79,72 @@ function FlashSale() {
               ƯU ĐÃI 2026 <br /> TOUR GIỜ CHÓT
             </h2>
             <p className="fs-desc">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor
+              Săn tour giá cực sốc – Số lượng chỗ có hạn, chốt deal ngay hôm nay!
             </p>
 
             <div className="fs-countdown-wrap">
               <p className="fs-end-text">Kết thúc sau</p>
               <div className="fs-countdown">
                 <div className="time-item">
-                  <div className="time-box">00</div>
+                  <div className="time-box">{padZero(timeLeft.days)}</div>
                   <span>Ngày</span>
                 </div>
                 <div className="time-item">
-                  <div className="time-box">00</div>
+                  <div className="time-box">{padZero(timeLeft.hours)}</div>
                   <span>Giờ</span>
                 </div>
                 <div className="time-item">
-                  <div className="time-box">00</div>
+                  <div className="time-box">{padZero(timeLeft.minutes)}</div>
                   <span>Phút</span>
                 </div>
                 <div className="time-item">
-                  <div className="time-box">00</div>
+                  <div className="time-box">{padZero(timeLeft.seconds)}</div>
                   <span>Giây</span>
                 </div>
               </div>
             </div>
 
-            <div className="fs-huge-discount">
-              <p>GIẢM ĐẾN</p>
-              <h3>990.000đ</h3>
-            </div>
+            {maxDiscountAmount > 0 && (
+              <div className="fs-huge-discount">
+                <p>GIẢM ĐẾN</p>
+                <h3>{formatPrice(maxDiscountAmount)}</h3>
+              </div>
+            )}
           </div>
 
           <div className="flash-sale__tours">
-            <button
-              className="slider-nav next"
-              onClick={handleNext}
-              aria-label="Next"
-            >
-              <i className="fa-solid fa-chevron-right"></i>
-            </button>
+            {tourFlashSales.length > 0 && (
+              <>
+                <button
+                  className="slider-nav next"
+                  onClick={handleNext}
+                  aria-label="Next"
+                >
+                  <i className="fa-solid fa-chevron-right"></i>
+                </button>
 
-            <button
-              className="slider-nav prev"
-              onClick={handlePrev}
-              aria-label="Prev"
-            >
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
+                <button
+                  className="slider-nav prev"
+                  onClick={handlePrev}
+                  aria-label="Prev"
+                >
+                  <i className="fa-solid fa-chevron-left"></i>
+                </button>
+              </>
+            )}
 
-            <div className="tour-track" ref={trackRef}>
-              {tours.map((tour) => (
-                <TourCard key={tour.id} tour={tour} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="client-loading-state" style={{ padding: "40px 0" }}>
+                <div className="client-spinner"></div>
+                <p>Đang tải danh sách tour flash sale...</p>
+              </div>
+            ) : (
+              <div className="tour-track" ref={trackRef}>
+                {tourFlashSales.map((item) => (
+                  <TourCard key={item.departure_id} tour={item} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

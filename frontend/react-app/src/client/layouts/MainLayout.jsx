@@ -7,15 +7,17 @@ import { Header, Footer, BoxContact } from "../shared";
 function MainLayout() {
   return (
     <>
-      <Header />
+      <div className="client-layout">
+        <Header />
 
-      <main>
-        <Outlet />
-      </main>
+        <main>
+          <Outlet />
+        </main>
 
-      <Footer />
+        <Footer />
 
-      <BoxContact />
+        <BoxContact />
+      </div>
     </>
   );
 }

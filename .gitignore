@@ -1,0 +1,91 @@
+# =========================================================================
+# 1. FRONTEND & NODE (React, Vite, Next.js, Node.js)
+# =========================================================================
+# Loại bỏ node_modules ở mọi cấp thư mục (Quan trọng nhất)
+node_modules/
+**/node_modules/
+
+# Loại bỏ các thư mục build/dist sau khi đóng gói sản phẩm
+dist/
+**/dist/
+dist-ssr/
+**/dist-ssr/
+build/
+**/build/
+
+# Các file log và cache tự sinh của npm/yarn
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.eslintcache
+.node_repl_history
+
+# =========================================================================
+# 2. BACKEND (Java, Spring Boot, Maven)
+# =========================================================================
+# Loại bỏ thư mục compiled code ở mọi cấp thư mục
+target/
+**/target/
+
+# Các file sản phẩm đóng gói dạng nén
+*.class
+*.jar
+*.war
+*.ear
+
+# Loại bỏ log của Java
+logs/
+*.log
+
+# =========================================================================
+# 3. CẤU HÌNH IDE (IntelliJ IDEA, VS Code, Eclipse)
+# =========================================================================
+# IntelliJ IDEA
+.idea/
+**/ .idea/
+*.iml
+*.iws
+*.ipr
+out/
+**/out/
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+
+# Eclipse
+.settings/
+.project
+.classpath
+.factorypath
+
+# Các trình phát triển khác
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =========================================================================
+# 4. BẢO MẬT & BIẾN MÔI TRƯỜNG (Local Environment)
+# =========================================================================
+# Tuyệt đối không commit các file chứa mật khẩu, API key lên GitHub
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.local
+
+# =========================================================================
+# 5. FILE RÁC CỦA HỆ ĐIỀU HÀNH (Windows, macOS)
+# =========================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

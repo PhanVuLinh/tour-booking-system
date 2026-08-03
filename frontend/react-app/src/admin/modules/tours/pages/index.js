@@ -1,1 +1,1 @@
-export { default as TourList } from "./TourList";
+export { TourList } from './TourList';

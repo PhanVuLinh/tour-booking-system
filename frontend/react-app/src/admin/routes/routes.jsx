@@ -1,21 +1,17 @@
-// import Dashboard from "../../pages/admin/Dashboard";
-// import Tours from "../../pages/admin/Tours";
-// import Categories from "../../pages/admin/Categories";
-// import Users from "../../pages/admin/Users";
-// import Bookings from "../../pages/admin/Bookings";
-
-// import Login from "../../pages/admin/Login";
-
-// import AdminLayout from "../layouts/MainLayout";
-// import AdminAuthLayout from "../layouts/AuthLayout";
 
 import { Dashboard } from "../modules/dashboard";
 import { TourList } from "../modules/tours";
 import { CategoryList } from "../modules/categories";
 import { UserList } from "../modules/users";
 import { Booking } from "../modules/bookings";
-
+import { Departure } from "../modules/departures";
+import { Discount } from "../modules/discounts";
 import { Login } from "../modules/login";
+import { BlogList } from "../modules/blogs";
+import { ReviewList } from "../modules/reviews";
+import { BannerList } from "../modules/banners";
+import TourForm from "../modules/tours/pages/TourForm";
+import { VehicleList } from "../modules/vehicles"
 
 import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
@@ -48,6 +44,14 @@ export const adminRoutes = [
             element: <TourList />,
           },
           {
+            path: "/admin/tours/new",
+            element: <TourForm />,
+          },
+          {
+            path: "/admin/tours/edit/:id",
+            element: <TourForm />,
+          },
+          {
             path: "/admin/categories",
             element: <CategoryList />,
           },
@@ -58,6 +62,30 @@ export const adminRoutes = [
           {
             path: "/admin/bookings",
             element: <Booking />,
+          },
+          {
+            path: "/admin/departures",
+            element: <Departure />,
+          },
+          {
+            path: "/admin/vehicles",
+            element: <VehicleList />,
+          },
+          {
+            path: "/admin/discounts",
+            element: <Discount />,
+          },
+          {
+            path: "/admin/blogs",
+            element: <BlogList />,
+          },
+          {
+            path: "/admin/reviews",
+            element: <ReviewList />,
+          },
+          {
+            path: "/admin/banners",
+            element: <BannerList />,
           },
         ],
       },

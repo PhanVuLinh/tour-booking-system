@@ -1,5 +1,30 @@
-function Login() {
-  return <>Page Login</>;
-}
+import React, { useState } from 'react';
+import LoginForm from '../components/LoginForm';
+import { loginService } from '../services/authService';
 
-export default Login;
+const LoginPage = () => {
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async (email, password) => {
+        setLoading(true);
+        try {
+            const data = await loginService(email, password);
+            localStorage.setItem('accessToken', data.accessToken);
+            alert("Chào mừng bạn quay lại!");
+            window.location.href = '/admin';
+        } catch (err) {
+            alert(err.response?.data?.message || "Lỗi đăng nhập");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div>
+            <h1>Đăng nhập hệ thống</h1>
+            <LoginForm onSubmit={handleLogin} loading={loading} />
+        </div>
+    );
+};
+
+export default LoginPage;
