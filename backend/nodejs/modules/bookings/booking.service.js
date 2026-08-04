@@ -1,5 +1,7 @@
 const { pool } = require("../../config/database");
 
+const { sendBookingEmail } = require("./bookingEmail.template");
+
 module.exports.createBooking = async (bookingData) => {
   const connection = await pool.getConnection();
 
@@ -70,19 +72,21 @@ module.exports.createBooking = async (bookingData) => {
     // Bước 2: Lấy lịch khởi hành và khóa dòng dữ liệu
     const [departureRows] = await connection.query(
       `SELECT
-        id,
-        price_adult,
-        price_children,
-        price_baby,
-        discount_percentage,
-        stock_adult,
-        stock_children,
-        stock_baby,
-        status,
-        deleted,
-        start_date
+        departures.id,
+        departures.price_adult,
+        departures.price_children,
+        departures.price_baby,
+        departures.discount_percentage,
+        departures.stock_adult,
+        departures.stock_children,
+        departures.stock_baby,
+        departures.status,
+        departures.deleted,
+        departures.start_date,
+        tours.title as tour_title
       FROM departures
-      WHERE id = ?
+      LEFT JOIN tours ON departures.tour_id = tours.id
+      WHERE departures.id = ?
       FOR UPDATE`,
       [departure_id],
     );
@@ -218,7 +222,7 @@ module.exports.createBooking = async (bookingData) => {
       validCouponId = coupon.id;
     }
 
-    // Bước 6: Backend tự tính tổng tiền phải thanh toán
+    // Bước 6:tính tổng tiền phải thanh toán
     const total = Math.max(sub_total - discount, 0);
     const payable_amount =
       payment_type === "50" ? Math.ceil(total * 0.5) : total;
@@ -433,6 +437,26 @@ module.exports.createBooking = async (bookingData) => {
     }
 
     await connection.commit();
+
+    // Gửi email 
+    sendBookingEmail({
+      email,
+      full_name,
+      booking_code,
+      departure,
+      quantity_adult,
+      quantity_children,
+      quantity_baby,
+      sub_total,
+      discount,
+      total,
+      payable_amount,
+      remainingAmount,
+      payment_method,
+      payment_type,
+      payment_status: "pending",
+    });
+
     return {
       success: true,
       message: "Đặt tour thành công",
