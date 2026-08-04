@@ -5,7 +5,7 @@ import { bookingService } from "../services/BookService";
 import { paymentService } from "../services/paymentService";
 import { passengerService } from "../services/passengerService";
 import { BookingTable } from "../components/BookingTable";
-import { BookingDetailModal } from "../components/BookingDetailModal";
+import { BookingDetailModal, getOverallPaymentStatus } from "../components/BookingDetailModal";
 import ConfirmModal from "../../../components/ConfirmModal";
 import Pagination from "../../../components/Pagination";
 
@@ -62,25 +62,9 @@ export default function BookingList() {
       action: async () => {
         try {
           await bookingService.updateStatus(id, "confirmed");
+          const booking = bookings.find(b => b.id === id);
+          bookingService.notifyStatusChange(id, "confirmed", getOverallPaymentStatus(booking?.payments));
           toast.success("Đã xác nhận đơn hàng");
-          loadData();
-        } catch (error) {
-          toast.error(error.message || "Thao tác thất bại");
-        }
-      }
-    });
-  };
-
-  const handleOngoingBooking = (id) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: "Bắt đầu chuyến đi",
-      message: "Đánh dấu chuyến đi này đang diễn ra?",
-      variant: "warning",
-      action: async () => {
-        try {
-          await bookingService.updateStatus(id, "ongoing");
-          toast.success("Chuyến đi đang diễn ra");
           loadData();
         } catch (error) {
           toast.error(error.message || "Thao tác thất bại");
@@ -98,6 +82,8 @@ export default function BookingList() {
       action: async () => {
         try {
           await bookingService.cancelBooking(id);
+          const booking = bookings.find(b => b.id === id);
+          bookingService.notifyStatusChange(id, "cancelled", getOverallPaymentStatus(booking?.payments));
           toast.success("Đã hủy đơn");
           loadData();
         } catch (error) {
@@ -116,6 +102,8 @@ export default function BookingList() {
       action: async () => {
         try {
           await bookingService.updateStatus(id, "completed");
+          const booking = bookings.find(b => b.id === id);
+          bookingService.notifyStatusChange(id, "completed", getOverallPaymentStatus(booking?.payments));
           toast.success("Đã hoàn thành chuyến đi");
           loadData();
         } catch (error) {
@@ -139,6 +127,7 @@ export default function BookingList() {
           if (selectedBooking) {
             const updatedBooking = await bookingService.getById(selectedBooking.id);
             setSelectedBooking(updatedBooking);
+            bookingService.notifyStatusChange(updatedBooking.id, updatedBooking.status, "paid");
           }
         } catch (error) {
           toast.error(error.message || "Thao tác thất bại");
@@ -210,9 +199,6 @@ export default function BookingList() {
           <button onClick={() => setActiveTab("confirmed")} className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${activeTab === "confirmed" ? "bg-blue-50 text-blue-700" : "text-gray-500 hover:text-gray-700"}`}>
             Đã xác nhận ({getCount("confirmed")})
           </button>
-          <button onClick={() => setActiveTab("ongoing")} className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${activeTab === "ongoing" ? "bg-purple-50 text-purple-700" : "text-gray-500 hover:text-gray-700"}`}>
-            Đang diễn ra ({getCount("ongoing")})
-          </button>
           <button onClick={() => setActiveTab("cancelled")} className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${activeTab === "cancelled" ? "bg-red-50 text-red-700" : "text-gray-500 hover:text-gray-700"}`}>
             Đã hủy ({getCount("cancelled")})
           </button>
@@ -232,7 +218,6 @@ export default function BookingList() {
               data={paginatedBookings} 
               onView={handleView}
               onConfirm={handleConfirmBooking} 
-              onOngoing={handleOngoingBooking}
               onCancel={handleCancelBooking} 
               onComplete={handleCompleteBooking}
             />

@@ -4,31 +4,32 @@ import { PassengerList } from "./PassengerList";
 import { PaymentHistory } from "./PaymentHistory";
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+// 👉 Đưa hàm helper ra ngoài component để tránh lỗi cú pháp export lồng nhau
+export const getOverallPaymentStatus = (payments) => {
+  if (!payments || payments.length === 0) return "pending";
+  if (payments.some(p => p.paymentStatus === "paid")) return "paid";
+  if (payments.every(p => p.paymentStatus === "failed")) return "failed";
+  if (payments.some(p => p.paymentStatus === "refunded")) return "refunded";
+  return payments[payments.length - 1].paymentStatus;
 };
 
 export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdatePassenger }) {
   if (!booking) return null;
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getOverallPaymentStatus = (payments) => {
-    if (!payments || payments.length === 0) return "pending";
-    if (payments.some(p => p.paymentStatus === "paid")) return "paid";
-    if (payments.every(p => p.paymentStatus === "failed")) return "failed";
-    if (payments.some(p => p.paymentStatus === "refunded")) return "refunded";
-    return payments[payments.length - 1].paymentStatus;
-  };
 
   const overallPaymentStatus = getOverallPaymentStatus(booking.payments);
   const pendingPayment = booking.payments?.find(p => p.paymentStatus === "pending");
@@ -36,6 +37,8 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        
+        {/* Modal Header */}
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Chi tiết đơn đặt vé</h2>
@@ -48,7 +51,10 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
           </button>
         </div>
 
+        {/* Modal Body */}
         <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+          
+          {/* Thông tin Tour & Khách đặt */}
           <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl text-sm">
             <div>
               <p className="text-gray-500 mb-0.5">Khách hàng</p>
@@ -69,6 +75,7 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
             </div>
           </div>
 
+          {/* Thông tin liên hệ */}
           <div>
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-2">Thông tin liên hệ</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
@@ -78,6 +85,7 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
             </div>
           </div>
 
+          {/* Bảng chi tiết vé */}
           <div>
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Chi tiết vé</h3>
             <div className="border border-gray-100 rounded-xl overflow-hidden">
@@ -118,12 +126,14 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
             </div>
           </div>
 
+          {/* Danh sách hành khách */}
           <PassengerList 
             passengers={booking.passengers} 
             onUpdatePassenger={onUpdatePassenger}
             bookingStatus={booking.status}
           />
 
+          {/* Lịch sử thanh toán */}
           <PaymentHistory 
             payments={booking.payments} 
             formatCurrency={formatCurrency} 
@@ -131,6 +141,7 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
             onConfirmPayment={onConfirmPayment}
           />
 
+          {/* Ghi chú */}
           {booking.note && (
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-1.5">Ghi chú từ khách hàng:</h3>
@@ -140,6 +151,7 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
             </div>
           )}
 
+          {/* Tổng tiền & Trạng thái */}
           <div className="border-t border-gray-100 pt-4 flex flex-col items-end space-y-2 text-sm">
             <div className="flex justify-between w-64 text-gray-500">
               <span>Tạm tính (subTotal):</span>
@@ -186,6 +198,7 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
           </div>
         </div>
 
+        {/* Modal Footer */}
         <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
           <button onClick={onClose} className="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
             Đóng
