@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { Plus, RefreshCw, Trash2 } from "lucide-react";
-import { VehicleTable } from "../components/VehicleTable";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Search, RefreshCw, Trash2, Lock, Loader2 } from "lucide-react";
+import { VehicleTable, VehicleTrashTable } from "../components/VehicleTable";
 import { VehicleModal } from "../components/VehicleModal";
-import { VehicleTrashModal } from "../components/VehicleTrashModal";
 import { vehicleService } from "../services/vehicleService";
+import { accountService } from "../../users/services/accountService";
 
 const initialFormState = {
   name: "",
@@ -11,39 +11,90 @@ const initialFormState = {
 };
 
 export default function VehicleList() {
+  const isAdmin = useMemo(() => {
+    try {
+      const userString = localStorage.getItem("user");
+      if (!userString) return false;
+      const user = JSON.parse(userString);
+      return user.role && String(user.role).toLowerCase() === "admin";
+    } catch (e) { return false; }
+  }, []);
+
   const [vehicles, setVehicles] = useState([]);
+  const [deletedVehicles, setDeletedVehicles] = useState([]);
+  const [accountList, setAccountList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("active");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [trashSearchTerm, setTrashSearchTerm] = useState("");
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isTrashOpen, setIsTrashOpen] = useState(false);
-  
   const [editVehicle, setEditVehicle] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
 
   const fetchVehicles = async () => {
     try {
       setIsLoading(true);
-      const data = await vehicleService.getAll();
-      setVehicles(data);
+      const [vData, trashData, accData] = await Promise.all([
+        vehicleService.getAll().catch(() => []),
+        isAdmin ? vehicleService.getAllTrash().catch(() => []) : Promise.resolve([]),
+        accountService.getAllActive().catch(() => [])
+      ]);
+      
+      setVehicles(Array.isArray(vData) ? vData : []);
+      setDeletedVehicles(Array.isArray(trashData) ? trashData : []);
+      setAccountList(Array.isArray(accData) ? accData : []);
     } catch (error) {
-      alert("Không thể tải danh sách phương tiện: " + error.message);
+      alert("Lỗi tải dữ liệu: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchVehicles();
-  }, []);
 
   const resetForm = () => {
     setFormData(initialFormState);
     setEditVehicle(null);
   };
 
-  const openNewDialog = () => {
-    resetForm();
-    setIsDialogOpen(true);
+  useEffect(() => {
+    fetchVehicles();
+  }, [isAdmin,activeTab]);
+
+  const getAccountName = (id) => {
+    if (!id) return null;
+    const account = accountList.find(acc => String(acc.id) === String(id));
+    return account ? account.fullName : null;
+  };
+
+  const filteredVehicles = vehicles.filter(v =>
+    v.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredDeletedVehicles = deletedVehicles.filter(v =>
+    v.name?.toLowerCase().includes(trashSearchTerm.toLowerCase())
+  );
+
+  const handleSubmit = async () => {
+    if (!formData.name.trim()) {
+      alert("Vui lòng nhập tên phương tiện!");
+      return;
+    }
+
+    try {
+      if (editVehicle) {
+        await vehicleService.update(editVehicle.id, formData);
+        alert("Cập nhật phương tiện thành công!");
+      } else {
+        await vehicleService.create(formData);
+        alert("Thêm phương tiện mới thành công!");
+      }
+      
+      setIsDialogOpen(false);
+      resetForm();
+      fetchVehicles(); 
+    } catch (error) {
+      alert("Lỗi khi lưu dữ liệu: " + error.message);
+    }
   };
 
   const handleEdit = (vehicle) => {
@@ -55,87 +106,134 @@ export default function VehicleList() {
     setIsDialogOpen(true);
   };
 
+  const openNewDialog = () => {
+    resetForm();
+    setIsDialogOpen(true);
+  };
+
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn chuyển phương tiện này vào thùng rác không?")) {
+    const vehicle = vehicles.find(v => v.id === id);
+    if (window.confirm(`Bạn có chắc chắn muốn chuyển phương tiện "${vehicle?.name}" vào thùng rác?`)) {
       try {
         await vehicleService.delete(id);
-        setVehicles(vehicles.filter(v => v.id !== id));
+        alert("Đã chuyển vào thùng rác thành công!");
+        fetchVehicles();
       } catch (error) {
         alert("Lỗi khi xóa: " + error.message);
       }
     }
   };
 
-  const handleSubmit = async () => {
-    if (!formData.name.trim()) {
-      alert("Vui lòng nhập tên phương tiện!");
-      return;
-    }
-
+  const handleRestore = async (id) => {
     try {
-      if (editVehicle) {
-        await vehicleService.update(editVehicle.id, formData);
-      } else {
-        await vehicleService.create(formData);
-      }
-      
-      setIsDialogOpen(false);
-      resetForm();
-      fetchVehicles(); 
+      await vehicleService.restore(id);
+      alert("Khôi phục thành công!");
+      fetchVehicles();
     } catch (error) {
-      alert("Lỗi khi lưu dữ liệu: " + error.message);
+      alert("Lỗi khi khôi phục: " + error.message);
+    }
+  };
+
+  const handlePermanentDelete = async (id) => {
+    if (window.confirm("Hành động này sẽ xóa vĩnh viễn dữ liệu. Bạn có chắc chắn không?")) {
+      try {
+        await vehicleService.hardDelete(id);
+        alert("Đã xóa vĩnh viễn!");
+        fetchVehicles();
+      } catch (error) {
+        alert("Lỗi khi xóa vĩnh viễn: " + error.message);
+      }
     }
   };
 
   return (
     <div className="w-full p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
       
-      {/* Khối Header & Nút chức năng */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Phương tiện</h1>
           <p className="text-gray-500 mt-1">Danh mục các loại xe, tàu, máy bay</p>
         </div>
         <div className="flex gap-2">
-          {/* Nút Thùng rác */}
           <button 
-            onClick={() => setIsTrashOpen(true)} 
-            className="p-2 border border-gray-300 rounded-lg text-red-600 hover:bg-red-50 transition-colors" 
-            title="Thùng rác"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
-          
-          <button 
-            onClick={fetchVehicles} 
-            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50" 
+            onClick={() => { setIsLoading(true); fetchVehicles(); }} 
+            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" 
             title="Tải lại dữ liệu"
           >
             <RefreshCw className={`w-5 h-5 text-gray-600 ${isLoading ? "animate-spin" : ""}`} />
           </button>
           
-          <button 
-            onClick={openNewDialog} 
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <Plus className="w-4 h-4" /> Thêm mới
-          </button>
+          {activeTab === "active" && (
+            <button 
+              onClick={openNewDialog} 
+              className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm"
+            >
+              <Plus className="w-4 h-4" /> Thêm phương tiện
+            </button>
+          )}
         </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm w-full overflow-hidden">
-        <div className="p-6">
+        <div className="inline-flex bg-gray-100 rounded-xl p-1 m-6 mb-2">
+          <button 
+            onClick={() => { setIsLoading(true); setActiveTab("active"); }} 
+            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${activeTab === "active" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+          >Đang hoạt động
+          </button>
+          
+          <button 
+            onClick={() => { if (isAdmin) { setIsLoading(true); setActiveTab("trash"); } }} 
+            disabled={!isAdmin}
+            title={!isAdmin ? "Bạn cần quyền Admin để xem Thùng rác" : ""}
+            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
+              !isAdmin 
+                ? "opacity-50 cursor-not-allowed text-gray-400"
+                : activeTab === "trash" 
+                ? "bg-white text-gray-900 shadow-sm" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {!isAdmin ? <Lock className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+            Thùng rác {isAdmin && `(${deletedVehicles.length})`}
+          </button>
+        </div>
+
+        <div className="p-6 pt-2">
+          <div className="relative max-w-sm mb-4">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder={activeTab === "active" ? "Tìm kiếm phương tiện..." : "Tìm kiếm trong thùng rác..."} 
+              value={activeTab === "active" ? searchTerm : trashSearchTerm} 
+              onChange={(e) => activeTab === "active" ? setSearchTerm(e.target.value) : setTrashSearchTerm(e.target.value)} 
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all" 
+            />
+          </div>
+          
           {isLoading ? (
-            <div className="text-center py-10 text-gray-500">Đang tải dữ liệu từ máy chủ...</div>
-          ) : (
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <p className="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
+            </div>
+          ) : activeTab === "active" ? (
             <VehicleTable 
-              vehicles={vehicles} 
+              vehicles={filteredVehicles} 
               onEdit={handleEdit} 
               onDelete={handleDelete} 
+              getAccountName={getAccountName}
+            />
+          ) : (
+            <VehicleTrashTable 
+              vehicles={filteredDeletedVehicles} 
+              onRestore={handleRestore} 
+              onPermanentDelete={handlePermanentDelete} 
+              getAccountName={getAccountName}
             />
           )}
         </div>
       </div>
+
       <VehicleModal 
         isOpen={isDialogOpen} 
         onClose={() => setIsDialogOpen(false)} 
@@ -143,11 +241,6 @@ export default function VehicleList() {
         formData={formData} 
         setFormData={setFormData} 
         isEdit={!!editVehicle} 
-      />
-      <VehicleTrashModal 
-        isOpen={isTrashOpen} 
-        onClose={() => setIsTrashOpen(false)} 
-        onRestored={fetchVehicles} 
       />
       
     </div>

@@ -1,9 +1,11 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 function PrivateRoute() {
-  const isAdmin = true;
-
-  return isAdmin ? <Outlet /> : <Navigate to="/admin/login" />;
+const token = localStorage.getItem("accessToken");
+if (!token) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return <Outlet />;
 }
 
 export default PrivateRoute;

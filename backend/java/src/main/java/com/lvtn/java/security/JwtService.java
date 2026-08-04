@@ -1,7 +1,7 @@
 package com.lvtn.java.security;
 
 import com.lvtn.java.config.AppJwtProperties;
-import com.lvtn.java.domain.entity.Account;
+import com.lvtn.java.modules.user.entity.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -31,8 +31,10 @@ public class JwtService {
     }
 
     public String generateAccessToken(Account account, Instant now, Instant expiresAt) {
-        String roleName = account.getRole() != null ? account.getRole().getName() : "STAFF";
-
+        if (account.getRole() == null) {
+            throw new RuntimeException("Tài khoản của bạn chưa được phân quyền. Vui lòng liên hệ Admin!");
+        }
+        String roleName = account.getRole().getName();
         return Jwts.builder()
                 .issuer(properties.issuer())
                 .subject(account.getEmail())
@@ -44,6 +46,14 @@ public class JwtService {
                 .claim("fullName", account.getFullName())
                 .signWith(secretKey)
                 .compact();
+    }
+    public List<String> extractAuthorities(String token) {
+        Claims claims = parseClaims(token);
+        Object authoritiesObject = claims.get("authorities");
+        if (authoritiesObject instanceof List<?> authList) {
+            return authList.stream().map(String::valueOf).toList();
+        }
+        return Collections.emptyList();
     }
 
     public String generateRefreshToken(Account account, String jti, Instant now, Instant expiresAt) {
@@ -64,7 +74,14 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        return parseClaims(token).getSubject(); // Trả về Email
+        return parseClaims(token).getSubject();
+    }
+
+    public Integer extractAccountId(String token) {
+        Object accountId = parseClaims(token).get("accountId");
+        if (accountId instanceof Integer i) return i;
+        if (accountId instanceof Number n) return n.intValue();
+        return null;
     }
 
     public List<String> extractRoles(String token) {

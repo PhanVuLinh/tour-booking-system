@@ -1,4 +1,5 @@
-import { Eye, Lock, Unlock, ShieldCheck, User, Trash2 } from "lucide-react";
+import { Eye, Lock, Unlock, ShieldCheck, User, Trash2, Edit } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 
 const RoleBadge = ({ roleId, roleName }) => {
   if (roleId === 1) {
@@ -15,12 +16,15 @@ const RoleBadge = ({ roleId, roleName }) => {
   );
 };
 
-export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
+export function EmployeeTable({ data, onView, onToggleLock, onDelete, onEdit, startIndex = 0 }) {
+  const { hasPermission } = usePermission();
+
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[900px]">
         <thead>
           <tr className="border-b bg-gray-50/50">
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600">STT</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Nhân viên</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Liên hệ</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Chức vụ</th>
@@ -30,8 +34,9 @@ export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
-          {data.map((employee) => (
+          {data.map((employee, index) => (
             <tr key={employee.id} className="hover:bg-gray-50 transition-colors">
+              <td className="py-3 px-4 text-sm text-gray-500">{startIndex + index + 1}</td>
               <td className="py-3 px-4">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center text-gray-500 font-bold">
@@ -43,7 +48,7 @@ export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
                   </div>
                   <div>
                     <div className="font-medium text-gray-900">{employee.fullName}</div>
-                    <div className="mt-1"><RoleBadge roleId={employee.roleId} roleName={employee.roleName} /></div>
+                    <div className="text-sm"><RoleBadge roleId={employee.roleId} roleName={employee.roleName} /></div>
                   </div>
                 </div>
               </td>
@@ -64,19 +69,36 @@ export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
               </td>
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
-                  <button onClick={() => onView(employee)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" title="Xem / Sửa chi tiết">
+                  <button 
+                    onClick={() => onView(employee)} 
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" 
+                    title="Xem chi tiết"
+                  >
                     <Eye className="w-4 h-4" />
                   </button>
-                  <button 
-                    onClick={() => onToggleLock(employee.id, "employee", employee.status)} 
-                    className={`p-2 rounded-md transition-colors ${
-                      employee.status === "active" ? "text-red-600 hover:bg-red-50" : "text-green-600 hover:bg-green-50"
-                    }`}
-                    title={employee.status === "active" ? "Khóa tài khoản" : "Mở khóa tài khoản"}
-                  >
-                    {employee.status === "active" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                  </button>
-                  {onDelete && (
+                  
+                  {hasPermission("UPDATE_USER") && (
+                    <>
+                      <button 
+                        onClick={() => onEdit(employee)} 
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" 
+                        title="Sửa thông tin"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => onToggleLock(employee.id, "employee", employee.status)} 
+                        className={`p-2 rounded-md transition-colors ${
+                          employee.status === "active" ? "text-red-600 hover:bg-red-50" : "text-green-600 hover:bg-green-50"
+                        }`}
+                        title={employee.status === "active" ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+                      >
+                        {employee.status === "active" ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                      </button>
+                    </>
+                  )}
+
+                  {hasPermission("DELETE_USER") && (
                     <button 
                       onClick={() => onDelete(employee.id, "employee")} 
                       className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" 
@@ -91,7 +113,7 @@ export function EmployeeTable({ data, onView, onToggleLock, onDelete }) {
           ))}
           {data.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-10 text-center text-gray-400 text-sm">
+              <td colSpan={7} className="py-10 text-center text-gray-400 text-sm">
                 Không có dữ liệu nhân viên
               </td>
             </tr>

@@ -12,11 +12,14 @@ import { ReviewList } from "../modules/reviews";
 import { BannerList } from "../modules/banners";
 import TourForm from "../modules/tours/pages/TourForm";
 import { VehicleList } from "../modules/vehicles"
+import  {BlogForm}  from "../modules/blogs";
+import { ContactList } from "../modules/contacts";
 
 import { MainLayout } from "../layouts";
 import { AuthLayout } from "../layouts";
 
 import PrivateRoute from "./PrivateRoute";
+import { RolePage, RoleForm } from "../modules/roles/pages";
 
 export const adminRoutes = [
   {
@@ -76,8 +79,28 @@ export const adminRoutes = [
             element: <Discount />,
           },
           {
+            path: "/admin/roles",
+            element: <RolePage />,
+          },
+          {
+            path: "/admin/roles/new",
+            element: <RoleForm />,
+          },
+          {
+            path: "/admin/roles/edit/:id",
+            element: <RoleForm />,
+          },
+          {
             path: "/admin/blogs",
             element: <BlogList />,
+          },
+          {
+            path: "/admin/blogs/new",
+            element: <BlogForm />,
+          },
+          {
+            path: "/admin/blogs/edit/:id",
+            element: <BlogForm />,
           },
           {
             path: "/admin/reviews",
@@ -87,6 +110,10 @@ export const adminRoutes = [
             path: "/admin/banners",
             element: <BannerList />,
           },
+          {
+            path: "/admin/contacts",
+            element: <ContactList />,
+          }
         ],
       },
     ],

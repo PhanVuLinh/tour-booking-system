@@ -1,56 +1,44 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
+
 
 function AuthLayout() {
   const token = localStorage.getItem("accessToken");
+  if (token) return <Navigate to="/admin" replace />;
 
-  if (token) {
-    return <Navigate to="/admin" replace />;
-  }
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4">
-      <div className="flex w-full max-w-5xl bg-white shadow-2xl rounded-2xl overflow-hidden min-h-[500px]">
-                <div className="hidden md:flex flex-col justify-center w-1/2 bg-blue-600 p-10 text-white relative overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop')] 
-                      bg-cover bg-center opacity-30 mix-blend-overlay"
-          ></div>
-          
-          <div className="relative z-10">
-            <h1 className="text-4xl font-extrabold mb-4 leading-tight">
-              Hệ thống quản lý <br /> Tour Booking
-            </h1>
-            <p className="text-lg text-blue-100 mb-8">
-              Nền tảng vận hành và quản lý đặt tour thông minh, nhanh chóng và bảo mật.
-            </p>
-            
-            <div className="flex items-center gap-3 text-sm text-blue-200">
-              <span className="flex items-center gap-1">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Quản lý dễ dàng
-              </span>
-              <span className="flex items-center gap-1">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Bảo mật cao
-              </span>
-            </div>
-          </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+
+      {/* Header */}
+      <header className="w-full bg-white border-b border-gray-100 shadow-sm px-8 py-4 flex items-center gap-3 ">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-3 hover:opacity-70 transition-opacity"
+        >
+          <span className="text-base font-bold text-blue-600">Về trang chủ</span>
+        </button>
+        <div className="flex items-center justify-center w-full  max-w-6xl">
+          <img className="logo__img " src={logoTravelGo} alt="TRAVELGO" />
         </div>
+      </header>
 
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-white">
-          <div className="w-full max-w-sm mx-auto">
-            
-            <div className="text-center md:text-left mb-8">
-              <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Chào mừng trở lại</h2>
-              <p className="text-gray-500 mt-2 text-sm">Vui lòng nhập thông tin để truy cập hệ thống.</p>
-            </div>
-
-            <Outlet />
-
-          </div>
+      {/* Main */}
+      <main className="flex-1 flex items-center justify-center p-6">
+        <div className="flex w-full max-w-4xl bg-white shadow-xl rounded-2xl overflow-hidden min-h-[460px]">
+          <Outlet />
         </div>
+      </main>
 
-      </div>
+      {/* Footer */}
+      <footer className="w-full border-t border-gray-100 bg-white px-8 py-4 text-center">
+        <p className="text-xs text-gray-400">
+          © {new Date().getFullYear()} Tour Booking System. All rights reserved.
+        </p>
+      </footer>
+
     </div>
   );
 }

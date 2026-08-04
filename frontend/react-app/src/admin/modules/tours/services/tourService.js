@@ -5,13 +5,13 @@ function mapTour(tour) {
     id:          tour.id,
     name:        tour.title,
     image:       tour.thumbnail,
+    images:      tour.images || [], 
     duration:    tour.time,
     categoryId:  tour.categoryId,
     category:    "", 
     description: tour.description,
-    status:      tour.status,
-    price:       tour.price ?? 0,
-    
+    status:      tour.status,    
+    schedules:   tour.schedules,  
     createdAt:   tour.createdAt,
     updatedAt:   tour.updatedAt,
     createdBy:   tour.createdBy,
@@ -92,9 +92,26 @@ export const tourService = {
     }
   },
 
-  update: async (id, data) => {
+  update: async (id, payload, imageFile, galleryImages = []) => {
     try {
-      const res = await apiClient.put(`/tour/${id}`, data);
+      const body = new FormData();
+      const { existingImages = [], ...restPayload } = payload;
+      body.append("data", new Blob([JSON.stringify(restPayload)], { type: "application/json" }));
+
+      if (imageFile) body.append("file", imageFile);
+
+      if (galleryImages && galleryImages.length > 0) {
+        galleryImages.forEach(img => body.append("images", img));
+      }
+
+      if (existingImages.length > 0) {
+        existingImages.forEach(url => body.append("existingImageUrls", url));
+      }
+      const res = await apiClient.put(`/tour/${id}`, body, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       return res.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || "Cập nhật tour thất bại");
@@ -106,7 +123,8 @@ export const tourService = {
       const res = await apiClient.delete(`/tour/${id}`);
       return res.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Xóa tour thất bại");
+      const backendMessage = error.response?.data?.message || error.response?.data;
+      throw new Error(backendMessage || "Có lỗi xảy ra khi xóa Tour");
     }
   },
 
@@ -115,13 +133,14 @@ export const tourService = {
       const res = await apiClient.delete(`/tour/${id}`);
       return res.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || "Xóa tour thất bại");
+      const backendMessage = error.response?.data?.message || error.response?.data;
+      throw new Error(backendMessage || "Xóa tour thất bại");
     }
   },
 
   restore: async (id) => {
     try {
-      const res = await apiClient.put(`/tour/${id}/restore`);
+      const res = await apiClient.put(`/tour/${id}/restore`, {});
       return res.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || "Khôi phục tour thất bại");
@@ -135,5 +154,5 @@ export const tourService = {
     } catch (error) {
       throw new Error(error.response?.data?.message || "Xóa vĩnh viễn thất bại");
     }
-  },
+  }
 };
