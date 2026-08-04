@@ -10,7 +10,7 @@ module.exports.sendMail = (email, subject, htmlContent) => {
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `"Tour TravelGo" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: subject,
     html: htmlContent,
