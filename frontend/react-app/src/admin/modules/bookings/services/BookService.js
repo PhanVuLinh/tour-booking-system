@@ -1,4 +1,5 @@
-import { apiClient } from "../../login/services/authService"; // Đường dẫn tuỳ thuộc cấu trúc của bạn
+import axios from "axios";
+import { apiClient } from "../../login/services/authService";
 
 export const bookingService = {
   getAll: async () => {
@@ -23,5 +24,18 @@ export const bookingService = {
       status: 'cancelled' 
     });
     return response.data.data;
+  },
+
+  notifyStatusChange: async (bookingId, status, paymentStatus) => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/bookings/admin/update-status', {
+        bookingId,
+        status,
+        payment_status: paymentStatus
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi khi đồng bộ trạng thái sang hệ thống khác:", error);
+    }
   }
 };

@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Eye, Check, PlayCircle } from "lucide-react";
+import { CheckCircle, XCircle, Eye, Check } from "lucide-react";
 
 export const getStatusBadge = (status) => {
   switch (status) {
@@ -6,8 +6,6 @@ export const getStatusBadge = (status) => {
       return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">Chờ xác nhận</span>;
     case "confirmed":
       return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">Đã xác nhận</span>;
-    case "ongoing":
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">Đang diễn ra</span>;
     case "cancelled":
       return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">Đã hủy</span>;
     case "completed":
@@ -32,7 +30,7 @@ export const getPaymentStatusBadge = (status) => {
   }
 };
 
-export function BookingTable({ data, onView, onConfirm, onCancel, onOngoing, onComplete }) {
+export function BookingTable({ data, onView, onConfirm, onCancel, onComplete }) {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
   };
@@ -92,16 +90,10 @@ export function BookingTable({ data, onView, onConfirm, onCancel, onOngoing, onC
                         <button onClick={() => onCancel(booking.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Hủy đơn">
                           <XCircle className="w-4 h-4" />
                         </button>
-                        <button onClick={() => onOngoing(booking.id)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-md transition-colors" title="Bắt đầu chuyến đi">
-                          <PlayCircle className="w-4 h-4" />
+                        <button onClick={() => onComplete(booking.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Hoàn thành chuyến đi">
+                          <Check className="w-4 h-4" />
                         </button>
                       </>
-                    )}
-
-                    {booking.status === "ongoing" && (
-                      <button onClick={() => onComplete(booking.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Hoàn thành chuyến đi">
-                        <Check className="w-4 h-4" />
-                      </button>
                     )}
                   </div>
                 </td>
