@@ -25,7 +25,7 @@ module.exports.saveEmail = async (email) => {
                 <!-- Phần Header: Nền tím chủ đạo + Logo -->
                 <div style="background-color: #4502c7; padding: 30px 20px; text-align: center;">
                     <!-- LƯU Ý: Thay dải URL bên dưới thành link ảnh logo thật trên server/hosting của bạn -->
-                    <img src="https://yourdomain.com/images/logotravelgo-white.png" alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; color: white; font-size: 24px; font-weight: bold;" />
+                    <img src=${process.env.URL_FE_1}/images/logotravelgo-white.png alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; color: white; font-size: 24px; font-weight: bold;" />
                 </div>
 
                 <!-- Phần Nội dung (Body) -->
@@ -43,7 +43,7 @@ module.exports.saveEmail = async (email) => {
                     <!-- Nút Kêu gọi hành động (CTA) -->
                     <div style="text-align: center; margin: 40px 0;">
                         <!-- Thay URL bên dưới thành URL trang web của bạn -->
-                        <a href="http://localhost:5173/" style="background-color: #ff3b2f; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 15px; font-weight: bold; display: inline-block;">Khám phá tour ngay</a>
+                        <a href=${process.env.URL_FE_1} style="background-color: #ff3b2f; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 15px; font-weight: bold; display: inline-block;">Khám phá tour ngay</a>
                     </div>
 
                     <hr style="border: none; border-top: 1px dashed #eee; margin: 30px 0;" />
