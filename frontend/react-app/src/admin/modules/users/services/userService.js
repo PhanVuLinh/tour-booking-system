@@ -3,16 +3,16 @@ import { apiClient } from '../../login/services/authService';
 function mapUser(user) {
   return {
     id: user.id,
-    name: user.fullName, 
+    name: user.fullName,
     email: user.email,
     phone: user.phone || "—",
-    
-    totalBookings: user.totalBookings || 0, 
+
+    totalBookings: user.totalBookings || 0,
     totalSpent: user.totalSpent || 0,
-    
+
     status: user.status,
     joinedDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : "—",
-    
+
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -46,13 +46,8 @@ export const userService = {
     }
   },
 
-  create: async (payload) => {
-    try {
-      const res = await apiClient.post('/user', payload);
-      return res.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || error.response?.data || "Tạo tài khoản khách hàng thất bại");
-    }
+  create: async () => {
+    throw new Error("Chức năng tạo tài khoản khách hàng hiện chưa được hỗ trợ");
   },
 
   update: async (id, payload) => {

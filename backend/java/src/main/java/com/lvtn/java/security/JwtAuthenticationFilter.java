@@ -19,7 +19,6 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
-
     private final JwtService jwtService;
 
     public JwtAuthenticationFilter(JwtService jwtService) {
@@ -31,33 +30,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            String token = authHeader.substring(BEARER_PREFIX.length());
+            try {
+                if (!jwtService.isAccessToken(token)) {
+                    writeUnauthorizedResponse(response, "Invalid access token");
+                    return;
+                }
 
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+                String email = jwtService.extractUsername(token);
+                Integer accountId = jwtService.extractAccountId(token);
 
-        String token = authHeader.substring(BEARER_PREFIX.length());
+                List<SimpleGrantedAuthority> authorities = jwtService.extractAuthorities(token).stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
 
-        try {
-            if (!jwtService.isAccessToken(token)) {
-                writeUnauthorizedResponse(response, "Invalid access token");
+                AuthPrincipal principal = new AuthPrincipal(accountId, email);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(principal, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            } catch (JwtException | IllegalArgumentException ex) {
+                SecurityContextHolder.clearContext();
+                writeUnauthorizedResponse(response, "Token is invalid or expired");
                 return;
             }
-
-            String email = jwtService.extractUsername(token);
-            List<SimpleGrantedAuthority> authorities = jwtService.extractRoles(token).stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                    .toList();
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (JwtException | IllegalArgumentException ex) {
-            SecurityContextHolder.clearContext();
-            writeUnauthorizedResponse(response, "Token is invalid or expired");
-            return;
         }
-
         filterChain.doFilter(request, response);
     }
 

@@ -19,10 +19,10 @@ public class TourResponse {
     private String slug;
     private List<ScheduleResponse> schedules;
     private String description;
-    private Double price;
     private String time;
     private String thumbnail;
     private String status;
+    private List<String> images;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer createdBy;

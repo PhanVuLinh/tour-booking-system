@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 public class DepartureUpsertRequest {
     private Integer tourId;
     private Integer vehicleId;
+    private Integer guideId;
     private LocalDateTime startTime;
+    private LocalDateTime endDate;
     private BigDecimal priceAdult;
     private BigDecimal priceChildren;
     private BigDecimal priceBaby;
@@ -22,4 +24,12 @@ public class DepartureUpsertRequest {
     private int stockBaby;
     private Integer discount;
     private String status = "active";
+    private String departureFrom;
+    private LocalDateTime deletedAt;
+    private Integer createdBy;
+    private Integer updatedBy;
+    private Integer deletedBy;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
 }

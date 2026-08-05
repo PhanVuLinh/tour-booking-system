@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,5 +19,8 @@ public class TourCreateRequest {
     private String thumbnail;
     private String status;
     private Integer createdBy;
-    private Double price;
+    private Integer updatedBy;
+    private Integer deletedBy;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -1,5 +1,11 @@
 import { apiClient } from '../../login/services/authService';
 
+const getAuthHeaders = () => ({
+  headers: {
+    'X-User-Id': localStorage.getItem("userId") || ""
+  }
+});
+
 export const vehicleService = {
   getAll: async () => {
     try {
@@ -21,7 +27,7 @@ export const vehicleService = {
 
   create: async (data) => {
     try {
-      const response = await apiClient.post('/vehicle', data);
+      const response = await apiClient.post('/vehicle', data, getAuthHeaders());
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data || "Thêm phương tiện thất bại");
@@ -30,7 +36,7 @@ export const vehicleService = {
 
   update: async (id, data) => {
     try {
-      const response = await apiClient.put(`/vehicle/${id}`, data);
+      const response = await apiClient.put(`/vehicle/${id}`, data, getAuthHeaders());
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data || "Cập nhật phương tiện thất bại");
@@ -39,14 +45,14 @@ export const vehicleService = {
 
   delete: async (id) => {
     try {
-      const response = await apiClient.delete(`/vehicle/${id}`);
+      const response = await apiClient.delete(`/vehicle/${id}`, getAuthHeaders());
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data || "Xóa phương tiện thất bại");
     }
   },
 
-  getTrash: async () => {
+  getAllTrash: async () => {
     try {
       const response = await apiClient.get('/vehicle/trash');
       return response.data;
@@ -57,7 +63,7 @@ export const vehicleService = {
 
   restore: async (id) => {
     try {
-      const response = await apiClient.put(`/vehicle/${id}/restore`);
+      const response = await apiClient.put(`/vehicle/${id}/restore`, {}, getAuthHeaders());
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data || "Khôi phục phương tiện thất bại");

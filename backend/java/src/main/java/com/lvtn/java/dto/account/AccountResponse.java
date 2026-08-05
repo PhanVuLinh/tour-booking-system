@@ -25,4 +25,9 @@ public class AccountResponse {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+
+    private Integer createdBy;
+    private Integer updatedBy;
+    private Integer deletedBy;
 }

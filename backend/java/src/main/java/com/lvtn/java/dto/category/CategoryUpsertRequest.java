@@ -1,6 +1,5 @@
 package com.lvtn.java.dto.category;
 
-import com.lvtn.java.domain.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +15,7 @@ public class CategoryUpsertRequest {
     private String description;
     private String thumbnail;
     private String status = "active";
+    private Integer createdBy;
+    private Integer updatedBy;
+    private Integer deletedBy;
 }

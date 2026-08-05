@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Upload, X, ImageIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { TourItinerary } from "../components/TourItinerary";
+import { TourImageUpload } from "../components/TourImageUpload";
 import { tourService } from "../services/tourService";
-import { saveSchedules, getSchedulesByTourId } from "../services/scheduleService"; 
+import { saveSchedules, getSchedulesByTourId } from "../services/scheduleService";
 
 export default function TourForm() {
   const navigate = useNavigate();
@@ -12,16 +13,16 @@ export default function TourForm() {
 
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
+
   const [imageFile, setImageFile] = useState(null);
+  const [galleryFiles, setGalleryFiles] = useState([]);
+  const [galleryPreviews, setGalleryPreviews] = useState([]);
+
+  const [categories, setCategories] = useState([]);
 
   const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    price: "",
-    duration: "",
-    description: "",
-    image: "",
-    status: "active",
+    name: "", category: "", duration: "",
+    description: "", image: "", status: "active",
   });
 
   const [itinerary, setItinerary] = useState([
@@ -29,32 +30,51 @@ export default function TourForm() {
   ]);
 
   useEffect(() => {
-    if (!isEdit) return;
+    return () => {
+      galleryPreviews.forEach(url => {
+        if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+      });
+    };
+  }, [galleryPreviews]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await tourService.getCategories();
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (!isEdit) return;
     const fetchTour = async () => {
       try {
         setLoading(true);
         const tour = await tourService.getById(id);
         setFormData({
-          name:        tour.title || tour.name || "",
+          name:        tour.name || "",
           category:    tour.categoryId ? String(tour.categoryId) : "",
-          price:       tour.price || "",
-          duration:    tour.time || tour.duration || "",
+          duration:    tour.duration || "",
           description: tour.description || "",
-          image:       tour.thumbnail || tour.image || "",
+          image:       tour.image || "",
           status:      tour.status || "active",
         });
-        
-        try {
-            const scheduleData = await getSchedulesByTourId(id);
-            const validSchedules = Array.isArray(scheduleData) ? scheduleData : (scheduleData.data || []);
-            if (validSchedules.length > 0) {
-                setItinerary(validSchedules);
-            }
-        } catch (scheduleErr) {
-            console.log("Tour này chưa có lộ trình hoặc lỗi lấy lộ trình.");
+        if (Array.isArray(tour.images) && tour.images.length > 0) {
+          setGalleryPreviews(tour.images);
         }
-
+        try {
+          const scheduleData = await getSchedulesByTourId(id);
+          const validSchedules = Array.isArray(scheduleData)
+            ? scheduleData
+            : (scheduleData.data || []);
+          if (validSchedules.length > 0) setItinerary(validSchedules);
+        } catch (scheduleErr) {
+          console.log(scheduleErr);
+        }
       } catch (err) {
         alert("Không tìm thấy tour: " + err.message);
         navigate("/admin/tours");
@@ -62,36 +82,76 @@ export default function TourForm() {
         setLoading(false);
       }
     };
-
     fetchTour();
   }, [id, isEdit, navigate]);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      alert("Vui lòng chọn file ảnh (PNG, JPG, WEBP...)");
-      return;
+  const handleThumbnailChange = (file, previewUrl) => {
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        alert("Vui lòng chọn file ảnh (PNG, JPG, WEBP...)");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Ảnh không được vượt quá 5MB");
+        return;
+      }
+      setImageFile(file);
+      setFormData(prev => ({ ...prev, image: URL.createObjectURL(file) }));
+    } else {
+      setFormData(prev => ({ ...prev, image: previewUrl }));
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Ảnh không được vượt quá 5MB");
-      return;
-    }
-
-    setImageFile(file);
-    setFormData((prev) => ({ ...prev, image: URL.createObjectURL(file) }));
   };
 
-  const handleRemoveImage = () => {
+  const handleThumbnailRemove = () => {
     setImageFile(null);
-    setFormData((prev) => ({ ...prev, image: "" }));
+    setFormData(prev => ({ ...prev, image: "" }));
+  };
+
+  const handleGalleryChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith("image/")) {
+        alert(`File ${file.name} không phải là ảnh!`);
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`Ảnh ${file.name} vượt quá 5MB`);
+        return false;
+      }
+      return true;
+    });
+
+    if (galleryPreviews.length + validFiles.length > 5) {
+      alert("Bạn chỉ có thể tải lên tối đa 5 ảnh phụ!");
+      return;
+    }
+
+    setGalleryFiles(prev => [...prev, ...validFiles].slice(0, 5));
+    setGalleryPreviews(prev =>
+      [...prev, ...validFiles.map(f => URL.createObjectURL(f))].slice(0, 5)
+    );
+  };
+
+  const handleGalleryRemove = (index) => {
+    const removedUrl = galleryPreviews[index];
+
+    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
+    if (removedUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(removedUrl);
+
+      const blobPreviews = galleryPreviews.filter(u => u.startsWith("blob:"));
+      const blobIndex = blobPreviews.indexOf(removedUrl);
+      if (blobIndex !== -1) {
+        setGalleryFiles(prev => prev.filter((_, i) => i !== blobIndex));
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.name || !formData.category || !formData.price) {
+    if (!formData.name || !formData.category) {
       alert("Vui lòng điền đầy đủ thông tin bắt buộc (*)");
       return;
     }
@@ -99,29 +159,27 @@ export default function TourForm() {
       alert("Vui lòng chọn ảnh cho tour");
       return;
     }
-
+    const existingImageUrls = galleryPreviews.filter(url => !url.startsWith("blob:"));
     const payload = {
       title:       formData.name,
       time:        formData.duration,
-      categoryId:  Number(formData.category), 
+      categoryId:  Number(formData.category),
       description: formData.description,
       status:      formData.status,
-      price:       Number(formData.price),
       thumbnail:   imageFile ? null : formData.image,
+      existingImages: existingImageUrls,
     };
 
     try {
       setSubmitting(true);
       if (isEdit) {
-        await tourService.update(id, payload);
+        await tourService.update(id, payload, imageFile, galleryFiles);
         await saveSchedules(id, itinerary);
         alert("Cập nhật tour và lộ trình thành công!");
       } else {
-        const res = await tourService.create(payload, imageFile);
+        const res = await tourService.create(payload, imageFile, galleryFiles);
         const newTourId = res.id || res.data?.id;
-        if (newTourId) {
-            await saveSchedules(newTourId, itinerary);
-        }
+        if (newTourId) await saveSchedules(newTourId, itinerary);
         alert("Thêm tour mới thành công!");
       }
       navigate("/admin/tours");
@@ -133,22 +191,19 @@ export default function TourForm() {
   };
 
   const addItineraryDay = () =>
-    setItinerary([...itinerary, { dayNumber: itinerary.length + 1, title: "", content: "", status: "active" }]);
+    setItinerary(prev => [...prev, { dayNumber: prev.length + 1, title: "", content: "", status: "active" }]);
 
-  const removeItineraryDay = (indexToRemove) => {
-    setItinerary(prev => {
-      const newItinerary = prev.filter((_, index) => index !== indexToRemove);
-      return newItinerary.map((item, i) => ({ ...item, dayNumber: i + 1 }));
-    });
-  };
+  const removeItineraryDay = (indexToRemove) =>
+    setItinerary(prev =>
+      prev.filter((_, i) => i !== indexToRemove).map((item, i) => ({ ...item, dayNumber: i + 1 }))
+    );
 
-  const updateItinerary = (index, field, value) => {
+  const updateItinerary = (index, field, value) =>
     setItinerary(prev => {
-        const newItinerary = [...prev];
-        newItinerary[index][field] = value;
-        return newItinerary;
+      const next = [...prev];
+      next[index] = { ...next[index], [field]: value };
+      return next;
     });
-  };
 
   if (loading) {
     return (
@@ -182,6 +237,7 @@ export default function TourForm() {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100">
@@ -199,7 +255,6 @@ export default function TourForm() {
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
-
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -211,10 +266,9 @@ export default function TourForm() {
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none"
                     >
                       <option value="" disabled>Chọn danh mục...</option>
-                      <option value="1">Du lịch Trong Tooi</option>
-                      <option value="30002">Du lịch Trong Nướcc</option>
-                      <option value="60001">Tour Trong Nước</option>
-                      <option value="60002">Tour Quốc Tế</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.title || cat.name}</option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -228,20 +282,6 @@ export default function TourForm() {
                     />
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Giá tour (VNĐ) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả chi tiết</label>
                   <textarea
@@ -261,79 +301,17 @@ export default function TourForm() {
               onUpdateDay={updateItinerary}
             />
           </div>
-
           <div className="space-y-8">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-lg font-bold text-gray-900">Hình ảnh</h2>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="relative border-2 border-dashed border-gray-300 rounded-xl overflow-hidden bg-gray-50 hover:bg-gray-100 transition-colors">
-                  {formData.image ? (
-                    <div className="relative">
-                      <img
-                        src={formData.image}
-                        alt="Preview"
-                        className="w-full h-52 object-cover"
-                      />
-                      {imageFile && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-3 py-1.5 flex items-center gap-2">
-                          <ImageIcon className="w-3.5 h-3.5 text-white shrink-0" />
-                          <span className="text-xs text-white truncate">{imageFile.name}</span>
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-lg hover:bg-red-500 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center h-52 cursor-pointer group/upload">
-                      <div className="w-14 h-14 mb-3 rounded-2xl bg-white shadow-sm border border-gray-200 flex items-center justify-center group-hover/upload:scale-110 group-hover/upload:shadow-md transition-all">
-                        <Upload className="w-6 h-6 text-blue-500" />
-                      </div>
-                      <p className="text-sm font-semibold text-gray-700">Nhấn để chọn ảnh</p>
-                      <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP · Tối đa 5MB</p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageChange}
-                      />
-                    </label>
-                  )}
-                </div>
-
-                {formData.image && (
-                  <label className="w-full inline-flex items-center justify-center gap-2 py-2 px-4 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
-                    <Upload className="w-4 h-4" />
-                    Đổi ảnh khác
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                  </label>
-                )}
-
-                {!imageFile && (
-                  <div>
-                    <p className="text-xs text-gray-400 text-center mb-2">hoặc nhập URL ảnh</p>
-                    <input
-                      type="text"
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
+            <TourImageUpload
+              thumbnail={formData.image}
+              imageFile={imageFile}
+              onThumbnailChange={handleThumbnailChange}
+              onThumbnailRemove={handleThumbnailRemove}
+              galleryFiles={galleryFiles}
+              galleryPreviews={galleryPreviews}
+              onGalleryChange={handleGalleryChange}
+              onGalleryRemove={handleGalleryRemove}
+            />
 
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100">
