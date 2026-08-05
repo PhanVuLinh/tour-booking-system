@@ -13,8 +13,6 @@ const paymentRoutes = require("../modules/payment/payment.route");
 
 router.use("/auth", authRoutes);
 
-router.use("/", authRoutes);
-
 router.use("/home", homeRoutes);
 
 router.use("/tours", tourRoutes);

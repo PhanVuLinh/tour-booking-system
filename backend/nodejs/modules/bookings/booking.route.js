@@ -14,4 +14,6 @@ router.post(
 
 router.get("/lookup/:code", bookingController.lookupBooking);
 
+router.post("/admin/update-status", bookingController.updateStatusByAdmin);
+
 module.exports = router;

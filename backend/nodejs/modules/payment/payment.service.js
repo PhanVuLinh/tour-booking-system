@@ -1,8 +1,10 @@
+const { pool } = require("../../config/database");
 const crypto = require("crypto");
 const moment = require("moment");
 const querystring = require("qs");
-const { pool } = require("../../config/database");
+
 const sortPayHelper = require("../../helpers/sortPay.helper");
+const { sendBookingEmail } = require("../bookings/bookingEmail.template");
 
 const createBusinessError = (message) => {
   const error = new Error(message);
@@ -184,9 +186,21 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
         payments.*,
         bookings.id AS bookingId,
         bookings.booking_code,
-        bookings.status AS bookingStatus
+        bookings.full_name,
+        bookings.email,
+        bookings.quantity_adult,
+        bookings.quantity_children,
+        bookings.quantity_baby,
+        bookings.sub_total,
+        bookings.discount,
+        bookings.total,
+        bookings.status AS bookingStatus,
+        departures.start_date,
+        tours.title AS tour_title
        from payments 
        join bookings on payments.booking_id = bookings.id
+       left join departures on bookings.departure_id = departures.id
+       left join tours on departures.tour_id = tours.id
        where payments.id = ?
        FOR UPDATE`,
       [paymentId],
@@ -260,6 +274,30 @@ module.exports.processVnpayReturnService = async (vnpParams) => {
       );
 
       await connection.commit();
+
+      // Gửi email 
+      sendBookingEmail({
+        email: payment.email,
+        full_name: payment.full_name,
+        booking_code: payment.booking_code,
+        departure: {
+          tour_title: payment.tour_title,
+          start_date: payment.start_date,
+        },
+        quantity_adult: payment.quantity_adult,
+        quantity_children: payment.quantity_children,
+        quantity_baby: payment.quantity_baby,
+        sub_total: payment.sub_total,
+        discount: payment.discount,
+        total: payment.total,
+        payable_amount: payment.amount,
+        remainingAmount: Math.max(payment.total - payment.amount, 0),
+        payment_method: payment.payment_method,
+        payment_type: payment.payment_type,
+        payment_status: "paid",
+        transaction_id: params.vnp_TransactionNo || null,
+      });
+
       return { success: true, ...resultInfo };
     }
 

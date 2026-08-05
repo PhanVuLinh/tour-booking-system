@@ -3,6 +3,8 @@ const { OAuth2Client } = require("google-auth-library");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const mailHelper = require("../../helpers/sendMail.helper");
+
 module.exports.register = async (userData) => {
   try {
     if (!userData.full_name || !userData.email || !userData.password) {
@@ -30,6 +32,61 @@ module.exports.register = async (userData) => {
       "insert into users (full_name, email, password, status) values (?, ?, ?, 'active')",
       [userData.full_name, userData.email, hashedPassword],
     );
+
+    //gởi mail
+    const subject = "Đăng ký tài khoản TravelGo thành công!";
+    const htmlContent = `
+        <div style="background-color: #f8f8f8; padding: 40px 10px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
+                
+                <!-- Phần Header-->
+                <div style="background-color: #4502c7; padding: 30px 20px; text-align: center;">
+                    <!-- LƯU Ý: Thay URL bên dưới thành link ảnh logo thật trên server của bạn -->
+                    <img src=${process.env.URL_FE_1}/images/logotravelgo-white.png alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; color: white; font-size: 24px; font-weight: bold;" />
+                </div>
+
+                <!-- Phần Nội dung (Body) -->
+                <div style="padding: 40px 30px;">
+                    <h2 style="color: #4502c7; font-size: 24px; margin-top: 0; margin-bottom: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                        Chào mừng bạn gia nhập!
+                        <img src=${process.env.URL_FE_1}/images/welcome-icon.png alt="Welcome Icon" width="26" height="26" style="vertical-align: middle;" />
+                    </h2>
+                    
+                    <p style="font-size: 15px; line-height: 1.6; margin-bottom: 15px; color: #444;">
+                        Chào <strong>${userData.full_name}</strong>,
+                    </p>
+                    <p style="font-size: 15px; line-height: 1.6; margin-bottom: 25px; color: #444;">
+                        Chúc mừng bạn đã tạo tài khoản thành công tại <strong>TravelGo</strong>! Từ bây giờ, bạn đã có thể dễ dàng tìm kiếm, đặt chỗ và quản lý các chuyến đi tuyệt vời của mình trên hệ thống.
+                    </p>
+                    
+                    <div style="background-color: rgba(69, 2, 199, 0.05); border-left: 4px solid #4502c7; padding: 15px 20px; border-radius: 0 8px 8px 0; margin-bottom: 30px;">
+                        <p style="margin: 0 0 8px 0; font-size: 14px; color: #666;">Thông tin tài khoản của bạn:</p>
+                        <p style="margin: 0; font-size: 15px; color: #333;"><strong>Email đăng nhập:</strong> ${userData.email}</p>
+                    </div>
+                    
+                    <!-- Nút Kêu gọi hành động (CTA) -->
+                    <div style="text-align: center; margin: 40px 0;">
+                        <!-- Thay URL bên dưới thành URL trang Đăng nhập của bạn -->
+                        <a href="${process.env.URL_FE_1}/login" style="background-color: #ff3b2f; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 15px; font-weight: bold; display: inline-block;">
+                            Đăng nhập & Bắt đầu khám phá
+                        </a>
+                    </div>
+
+                    <hr style="border: none; border-top: 1px dashed #eee; margin: 30px 0;" />
+
+                    <p style="font-size: 15px; line-height: 1.6; margin-bottom: 5px; color: #444;">Nếu bạn cần bất kỳ sự trợ giúp nào, đừng ngần ngại liên hệ với chúng tôi.</p>
+                    <p style="font-size: 16px; font-weight: 700; color: #4502c7; margin-top: 5px;">Trân trọng, Đội ngũ TravelGo</p>
+                </div>
+
+                <!-- Phần Footer -->
+                <div style="background-color: #f2f3f5; padding: 20px; text-align: center; font-size: 13px; color: #777;">
+                    <p style="margin: 0 0 10px 0;">© 2026 TravelGo. Tất cả các quyền được bảo lưu.</p>
+                    <p style="margin: 0;">Email này được gửi tự động từ hệ thống, vui lòng không trả lời trực tiếp.</p>
+                </div>
+            </div>
+        </div>
+    `;
+    mailHelper.sendMail(userData.email, subject, htmlContent);
 
     return {
       success: true,

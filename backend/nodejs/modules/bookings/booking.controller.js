@@ -54,3 +54,28 @@ module.exports.lookupBooking = async (req, res) => {
     });
   }
 };
+
+module.exports.updateStatusByAdmin = async (req, res) => {
+  try {
+    const { bookingId, status, payment_status } = req.body;
+
+    if (!bookingId) {
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu bookingId",
+      });
+    }
+    const result = await bookingService.updateBookingStatusByAdmin(
+      bookingId,
+      status,
+      payment_status,
+    );
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Lỗi controller updateStatusByAdmin:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi Server khi cập nhật trạng thái đơn tour",
+    });
+  }
+};
