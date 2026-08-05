@@ -6,8 +6,6 @@ import {
   getHeaderCategories,
 } from "./services/sharedService";
 
-import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
-
 function Footer() {
   const [email, setEmail] = useState("");
   const [categories, setCategories] = useState([]);
@@ -115,7 +113,7 @@ function Footer() {
           </div>
 
           <Link to="/" className="footer-logo">
-            <img src={logoTravelGo} alt="TRAVELGO" />
+            <img src="http://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TRAVELGO" />
           </Link>
 
           <div className="footer-policy">

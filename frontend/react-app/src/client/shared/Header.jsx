@@ -2,7 +2,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
-import logoTravelGo from "../../assets/Client/images/logotravelgo.png";
 import { getHeaderCategories } from "./services/sharedService";
 
 function Header() {
@@ -106,7 +105,7 @@ function Header() {
             </button>
 
             <Link to="/" className="logo">
-              <img className="logo__img" src={logoTravelGo} alt="TRAVELGO" />
+              <img className="logo__img" src="http://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TRAVELGO" />
             </Link>
 
             <div
@@ -138,11 +137,11 @@ function Header() {
                       to={`/category/${parent.slug}`}
                       className={
                         location.pathname === `/category/${parent.slug}` ||
-                        (parent.children &&
-                          parent.children.some(
-                            (child) =>
-                              location.pathname === `/category/${child.slug}`,
-                          ))
+                          (parent.children &&
+                            parent.children.some(
+                              (child) =>
+                                location.pathname === `/category/${child.slug}`,
+                            ))
                           ? "active"
                           : ""
                       }
