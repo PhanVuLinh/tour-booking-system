@@ -2,38 +2,89 @@ const mailHelper = require("../../helpers/sendMail.helper");
 const formatHelper = require("../../helpers/format.helper");
 
 module.exports.sendBookingEmail = async ({
-    email,
-    full_name,
-    booking_code,
-    departure,
-    quantity_adult,
-    quantity_children,
-    quantity_baby,
-    sub_total,
-    discount,
-    total,
-    payable_amount,
-    remainingAmount,
-    payment_method,
-    payment_type,
-    payment_status,
-    transaction_id,
+  email,
+  full_name,
+  booking_code,
+  departure,
+  quantity_adult,
+  quantity_children,
+  quantity_baby,
+  sub_total,
+  discount,
+  total,
+  payable_amount,
+  remainingAmount,
+  payment_method,
+  payment_type,
+  booking_status = "pending", // 'pending' | 'confirmed' | 'completed' | 'cancelled'
+  payment_status = "pending", // 'pending' | 'paid' | 'failed'
+  transaction_id,
 }) => {
-    const isPaidSuccess = payment_status === "paid";
+  const isPaidSuccess = payment_status === "paid";
+  const methodText = formatHelper.formatPaymentMethod(payment_method) || "Tiền mặt / Chuyển khoản";
 
-    const subject = isPaidSuccess
-        ? `[TravelGo] Thanh toán thành công đơn tour #${booking_code}`
-        : `[TravelGo] Xác nhận đặt tour thành công - Mã đơn #${booking_code}`;
+  let subject = "";
+  let headerTitle = "";
+  let welcomeMessage = "";
+  let statusBannerHtml = "";
 
-    const headerTitle = isPaidSuccess
-        ? "Biên nhận thanh toán thành công"
-        : "Xác nhận đặt tour du lịch";
+  // Thứ tự kiểm tra chính xác tuyệt đối:
+  if (booking_status === "cancelled") {
+    // 1. Hủy đơn (Ưu tiên cao nhất)
+    subject = `[TravelGo] Thông báo HỦY đơn tour #${booking_code}`;
+    headerTitle = "Thông báo hủy đơn tour";
+    welcomeMessage = `Chào ${full_name}, đơn đặt tour của bạn đã bị HỦY.`;
+    statusBannerHtml = `
+      <div style="background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+          <p style="margin: 0; font-size: 14px; color: #d32f2f; font-weight: bold;">
+              Đơn đặt tour của bạn đã bị HỦY trên hệ thống. Nếu có thắc mắc, vui lòng liên hệ hotline hỗ trợ.
+          </p>
+      </div>
+    `;
+  } else if (booking_status === "completed") {
+    // 2. Hoàn thành chuyến đi
+    subject = `[TravelGo] Cảm ơn bạn đã hoàn thành chuyến đi #${booking_code}`;
+    headerTitle = "Hoàn thành chuyến đi";
+    welcomeMessage = `Cảm ơn ${full_name} đã đồng hành cùng TravelGo!`;
+    statusBannerHtml = `
+      <div style="background-color: #e3f2fd; border-left: 4px solid #1976d2; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+          <p style="margin: 0; font-size: 14px; color: #1976d2; font-weight: bold;">
+              Chuyến đi của bạn đã hoàn tất thành công. Hẹn gặp lại bạn trong những hành trình tiếp theo!
+          </p>
+      </div>
+    `;
+  } else if (isPaidSuccess) {
+    // 3. Đã Thanh toán thành công (Xác nhận trả tiền - Đặt lên trên confirmed)
+    subject = `[TravelGo] Thanh toán thành công đơn tour #${booking_code}`;
+    headerTitle = "Biên nhận thanh toán thành công";
+    welcomeMessage = `Cảm ơn ${full_name}! Chúng tôi đã nhận được thanh toán cho đơn hàng của bạn.`;
+    statusBannerHtml = `
+      <div style="background-color: #e8f5e9; border-left: 4px solid #2e7d32; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+          <p style="margin: 0; font-size: 14px; color: #2e7d32; font-weight: bold;">
+              Trạng thái thanh toán: ĐÃ THANH TOÁN THÀNH CÔNG (${methodText}${transaction_id ? ` - Mã GD: ${transaction_id}` : ""})
+          </p>
+      </div>
+    `;
+  } else if (booking_status === "confirmed") {
+    // 4. Xác nhận đơn tour (Khi chưa thanh toán)
+    subject = `[TravelGo] Đơn tour #${booking_code} đã được XÁC NHẬN`;
+    headerTitle = "Xác nhận đơn tour thành công";
+    welcomeMessage = `Chúc mừng ${full_name}! Đơn đặt tour của bạn đã được XÁC NHẬN`;
+    statusBannerHtml = `
+      <div style="background-color: #e8f5e9; border-left: 4px solid #2e7d32; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+          <p style="margin: 0; font-size: 14px; color: #2e7d32; font-weight: bold;">
+              Đơn tour đã được duyệt và xác nhận chính thức. Quý khách vui lòng chuẩn bị tư trang cho chuyến đi!
+          </p>
+      </div>
+    `;
+  } else {
+    // 5. Mới khởi tạo đơn (Pending)
+    subject = `[TravelGo] Xác nhận khởi tạo đơn tour #${booking_code}`;
+    headerTitle = "Xác nhận khởi tạo đơn tour";
+    welcomeMessage = `Cảm ơn ${full_name} đã lựa chọn TravelGo!`;
+  }
 
-    const welcomeMessage = isPaidSuccess
-        ? `Cảm ơn ${full_name}! Chúng tôi đã nhận được thanh toán cho đơn hàng của bạn.`
-        : `Cảm ơn ${full_name} đã lựa chọn TravelGo!`;
-
-    const htmlContent = `
+  const htmlContent = `
     <div style="background-color: #f8f8f8; padding: 40px 10px; font-family: 'Segoe UI', Arial, sans-serif; color: #333;">
         <div style="max-width: 650px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
             
@@ -50,22 +101,10 @@ module.exports.sendBookingEmail = async ({
                 </h2>
                 
                 <p style="font-size: 15px; line-height: 1.6; color: #444; margin-bottom: 20px;">
-                    ${isPaidSuccess
-            ? "Giao dịch thanh toán của bạn đã được xác nhận thành công. Dưới đây là thông tin chi tiết:"
-            : "Đơn đặt tour của bạn đã được khởi tạo thành công trên hệ thống. Dưới đây là thông tin chi tiết đơn hàng:"
-        }
+                    Dưới đây là thông tin chi tiết đơn hàng của bạn:
                 </p>
 
-                ${isPaidSuccess && transaction_id
-            ? `
-                <div style="background-color: #e8f5e9; border-left: 4px solid #2e7d32; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
-                    <p style="margin: 0; font-size: 14px; color: #2e7d32; font-weight: bold;">
-                        Trạng thái thanh toán: ĐÃ THANH TOÁN THÀNH CÔNG (Mã GD: ${transaction_id})
-                    </p>
-                </div>
-                `
-            : ""
-        }
+                ${statusBannerHtml}
                 
                 <!-- Khung mã đơn hàng -->
                 <div style="background-color: rgba(69, 2, 199, 0.05); border-left: 4px solid #4502c7; padding: 15px 20px; border-radius: 0 8px 8px 0; margin: 20px 0;">
@@ -111,14 +150,15 @@ module.exports.sendBookingEmail = async ({
                         <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #f9f9f9;">Tạm tính:</td>
                         <td style="padding: 10px 0; text-align: right; color: #333; border-bottom: 1px solid #f9f9f9;">${formatHelper.formatCurrency(sub_total)}</td>
                     </tr>
-                    ${discount > 0
-            ? `
+                    ${
+                      discount > 0
+                        ? `
                     <tr>
                         <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #f9f9f9;">Giảm giá:</td>
                         <td style="padding: 10px 0; text-align: right; color: #2e7d32; border-bottom: 1px solid #f9f9f9;">-${formatHelper.formatCurrency(discount)}</td>
                     </tr>`
-            : ""
-        }
+                        : ""
+                    }
                     <tr style="border-top: 1px dashed #ddd;">
                         <td style="padding: 15px 0; font-weight: bold; color: #111; font-size: 16px;">Tổng tiền tour:</td>
                         <td style="padding: 15px 0; text-align: right; font-weight: bold; color: #4502c7; font-size: 20px;">${formatHelper.formatCurrency(total)}</td>
@@ -132,14 +172,15 @@ module.exports.sendBookingEmail = async ({
                             ${formatHelper.formatCurrency(payable_amount)}
                         </td>
                     </tr>
-                    ${payment_type === "50"
-            ? `
+                    ${
+                      payment_type === "50"
+                        ? `
                     <tr>
                         <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #f9f9f9;">Số tiền còn lại (Thanh toán khi đi tour):</td>
                         <td style="padding: 10px 0; text-align: right; color: #e65100; font-weight: 700; border-bottom: 1px solid #f9f9f9;">${formatHelper.formatCurrency(remainingAmount)}</td>
                     </tr>`
-            : ""
-        }
+                        : ""
+                    }
                     <tr>
                         <td style="padding: 10px 0; color: #666;">Phương thức:</td>
                         <td style="padding: 10px 0; text-align: right; color: #333; font-weight: 600;">${formatHelper.formatPaymentMethod(payment_method)}</td>
@@ -168,5 +209,5 @@ module.exports.sendBookingEmail = async ({
     </div>
   `;
 
-    return mailHelper.sendMail(email, subject, htmlContent);
+  return mailHelper.sendMail(email, subject, htmlContent);
 };

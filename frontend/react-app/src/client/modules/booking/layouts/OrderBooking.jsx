@@ -38,7 +38,7 @@ function OrderBooking() {
     location.state?.payment_type || "100",
   );
   const [payment_method, setPaymentMethod] = useState(
-    location.state?.payment_method || "",
+    location.state?.payment_method || "cash",
   );
 
   // Mã giảm giá chỉ dùng để hiển thị trước cho khách, backend sẽ kiểm tra lại.

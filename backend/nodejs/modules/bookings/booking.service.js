@@ -438,7 +438,7 @@ module.exports.createBooking = async (bookingData) => {
 
     await connection.commit();
 
-    // Gửi email 
+    // Gửi email
     sendBookingEmail({
       email,
       full_name,
@@ -592,5 +592,101 @@ module.exports.getBookingByCode = async (code) => {
   } catch (error) {
     console.error("Lỗi getBookingByCode Service:", error);
     throw new Error("Lỗi CSDL khi tra cứu đơn tour");
+  }
+};
+
+module.exports.updateBookingStatusByAdmin = async (
+  bookingId,
+  status,
+  paymentStatus,
+) => {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    if (status) {
+      await connection.query(
+        `update bookings 
+         set status = ?
+         where id = ?`,
+        [status, bookingId],
+      );
+    }
+
+    if (paymentStatus) {
+      await connection.query(
+        `update payments 
+         set payment_status = ?
+         where booking_id = ?`,
+        [paymentStatus, bookingId],
+      );
+    }
+    await connection.commit();
+
+    // Lấy lại dữ liệu chi tiết của booking để gửi email
+    const [bookingRows] = await pool.query(
+      `select 
+        bookings.id,
+        bookings.booking_code,
+        bookings.full_name,
+        bookings.email,
+        bookings.quantity_adult,
+        bookings.quantity_children,
+        bookings.quantity_baby,
+        bookings.sub_total,
+        bookings.discount,
+        bookings.total,
+        bookings.status AS booking_status,
+        departures.start_date,
+        tours.title AS tour_title,
+        payments.payment_method,
+        payments.payment_type,
+        payments.amount AS payable_amount,
+        payments.payment_status
+       from bookings
+       left join departures on bookings.departure_id = departures.id
+       left join tours on departures.tour_id = tours.id
+       left join payments on payments.booking_id = bookings.id
+       where bookings.id = ? or bookings.booking_code = ?
+       order by payments.id desc limit 1`,
+      [bookingId, bookingId],
+    );
+
+    if (bookingRows.length > 0) {
+      const booking = bookingRows[0];
+
+      sendBookingEmail({
+        email: booking.email,
+        full_name: booking.full_name,
+        booking_code: booking.booking_code,
+        departure: {
+          tour_title: booking.tour_title,
+          start_date: booking.start_date,
+        },
+        quantity_adult: booking.quantity_adult,
+        quantity_children: booking.quantity_children,
+        quantity_baby: booking.quantity_baby,
+        sub_total: booking.sub_total,
+        discount: booking.discount,
+        total: booking.total,
+        payable_amount: booking.payable_amount,
+        remainingAmount: Math.max(booking.total - booking.payable_amount, 0),
+        payment_method: booking.payment_method,
+        payment_type: booking.payment_type,
+        booking_status: status || booking.booking_status,
+        payment_status: paymentStatus || booking.payment_status,
+      });
+    }
+
+    return {
+      success: true,
+      message: "Cập nhật trạng thái đơn tour thành công",
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
   }
 };
