@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { BookingStatusBadge } from "./StatusBadge";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
 
-export default function HistoryCard({ booking }) {
+export default function HistoryCard({ booking, onOpenReviewModal }) {
   return (
     <div className="history-card">
       {/* Header thẻ: Mã Code & Trạng thái */}
@@ -66,13 +66,30 @@ export default function HistoryCard({ booking }) {
               Hủy đơn
             </button>
           )}
-          {booking.status === "completed" && (
-            <button className="btn-action btn-fill btn-sm">
-              Đánh giá tour
-            </button>
-          )}
+          {booking.status === "completed" &&
+            (booking.isReviewed ? (
+              <button
+                disabled
+                className="btn-action btn-sm btn-reviewed-status"
+              >
+                <i
+                  className="fa-solid fa-check"
+                  style={{ marginRight: "4px" }}
+                ></i>
+                Đã đánh giá
+              </button>
+            ) : (
+              <button
+                onClick={() => onOpenReviewModal && onOpenReviewModal(booking)}
+                className="btn-action btn-fill btn-sm"
+              >
+                ⭐ Đánh giá tour
+              </button>
+            ))}
+
         </div>
       </div>
     </div>
   );
 }
+

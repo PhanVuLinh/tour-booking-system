@@ -88,7 +88,7 @@ function News() {
         </div>
 
         <div className="btn-view-all-wrap">
-          <a href="blog/list" className="btn-view-all">
+          <a href="blog" className="btn-view-all">
             Xem tất cả
           </a>
         </div>
