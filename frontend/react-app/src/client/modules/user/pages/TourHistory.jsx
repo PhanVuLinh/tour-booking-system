@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link } from "react-router-dom";
 import HistoryCard from "../components/HistoryCard";
-
+import ReviewModal from "../components/ReviewModal";
 import { getTourHistory } from "../services/userService";
 
 function ProfileHistory() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reviewBooking, setReviewBooking] = useState(null);
 
-  useEffect(() => {
+  const fetchHistory = () => {
     setLoading(true);
     setError(null);
 
@@ -21,7 +22,6 @@ function ProfileHistory() {
       })
       .catch((error) => {
         console.error("Lỗi khi tải lịch sử đặt tour:", error);
-
         setBookings([]);
         setError(
           error.message ||
@@ -31,6 +31,10 @@ function ProfileHistory() {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchHistory();
   }, []);
 
   return (
@@ -53,7 +57,11 @@ function ProfileHistory() {
         ) : bookings.length > 0 ? (
           <div className="history-list">
             {bookings.map((booking) => (
-              <HistoryCard key={booking.id} booking={booking} />
+              <HistoryCard
+                key={booking.id}
+                booking={booking}
+                onOpenReviewModal={(item) => setReviewBooking(item)}
+              />
             ))}
           </div>
         ) : (
@@ -77,8 +85,18 @@ function ProfileHistory() {
           </div>
         )}
       </div>
+
+      {/* MODAL ĐÁNH GIÁ TOUR */}
+      {reviewBooking && (
+        <ReviewModal
+          booking={reviewBooking}
+          onClose={() => setReviewBooking(null)}
+          onSuccess={fetchHistory}
+        />
+      )}
     </main>
   );
 }
 
 export default ProfileHistory;
+

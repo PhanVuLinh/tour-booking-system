@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Breadcrumb } from "../../../shared";
 import { buildTourDetailBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { getTourDetail } from "../services/tourService";
+import { TourReviewSection } from "../components";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
 
 function TourDetail() {
@@ -151,6 +152,7 @@ function TourDetail() {
                 </p>
               )}
             </div>
+            <TourReviewSection tourId={tourDetail.id} />
           </div>
 
           {/* CỘT PHẢI: ĐẶT TOUR */}
@@ -190,8 +192,11 @@ function TourDetail() {
                   <strong>{selectedDate?.vehicleName || "Đang tải..."}</strong>
                 </li>
                 <li>
-                  <i className="fa-solid fa-map-location-dot"></i> Nơi Khởi Hành:{" "}
-                  <strong>{selectedDate?.departure_from || "Chưa cập nhật"}</strong>
+                  <i className="fa-solid fa-map-location-dot"></i> Nơi Khởi
+                  Hành:{" "}
+                  <strong>
+                    {selectedDate?.departure_from || "Chưa cập nhật"}
+                  </strong>
                 </li>
                 <li>
                   <i className="fa-regular fa-calendar"></i> Khởi Hành:{" "}

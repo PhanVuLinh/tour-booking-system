@@ -89,12 +89,15 @@ module.exports.getTourHistory = async (user_id) => {
         bookings.total AS totalAmount,
         (bookings.quantity_adult + bookings.quantity_children + bookings.quantity_baby) AS totalPassengers,
         departures.start_date,
+        tours.id AS tourId,
         tours.title AS tourTitle,
         tours.slug AS tourSlug,
-        tours.thumbnail AS tourThumbnail
+        tours.thumbnail AS tourThumbnail,
+        IF(reviews.id IS NOT NULL, 1, 0) AS isReviewed
       from bookings
       join departures on bookings.departure_id = departures.id
       join tours on departures.tour_id = tours.id
+      left join reviews on reviews.booking_id = bookings.id and reviews.deleted = 0
       where bookings.user_id = ?
         and bookings.deleted = 0
       order by bookings.created_at DESC`;
@@ -108,12 +111,15 @@ module.exports.getTourHistory = async (user_id) => {
       totalAmount: Number(row.totalAmount) || 0,
       totalPassengers: Number(row.totalPassengers) || 0,
       start_date: row.start_date,
+      isReviewed: Boolean(row.isReviewed),
       tour: {
+        id: row.tourId,
         title: row.tourTitle,
         slug: row.tourSlug,
         thumbnail: row.tourThumbnail,
       },
     }));
+
   } catch (error) {
     console.error("Lỗi getTourHistory Service:", error);
     throw new Error("Lỗi truy vấn CSDL khi lấy lịch sử đặt tour");

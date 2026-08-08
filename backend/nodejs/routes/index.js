@@ -10,6 +10,7 @@ const couponRoutes = require("../modules/coupons/coupon.route");
 const blogRoutes = require("../modules/blogs/blog.route");
 const userRoutes = require("../modules/users/user.route");
 const paymentRoutes = require("../modules/payment/payment.route");
+const reviewRoutes = require("../modules/reviews/review.route");
 
 router.use("/auth", authRoutes);
 
@@ -30,5 +31,7 @@ router.use("/blog", blogRoutes);
 router.use("/user", userRoutes);
 
 router.use("/payments", paymentRoutes);
+
+router.use("/reviews", reviewRoutes);
 
 module.exports = router;
