@@ -83,6 +83,10 @@ export default function MainLayout() {
       action:()=>{
       localStorage.removeItem("accessToken"); 
       localStorage.removeItem("refreshToken"); 
+      localStorage.removeItem("user");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("roleName");
+
       navigate("/admin/login");
     }});
   };
