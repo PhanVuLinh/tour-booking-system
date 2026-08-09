@@ -5,15 +5,15 @@ import { toast } from "sonner";
 function PrivateRoute() {
   const location = useLocation();
 
-  const token = localStorage.getItem("token");
-  const userString = localStorage.getItem("user");
+  const token = localStorage.getItem("client_token");
+  const userString = localStorage.getItem("client_user");
 
   let user = null;
 
   try {
     user = userString ? JSON.parse(userString) : null;
   } catch {
-    localStorage.removeItem("user");
+    localStorage.removeItem("client_user");
   }
 
   const isLogin = Boolean(token && user);
