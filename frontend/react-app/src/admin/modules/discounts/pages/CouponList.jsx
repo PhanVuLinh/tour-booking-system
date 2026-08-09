@@ -22,7 +22,10 @@ const initialFormState = {
 
 export default function CouponList() {
   const { hasPermission } = usePermission();
-  const canManageTrash = hasPermission("ACCOUNT_TRASH"); 
+  const canCreate = hasPermission("CREATE_COUPON");
+  const canUpdate = hasPermission("UPDATE_COUPON");
+  const canDelete = hasPermission("DELETE_COUPON");
+  const canManageTrash = canDelete;
 
   const [coupons, setCoupons] = useState([]);
   const [deletedCoupons, setDeletedCoupons] = useState([]);
@@ -150,8 +153,6 @@ export default function CouponList() {
     }
   };
 
-  // 👉 Đã xóa bỏ đoạn chặn return khi isLoading ở đây để khung giao diện chính vẫn hiển thị bình thường.
-
   return (
     <div className="w-full p-6 lg:p-8 space-y-6 max-w-full overflow-hidden">
       <div className="flex justify-between items-center mb-6">
@@ -159,7 +160,7 @@ export default function CouponList() {
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Mã giảm giá</h1>
         </div>
         <div className="flex gap-2">
-          {activeTab === "active" && hasPermission("CREATE_USER") && (
+          {activeTab === "active" && canCreate && (
             <button 
               onClick={() => { setFormData(initialFormState); setEditCoupon(null); setIsDialogOpen(true); }} 
               className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm"
@@ -180,17 +181,18 @@ export default function CouponList() {
           > Đang hoạt động ({coupons.length})
           </button>
           
-          {canManageTrash && (
-            <button 
-              onClick={() => setActiveTab("trash")} 
-              className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <Trash2 className="w-4 h-4" />
-              Thùng rác ({deletedCoupons.length})
-            </button>
-          )}
+          <button 
+            onClick={() => canManageTrash && setActiveTab("trash")}
+            disabled={!canManageTrash}
+            title={!canManageTrash ? "Cần quyền Xóa (DELETE_COUPON) để xem thùng rác" : ""}
+            className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
+              !canManageTrash ? "opacity-50 cursor-not-allowed text-gray-400" :
+              activeTab === "trash" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {!canManageTrash ? <Lock className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+            Thùng rác {canManageTrash && `(${deletedCoupons.length})`}
+          </button>
         </div>
 
         <div className="p-6 pt-2">
@@ -211,7 +213,6 @@ export default function CouponList() {
             </div>
           )}
 
-          {/* 👉 Hiển thị Loading ngay bên dưới phần tìm kiếm / trong khu vực bảng */}
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-3" />
@@ -225,6 +226,8 @@ export default function CouponList() {
                   onEdit={handleEdit} 
                   onDelete={handleDelete} 
                   onView={(coupon) => setViewCoupon(coupon)}
+                  canUpdate={canUpdate}
+                  canDelete={canDelete}
                 />
               ) : (
                 <CouponTrashTable 
@@ -232,6 +235,8 @@ export default function CouponList() {
                   onRestore={handleRestore} 
                   onPermanentDelete={handlePermanentDelete} 
                   getAccountName={getAccountName} 
+                  canUpdate={canUpdate}
+                  canDelete={canDelete}
                 />
               )}
 

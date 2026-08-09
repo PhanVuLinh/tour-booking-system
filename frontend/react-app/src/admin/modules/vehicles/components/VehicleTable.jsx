@@ -1,4 +1,4 @@
-import { Edit, Trash2, Bus, Train, Plane, Ship, Calendar, UserX, RefreshCcw, AlertTriangle, Trash } from "lucide-react";
+import { Edit, Trash2, Bus, Train, Plane, Ship, UserX, RefreshCcw, AlertTriangle, Trash } from "lucide-react";
 
 const VEHICLE_TYPE_MAP = {
   BUS: { label: "Xe ô tô / Khách", icon: Bus, color: "text-blue-600 bg-blue-50" },
@@ -7,7 +7,9 @@ const VEHICLE_TYPE_MAP = {
   SHIP: { label: "Tàu thủy", icon: Ship, color: "text-teal-600 bg-teal-50" },
 };
 
-export function VehicleTable({ vehicles, onEdit, onDelete, getAccountName }) {
+export function VehicleTable({ vehicles, onEdit, onDelete, getAccountName, canUpdate, canDelete }) {
+  const hasAction = canUpdate || canDelete;
+
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[800px]">
@@ -41,16 +43,22 @@ export function VehicleTable({ vehicles, onEdit, onDelete, getAccountName }) {
                 <td className="py-3 px-4 text-sm text-gray-600">
                   {vehicle.createdBy ? (getAccountName(vehicle.createdBy) || `NV #${vehicle.createdBy}`) : "Hệ thống"}
                 </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex justify-end gap-1">
-                    <button onClick={() => onEdit(vehicle)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Sửa">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => onDelete(vehicle.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Xóa">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+                {hasAction && (
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex justify-end gap-1">
+                      {canUpdate && (
+                        <button onClick={() => onEdit(vehicle)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Sửa">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button onClick={() => onDelete(vehicle.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Xóa">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}
@@ -60,7 +68,9 @@ export function VehicleTable({ vehicles, onEdit, onDelete, getAccountName }) {
   );
 }
 
-export function VehicleTrashTable({ vehicles, onRestore, onPermanentDelete, getAccountName }) {
+export function VehicleTrashTable({ vehicles, onRestore, onPermanentDelete, getAccountName, canUpdate, canDelete }) {
+  const hasAction = canUpdate || canDelete;
+
   const formatDate = (dateString) => {
     return dateString ? new Date(dateString).toLocaleString('vi-VN') : "—";
   };
@@ -86,7 +96,9 @@ export function VehicleTrashTable({ vehicles, onRestore, onPermanentDelete, getA
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Người tạo</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 border-l border-red-100 bg-red-50/30">Ngày xóa</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 bg-red-50/30">Người xóa</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600 text-right">Thao tác</th>
+            {hasAction && (
+              <th className="py-3 px-4 text-sm font-semibold text-gray-600 text-right">Thao tác</th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -114,16 +126,22 @@ export function VehicleTrashTable({ vehicles, onRestore, onPermanentDelete, getA
                     {v.deletedBy ? (getAccountName(v.deletedBy) || `NV #${v.deletedBy}`) : "Hệ thống"}
                   </div>
                 </td>
-                <td className="py-3 px-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button onClick={() => onRestore(v.id)} className="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-md transition-colors" title="Khôi phục">
-                      <RefreshCcw className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => onPermanentDelete(v.id)} className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors" title="Xóa vĩnh viễn">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
+                {hasAction && (
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      {canUpdate && (
+                        <button onClick={() => onRestore(v.id)} className="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-md transition-colors" title="Khôi phục">
+                          <RefreshCcw className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button onClick={() => onPermanentDelete(v.id)} className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors" title="Xóa vĩnh viễn">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}

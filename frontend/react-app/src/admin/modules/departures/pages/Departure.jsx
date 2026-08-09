@@ -43,7 +43,7 @@ export default function DepartureList() {
   const [accountList, setAccountList] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7;
+  const itemsPerPage = 9;
 
   const [confirmConfig, setConfirmConfig] = useState({
     isOpen: false,

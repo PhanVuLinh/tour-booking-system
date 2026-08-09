@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { bookingService } from "../services/BookService";
@@ -9,6 +9,19 @@ import { BookingDetailModal, getOverallPaymentStatus } from "../components/Booki
 import ConfirmModal from "../../../components/ConfirmModal";
 import Pagination from "../../../components/Pagination";
 
+const STATUS_LABELS = {
+  pending: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
+  completed: "Hoàn thành",
+  cancelled: "Đã hủy",
+};
+const PAYMENT_STATUS_LABELS = {
+  pending: "Chờ thanh toán",
+  paid: "Đã thanh toán",
+  failed: "Thất bại",
+  refunded: "Đã hoàn tiền",
+};
+
 export default function BookingList() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,9 +31,22 @@ export default function BookingList() {
   const [activeTab, setActiveTab] = useState("all");
   
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 9;
 
   const [confirmConfig, setConfirmConfig] = useState({isOpen: false,title: "",message: "",variant: "info",action: null});
+
+  const userPermissions = useMemo(() => {
+    try {
+      const userString = localStorage.getItem("user");
+      if (!userString) return [];
+      const user = JSON.parse(userString);
+      return user.permissions || [];
+    } catch (e) {
+      return [];
+    }
+  }, []);
+
+  const canUpdate = userPermissions.includes("UPDATE_BOOKING");
 
   const loadData = async () => {
     try {
@@ -53,18 +79,25 @@ export default function BookingList() {
     closeConfirm();
   };
 
-  const handleConfirmBooking = (id) => {
+  const handleChangeStatus = (id, newStatus) => {
+    if (!canUpdate) return;
+    const booking = bookings.find(b => b.id === id);
+    if (!booking || booking.status === newStatus) return;
+
     setConfirmConfig({
       isOpen: true,
-      title: "Xác nhận đơn hàng",
-      message: "Bạn có chắc chắn muốn xác nhận đơn hàng này?",
-      variant: "info",
+      title: "Đổi trạng thái đơn hàng",
+      message: `Xác nhận đổi trạng thái đơn "${booking.bookingCode}" sang "${STATUS_LABELS[newStatus] || newStatus}"?`,
+      variant: newStatus === "cancelled" ? "danger" : "info",
       action: async () => {
         try {
-          await bookingService.updateStatus(id, "confirmed");
-          const booking = bookings.find(b => b.id === id);
-          bookingService.notifyStatusChange(id, "confirmed", getOverallPaymentStatus(booking?.payments));
-          toast.success("Đã xác nhận đơn hàng");
+          if (newStatus === "cancelled") {
+            await bookingService.cancelBooking(id);
+          } else {
+            await bookingService.updateStatus(id, newStatus);
+          }
+          bookingService.notifyStatusChange(id, newStatus, getOverallPaymentStatus(booking.payments));
+          toast.success("Đã cập nhật trạng thái đơn hàng");
           loadData();
         } catch (error) {
           toast.error(error.message || "Thao tác thất bại");
@@ -73,61 +106,26 @@ export default function BookingList() {
     });
   };
 
-  const handleCancelBooking = (id) => {
+  const handleChangePaymentStatus = (paymentId, newStatus) => {
+    if (!canUpdate) return;
     setConfirmConfig({
       isOpen: true,
-      title: "Hủy đơn hàng",
-      message: "Bạn chắc chắn muốn hủy đơn đặt tour này?",
-      variant: "danger",
+      title: "Đổi trạng thái thanh toán",
+      message: `Xác nhận đổi trạng thái thanh toán sang "${PAYMENT_STATUS_LABELS[newStatus] || newStatus}"?`,
+      variant: newStatus === "failed" || newStatus === "refunded" ? "danger" : "info",
       action: async () => {
         try {
-          await bookingService.cancelBooking(id);
-          const booking = bookings.find(b => b.id === id);
-          bookingService.notifyStatusChange(id, "cancelled", getOverallPaymentStatus(booking?.payments));
-          toast.success("Đã hủy đơn");
-          loadData();
-        } catch (error) {
-          toast.error(error.message || "Thao tác thất bại");
-        }
-      }
-    });
-  };
-
-  const handleCompleteBooking = (id) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: "Hoàn thành chuyến đi",
-      message: "Đánh dấu chuyến đi này đã hoàn thành?",
-      variant: "info",
-      action: async () => {
-        try {
-          await bookingService.updateStatus(id, "completed");
-          const booking = bookings.find(b => b.id === id);
-          bookingService.notifyStatusChange(id, "completed", getOverallPaymentStatus(booking?.payments));
-          toast.success("Đã hoàn thành chuyến đi");
-          loadData();
-        } catch (error) {
-          toast.error(error.message || "Thao tác thất bại");
-        }
-      }
-    });
-  };
-
-  const handleConfirmPayment = (paymentId) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: "Xác nhận thanh toán",
-      message: "Xác nhận bạn đã nhận được tiền cho giao dịch này?",
-      variant: "info",
-      action: async () => {
-        try {
-          await paymentService.confirmPayment(paymentId);
-          toast.success("Xác nhận thanh toán thành công!");
+          if (newStatus === "paid") {
+            await paymentService.confirmPayment(paymentId);
+          } else {
+            await paymentService.updateStatus(paymentId, newStatus);
+          }
+          toast.success("Đã cập nhật trạng thái thanh toán");
           loadData();
           if (selectedBooking) {
             const updatedBooking = await bookingService.getById(selectedBooking.id);
             setSelectedBooking(updatedBooking);
-            bookingService.notifyStatusChange(updatedBooking.id, updatedBooking.status, "paid");
+            bookingService.notifyStatusChange(updatedBooking.id, updatedBooking.status, newStatus);
           }
         } catch (error) {
           toast.error(error.message || "Thao tác thất bại");
@@ -137,6 +135,7 @@ export default function BookingList() {
   };
 
   const handleUpdatePassenger = async (passengerId, passengerData) => {
+    if (!canUpdate) return;
     try {
       await passengerService.update(passengerId, passengerData);
       toast.success("Cập nhật thông tin hành khách thành công!");
@@ -217,9 +216,8 @@ export default function BookingList() {
             <BookingTable 
               data={paginatedBookings} 
               onView={handleView}
-              onConfirm={handleConfirmBooking} 
-              onCancel={handleCancelBooking} 
-              onComplete={handleCompleteBooking}
+              onChangeStatus={handleChangeStatus}
+              canUpdate={canUpdate}
             />
             <Pagination 
               currentPage={currentPage} 
@@ -234,8 +232,9 @@ export default function BookingList() {
         <BookingDetailModal 
           booking={selectedBooking} 
           onClose={() => setIsDetailOpen(false)} 
-          onConfirmPayment={handleConfirmPayment}
+          onChangePaymentStatus={handleChangePaymentStatus}
           onUpdatePassenger={handleUpdatePassenger}
+          canUpdate={canUpdate}
         />
       )}
 

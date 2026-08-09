@@ -1,6 +1,6 @@
 import { Edit, Trash, Eye } from "lucide-react";
 
-export function CouponTable({ coupons, onEdit, onDelete, onView }) {
+export function CouponTable({ coupons, onEdit, onDelete, onView, canUpdate, canDelete }) {
   if (coupons.length === 0) {
     return <div className="text-center py-10 text-gray-500">Chưa có mã giảm giá nào.</div>;
   }
@@ -21,7 +21,7 @@ export function CouponTable({ coupons, onEdit, onDelete, onView }) {
           {coupons.map((coupon) => (
             <tr key={coupon.id} className="hover:bg-gray-50/50 transition-colors">
               <td className="px-4 py-3 font-medium text-gray-900">{coupon.code}</td>
-                            <td className="px-4 py-3">
+              <td className="px-4 py-3">
                 <span className="font-medium text-blue-600">
                   {coupon.discountPercentage || 0}%
                 </span>
@@ -38,7 +38,6 @@ export function CouponTable({ coupons, onEdit, onDelete, onView }) {
               <td className="px-4 py-3">
                 {coupon.usedCount || 0} / {coupon.quantity || "∞"}
               </td>
-              
               <td className="px-4 py-3">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                   coupon.status === 'active' 
@@ -56,20 +55,24 @@ export function CouponTable({ coupons, onEdit, onDelete, onView }) {
                 >
                   <Eye className="w-4 h-4" />
                 </button>
-                <button 
-                  onClick={() => onEdit(coupon)} 
-                  className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg mr-2 transition-colors"
-                  title="Chỉnh sửa"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => onDelete(coupon.id)} 
-                  className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Chuyển vào thùng rác"
-                >
-                  <Trash className="w-4 h-4" />
-                </button>
+                {canUpdate && (
+                  <button 
+                    onClick={() => onEdit(coupon)} 
+                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg mr-2 transition-colors"
+                    title="Chỉnh sửa"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                )}
+                {canDelete && (
+                  <button 
+                    onClick={() => onDelete(coupon.id)} 
+                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Chuyển vào thùng rác"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </button>
+                )}
               </td>
             </tr>
           ))}

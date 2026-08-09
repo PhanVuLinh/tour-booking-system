@@ -31,14 +31,21 @@ const PermissionMatrix = ({ roles, allPermissions, rolePermissions, onSave, isLo
     (allPermissions || []).forEach((p) => {
       const groupName = p.permissionGroup || "Khác";
       if (!modules[groupName]) {
-        modules[groupName] = { groupName, view: null, create: null, edit: null, delete: null, allIds: [] };
+        modules[groupName] = { groupName, create: null, edit: null, delete: null, allIds: [], actionIds: [] };
       }
       modules[groupName].allIds.push(p.id);
 
       const key = p.permissionKey.toUpperCase();
-      if (key.includes("CREATE_") || key.includes("ADD_")) modules[groupName].create = p;
-      else if (key.includes("UPDATE_") || key.includes("EDIT_")) modules[groupName].edit = p;
-      else if (key.includes("DELETE_") || key.includes("REMOVE_")) modules[groupName].delete = p;
+      if (key.includes("CREATE_") || key.includes("ADD_")) {
+        modules[groupName].create = p;
+        modules[groupName].actionIds.push(p.id);
+      } else if (key.includes("UPDATE_") || key.includes("EDIT_")) {
+        modules[groupName].edit = p;
+        modules[groupName].actionIds.push(p.id);
+      } else if (key.includes("DELETE_") || key.includes("REMOVE_")) {
+        modules[groupName].delete = p;
+        modules[groupName].actionIds.push(p.id);
+      }
     });
     return Object.values(modules);
   }, [allPermissions]);
@@ -55,9 +62,9 @@ const PermissionMatrix = ({ roles, allPermissions, rolePermissions, onSave, isLo
     setCurrentSelectedPerms((prev) => {
       let next = [...prev];
       if (isAllChecked) {
-        next = next.filter((id) => !moduleObj.allIds.includes(id));
+        next = next.filter((id) => !moduleObj.actionIds.includes(id));
       } else {
-        moduleObj.allIds.forEach((id) => {
+        moduleObj.actionIds.forEach((id) => {
           if (!next.includes(id)) next.push(id);
         });
       }
@@ -126,18 +133,18 @@ const PermissionMatrix = ({ roles, allPermissions, rolePermissions, onSave, isLo
               <tbody>
                 {matrixData.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-6 text-gray-500">Chưa tải được danh sách quyền từ Database</td>
+                    <td colSpan="5" className="text-center py-6 text-gray-500">Chưa tải được danh sách quyền từ Database</td>
                   </tr>
                 ) : (
                   matrixData.map((row) => {
-                    const isAllChecked = row.allIds.length > 0 && row.allIds.every((id) => isAdmin || currentSelectedPerms.includes(id));
+                    const isAllChecked = row.actionIds.length > 0 && row.actionIds.every((id) => isAdmin || currentSelectedPerms.includes(id));
                     
                     return (
                       <tr key={row.groupName} className="border-b hover:bg-gray-50 last:border-0">
                         <td className="py-3 px-4 font-medium text-gray-700">{row.groupName}</td>
                         <td className="py-3 px-3 text-center">
                           <button
-                            disabled={isAdmin}
+                            disabled={isAdmin || row.actionIds.length === 0}
                             onClick={() => toggleAllInModule(row, isAllChecked)}
                             className={`w-6 h-6 rounded border mx-auto flex items-center justify-center transition-colors ${
                               isAllChecked ? "bg-blue-600 border-blue-600 text-white" : "border-gray-300 hover:border-blue-400 bg-white"
