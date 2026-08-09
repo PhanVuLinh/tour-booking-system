@@ -1,7 +1,7 @@
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export function BlogTable({ blogs, onView, onDelete, getAccountName }) {
+export function BlogTable({ blogs, onView, onDelete, getAccountName, canUpdate, canDelete }) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[900px]">
@@ -50,15 +50,22 @@ export function BlogTable({ blogs, onView, onDelete, getAccountName }) {
               </td>
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
+                  
                   <button onClick={() => onView(blog)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-md transition-colors" title="Xem">
                     <Eye className="w-4 h-4" />
                   </button>
-                  <Link to={`/admin/blogs/edit/${blog.id}`} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Sửa">
-                    <Edit className="w-4 h-4" />
-                  </Link>
-                  <button onClick={() => onDelete(blog.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Xóa">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  
+                  {canUpdate && (
+                    <Link to={`/admin/blogs/edit/${blog.id}`} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Sửa">
+                      <Edit className="w-4 h-4" />
+                    </Link>
+                  )}
+                  
+                  {canDelete && (
+                    <button onClick={() => onDelete(blog.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Xóa">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

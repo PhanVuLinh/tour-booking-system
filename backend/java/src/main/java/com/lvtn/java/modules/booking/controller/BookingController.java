@@ -20,7 +20,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping
-    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_BOOKING')")
+//    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_BOOKING')")
     public ResponseEntity<ApiResponse<List<BookingResponse>>> getAllActive() {
         return ResponseEntity.ok(ApiResponse.success(bookingService.findAllActive()));
     }

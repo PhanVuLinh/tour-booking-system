@@ -19,7 +19,6 @@ const formatDate = (dateString) => {
   });
 };
 
-// 👉 Đưa hàm helper ra ngoài component để tránh lỗi cú pháp export lồng nhau
 export const getOverallPaymentStatus = (payments) => {
   if (!payments || payments.length === 0) return "pending";
   if (payments.some(p => p.paymentStatus === "paid")) return "paid";
@@ -28,15 +27,26 @@ export const getOverallPaymentStatus = (payments) => {
   return payments[payments.length - 1].paymentStatus;
 };
 
-export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdatePassenger }) {
+// Lấy % đã thanh toán cao nhất trong các payment đã "paid" (dựa trên paymentType)
+const getPaidPercent = (payments) => {
+  if (!payments || payments.length === 0) return 0;
+  const paidPayments = payments.filter(p => p.paymentStatus === "paid");
+  if (paidPayments.length === 0) return 0;
+  return Math.max(...paidPayments.map(p => Number(p.paymentType) || 0));
+};
+
+export function BookingDetailModal({ booking, onClose, onChangePaymentStatus, onUpdatePassenger }) {
   if (!booking) return null;
 
   const overallPaymentStatus = getOverallPaymentStatus(booking.payments);
   const pendingPayment = booking.payments?.find(p => p.paymentStatus === "pending");
+  const paidPercent = getPaidPercent(booking.payments);
+  const paidAmount = Math.round((booking.total || 0) * paidPercent / 100);
+  const remainingAmount = Math.max((booking.total || 0) - paidAmount, 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="bg-white rounded-2xl w-full max-w-4xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
         
         {/* Modal Header */}
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -138,7 +148,7 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
             payments={booking.payments} 
             formatCurrency={formatCurrency} 
             formatDate={formatDate} 
-            onConfirmPayment={onConfirmPayment}
+            onChangePaymentStatus={onChangePaymentStatus}
           />
 
           {/* Ghi chú */}
@@ -171,16 +181,22 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
               <span>Tổng thanh toán (total):</span>
               <span className="text-lg text-green-600">{formatCurrency(booking.total)}</span>
             </div>
+          
+            {/* Chi tiết đã thanh toán / còn lại */}
+            <div className="w-64 border-t border-dashed border-gray-200 pt-2 space-y-1.5">
+              <div className="flex justify-between text-gray-500">
+                <span>Đã thanh toán {paidPercent > 0 && `(${paidPercent}%)`}:</span>
+                <span className="font-medium text-blue-600">{formatCurrency(paidAmount)}</span>
+              </div>
+              <div className="flex justify-between text-gray-500">
+                <span>Còn lại:</span>
+                <span className={`font-medium ${remainingAmount > 0 ? "text-red-600" : "text-gray-400"}`}>
+                  {formatCurrency(remainingAmount)}
+                </span>
+              </div>
+            </div>
             
             <div className="w-64 border-t border-gray-200 mt-3 pt-3 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500 font-medium">Thanh toán:</span>
-                <div>{getPaymentStatusBadge(overallPaymentStatus)}</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500 font-medium">Trạng thái đơn:</span>
-                <div>{getStatusBadge(booking.status)}</div>
-              </div>
               
               {booking.updatedAt && (
                 <div className="flex justify-between items-center pt-1 border-t border-dashed border-gray-200 mt-2">
@@ -206,7 +222,7 @@ export function BookingDetailModal({ booking, onClose, onConfirmPayment, onUpdat
           
           {pendingPayment && (
             <button 
-              onClick={() => onConfirmPayment && onConfirmPayment(pendingPayment.id)}
+              onClick={() => onChangePaymentStatus && onChangePaymentStatus(pendingPayment.id, "paid")}
               className="px-5 py-2 text-sm font-medium text-white bg-green-600 border border-green-600 rounded-xl hover:bg-green-700 transition-colors shadow-sm"
             >
               Xác nhận thanh toán

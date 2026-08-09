@@ -11,14 +11,21 @@ const initialFormState = {
 };
 
 export default function VehicleList() {
-  const isAdmin = useMemo(() => {
+  const userPermissions = useMemo(() => {
     try {
       const userString = localStorage.getItem("user");
-      if (!userString) return false;
+      if (!userString) return [];
       const user = JSON.parse(userString);
-      return user.role && String(user.role).toLowerCase() === "admin";
-    } catch (e) { return false; }
+      return user.permissions || [];
+    } catch (e) {
+      return [];
+    }
   }, []);
+
+  const canCreate = userPermissions.includes("CREATE_OPERATIONS");
+  const canUpdate = userPermissions.includes("UPDATE_OPERATIONS");
+  const canDelete = userPermissions.includes("DELETE_OPERATIONS");
+  const canManageTrash = canDelete;
 
   const [vehicles, setVehicles] = useState([]);
   const [deletedVehicles, setDeletedVehicles] = useState([]);
@@ -37,7 +44,7 @@ export default function VehicleList() {
       setIsLoading(true);
       const [vData, trashData, accData] = await Promise.all([
         vehicleService.getAll().catch(() => []),
-        isAdmin ? vehicleService.getAllTrash().catch(() => []) : Promise.resolve([]),
+        canManageTrash ? vehicleService.getAllTrash().catch(() => []) : Promise.resolve([]),
         accountService.getAllActive().catch(() => [])
       ]);
       
@@ -58,7 +65,7 @@ export default function VehicleList() {
 
   useEffect(() => {
     fetchVehicles();
-  }, [isAdmin,activeTab]);
+  }, [canManageTrash, activeTab]);
 
   const getAccountName = (id) => {
     if (!id) return null;
@@ -112,6 +119,7 @@ export default function VehicleList() {
   };
 
   const handleDelete = async (id) => {
+    if (!canDelete) return;
     const vehicle = vehicles.find(v => v.id === id);
     if (window.confirm(`Bạn có chắc chắn muốn chuyển phương tiện "${vehicle?.name}" vào thùng rác?`)) {
       try {
@@ -125,6 +133,7 @@ export default function VehicleList() {
   };
 
   const handleRestore = async (id) => {
+    if (!canUpdate) return;
     try {
       await vehicleService.restore(id);
       alert("Khôi phục thành công!");
@@ -135,6 +144,7 @@ export default function VehicleList() {
   };
 
   const handlePermanentDelete = async (id) => {
+    if (!canDelete) return;
     if (window.confirm("Hành động này sẽ xóa vĩnh viễn dữ liệu. Bạn có chắc chắn không?")) {
       try {
         await vehicleService.hardDelete(id);
@@ -163,7 +173,7 @@ export default function VehicleList() {
             <RefreshCw className={`w-5 h-5 text-gray-600 ${isLoading ? "animate-spin" : ""}`} />
           </button>
           
-          {activeTab === "active" && (
+          {activeTab === "active" && canCreate && (
             <button 
               onClick={openNewDialog} 
               className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium shadow-sm"
@@ -183,19 +193,19 @@ export default function VehicleList() {
           </button>
           
           <button 
-            onClick={() => { if (isAdmin) { setIsLoading(true); setActiveTab("trash"); } }} 
-            disabled={!isAdmin}
-            title={!isAdmin ? "Bạn cần quyền Admin để xem Thùng rác" : ""}
+            onClick={() => { if (canManageTrash) { setIsLoading(true); setActiveTab("trash"); } }} 
+            disabled={!canManageTrash}
+            title={!canManageTrash ? "Bạn cần quyền xóa (DELETE_VEHICLE) để xem Thùng rác" : ""}
             className={`py-2 px-6 font-medium text-sm rounded-lg transition-all duration-200 flex items-center gap-2 ${
-              !isAdmin 
+              !canManageTrash 
                 ? "opacity-50 cursor-not-allowed text-gray-400"
                 : activeTab === "trash" 
                 ? "bg-white text-gray-900 shadow-sm" 
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            {!isAdmin ? <Lock className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
-            Thùng rác {isAdmin && `(${deletedVehicles.length})`}
+            {!canManageTrash ? <Lock className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+            Thùng rác {canManageTrash && `(${deletedVehicles.length})`}
           </button>
         </div>
 
@@ -222,6 +232,8 @@ export default function VehicleList() {
               onEdit={handleEdit} 
               onDelete={handleDelete} 
               getAccountName={getAccountName}
+              canUpdate={canUpdate}
+              canDelete={canDelete}
             />
           ) : (
             <VehicleTrashTable 
@@ -229,6 +241,8 @@ export default function VehicleList() {
               onRestore={handleRestore} 
               onPermanentDelete={handlePermanentDelete} 
               getAccountName={getAccountName}
+              canUpdate={canUpdate}
+              canDelete={canDelete}
             />
           )}
         </div>
