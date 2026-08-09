@@ -50,11 +50,11 @@ function ProfileInfo() {
         setIsEditing(false);
         toast.success("Cập nhật thông tin cá nhân thành công!");
 
-        const userStr = localStorage.getItem("user");
+        const userStr = localStorage.getItem("client_user");
         if (userStr) {
           const user = JSON.parse(userStr);
           user.full_name = nextProfile.full_name;
-          localStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem("client_user", JSON.stringify(user));
         }
       } else {
         toast.error("Cập nhật thất bại: " + response.message);

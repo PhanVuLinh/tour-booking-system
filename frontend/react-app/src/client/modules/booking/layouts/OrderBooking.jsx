@@ -72,7 +72,7 @@ function OrderBooking() {
     const existing = location.state?.formData;
     if (existing?.passengerDetails) return existing;
 
-    const userStr = localStorage.getItem("user");
+    const userStr = localStorage.getItem("client_user");
     const loggedUser = userStr ? JSON.parse(userStr) : null;
 
     return {

@@ -33,11 +33,11 @@ function ProfileLayout() {
 
           setProfile(nextProfile);
 
-          const userStr = localStorage.getItem("user");
+          const userStr = localStorage.getItem("client_user");
           if (userStr) {
             const user = JSON.parse(userStr);
             localStorage.setItem(
-              "user",
+              "client_user",
               JSON.stringify({ ...user, ...nextProfile }),
             );
           }
@@ -56,8 +56,8 @@ function ProfileLayout() {
 
   const handleLogout = () => {
     setIsLoggingOut(true);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem("client_token");
+    localStorage.removeItem("client_user");
     toast.success("Đăng xuất thành công");
     navigate("/");
   };

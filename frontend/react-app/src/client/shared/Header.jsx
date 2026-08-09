@@ -47,8 +47,8 @@ function Header() {
       });
 
     //LocalStorage lấy user
-    const token = localStorage.getItem("token");
-    const userStr = localStorage.getItem("user");
+    const token = localStorage.getItem("client_token");
+    const userStr = localStorage.getItem("client_user");
     if (token && userStr) {
       try {
         const parsedUser = JSON.parse(userStr);
@@ -66,8 +66,8 @@ function Header() {
     setIsLoading(true);
 
     setTimeout(() => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.removeItem("client_token");
+      localStorage.removeItem("client_user");
       setCurrentUser(null);
       toast.success("Đăng xuất thành công");
       setIsLoading(false);

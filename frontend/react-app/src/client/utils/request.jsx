@@ -2,7 +2,7 @@ const API_DOMAIN = import.meta.env.VITE_API_URL;
 
 // Hàm tự động lấy cấu hình Header + Token
 const getHeaders = () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("client_token");
   return {
     accept: "application/json",
     "Content-Type": "application/json",

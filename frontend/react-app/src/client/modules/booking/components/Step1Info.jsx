@@ -87,7 +87,7 @@ const Step1Info = ({
             để nhận ưu đãi và quản lý đơn hàng dễ dàng hơn!
           </span>
         </div> */}
-        {localStorage.getItem("token") ? (
+        {localStorage.getItem("client_token") ? (
           <div className="login-banner blue-banner">
             <i className="fa-solid fa-circle-check"></i>
             <span>
