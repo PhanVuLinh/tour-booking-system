@@ -33,4 +33,9 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
     @Modifying
     @Query(value = "DELETE FROM tours WHERE id = :id", nativeQuery = true)
     void hardDeleteTourNative(@Param("id") Integer id);
+
+
+    long countByDeletedFalse();
+    @Query("SELECT COUNT(DISTINCT t.categoryId) FROM Tour t WHERE t.deleted = false")
+    int countDistinctCategories();
 }

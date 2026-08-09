@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Eye, Check } from "lucide-react";
+import { Eye } from "lucide-react";
 
 export const getStatusBadge = (status) => {
   switch (status) {
@@ -30,7 +30,14 @@ export const getPaymentStatusBadge = (status) => {
   }
 };
 
-export function BookingTable({ data, onView, onConfirm, onCancel, onComplete }) {
+const STATUS_OPTIONS = [
+  { value: "pending", label: "Chờ xác nhận" },
+  { value: "confirmed", label: "Đã xác nhận" },
+  { value: "completed", label: "Hoàn thành" },
+  { value: "cancelled", label: "Đã hủy" },
+];
+
+export function BookingTable({ data, onView, onChangeStatus, canUpdate }) {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
   };
@@ -69,31 +76,21 @@ export function BookingTable({ data, onView, onConfirm, onCancel, onComplete }) 
                 </td>
                 <td className="py-3 px-4">{getStatusBadge(booking.status)}</td>
                 <td className="py-3 px-4 text-right">
-                  <div className="flex justify-end gap-1">
+                  <div className="flex justify-end items-center gap-2">
                     <button onClick={() => onView(booking)} className="p-2 text-gray-600 hover:bg-gray-200 rounded-md transition-colors" title="Xem chi tiết">
                       <Eye className="w-4 h-4" />
                     </button>
-
-                    {booking.status === "pending" && (
-                      <>
-                        <button onClick={() => onConfirm(booking.id)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Xác nhận đơn">
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => onCancel(booking.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Hủy đơn">
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                      </>
-                    )}
-
-                    {booking.status === "confirmed" && (
-                      <>
-                        <button onClick={() => onCancel(booking.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Hủy đơn">
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => onComplete(booking.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Hoàn thành chuyến đi">
-                          <Check className="w-4 h-4" />
-                        </button>
-                      </>
+                    {canUpdate && (
+                      <select
+                        value={booking.status}
+                        onChange={(e) => onChangeStatus(booking.id, e.target.value)}
+                        className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
+                        title="Đổi trạng thái đơn"
+                      >
+                        {STATUS_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     )}
                   </div>
                 </td>

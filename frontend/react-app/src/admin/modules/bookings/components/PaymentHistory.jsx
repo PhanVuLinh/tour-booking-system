@@ -1,8 +1,14 @@
 import React from "react";
-import { CheckCircle } from "lucide-react";
 import { getPaymentStatusBadge } from "./BookingTable";
 
-export const PaymentHistory = ({ payments, formatCurrency, formatDate, onConfirmPayment }) => {
+const PAYMENT_STATUS_OPTIONS = [
+  { value: "pending", label: "Chờ thanh toán" },
+  { value: "paid", label: "Đã thanh toán" },
+  { value: "failed", label: "Thất bại" },
+  { value: "refunded", label: "Đã hoàn tiền" },
+];
+
+export const PaymentHistory = ({ payments, formatCurrency, formatDate, onChangePaymentStatus }) => {
   if (!payments || payments.length === 0) return null;
 
   return (
@@ -36,14 +42,17 @@ export const PaymentHistory = ({ payments, formatCurrency, formatDate, onConfirm
                   {pm.paidAt ? formatDate(pm.paidAt) : "Chưa thanh toán"}
                 </td>
                 <td className="p-3 text-center">
-                  {pm.paymentStatus === "pending" && onConfirmPayment && (
-                    <button
-                      onClick={() => onConfirmPayment(pm.id)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-                      title="Xác nhận đã nhận tiền"
+                  {onChangePaymentStatus && (
+                    <select
+                      value={pm.paymentStatus}
+                      onChange={(e) => onChangePaymentStatus(pm.id, e.target.value)}
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
+                      title="Đổi trạng thái thanh toán"
                     >
-                      <CheckCircle className="w-3.5 h-3.5" /> Xác nhận
-                    </button>
+                      {PAYMENT_STATUS_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
                   )}
                 </td>
               </tr>

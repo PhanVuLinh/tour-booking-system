@@ -9,7 +9,6 @@ import { Discount } from "../modules/discounts";
 import { Login } from "../modules/login";
 import { BlogList } from "../modules/blogs";
 import { ReviewList } from "../modules/reviews";
-import { BannerList } from "../modules/banners";
 import TourForm from "../modules/tours/pages/TourForm";
 import { VehicleList } from "../modules/vehicles"
 import  {BlogForm}  from "../modules/blogs";
@@ -105,10 +104,6 @@ export const adminRoutes = [
           {
             path: "/admin/reviews",
             element: <ReviewList />,
-          },
-          {
-            path: "/admin/banners",
-            element: <BannerList />,
           },
           {
             path: "/admin/contacts",

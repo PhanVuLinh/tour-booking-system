@@ -24,7 +24,6 @@ const navigation = [
   { name: "Đơn đặt vé", href: "/admin/bookings", icon: ShoppingCart },
   { name: "Bài viết", href: "/admin/blogs", icon: FileText },
   { name: "Đánh giá", href: "/admin/reviews", icon: MessageSquare },
-  { name: "Banner", href: "/admin/banners", icon: ImageIcon },
   { name: "Liên hệ", href: "/admin/contacts", icon: MessageSquare },
   { name: "Phân quyền", href: "/admin/roles", icon: KeyRound },
 ];
