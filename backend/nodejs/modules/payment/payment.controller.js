@@ -1,7 +1,7 @@
 const paymentService = require("./payment.service");
 
 const getClientUrl = () =>
-  process.env.URL_FE_1 || process.env.CLIENT_URL || "http://localhost:5173";
+  process.env.URL_FE_1 || process.env.CLIENT_URL || "https://tralvelgo.vercel.app";
 
 const getRequestIp = (req) => {
   const forwardedIp = req.headers["x-forwarded-for"];

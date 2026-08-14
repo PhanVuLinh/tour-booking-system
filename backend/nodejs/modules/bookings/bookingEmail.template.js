@@ -20,6 +20,7 @@ module.exports.sendBookingEmail = async ({
   payment_status = "pending", // 'pending' | 'paid' | 'failed'
   transaction_id,
 }) => {
+  const feUrl = (process.env.URL_FE_1 || "https://tralvelgo.vercel.app").replace(/\/+$/, "");
   const isPaidSuccess = payment_status === "paid";
   const methodText =
     formatHelper.formatPaymentMethod(payment_method) ||
@@ -29,10 +30,9 @@ module.exports.sendBookingEmail = async ({
   let headerTitle = "";
   let welcomeMessage = "";
   let statusBannerHtml = "";
+  let reviewCallToActionHtml = "";
 
-  // Thứ tự kiểm tra chính xác tuyệt đối:
   if (booking_status === "cancelled") {
-    // 1. Hủy đơn (Ưu tiên cao nhất)
     subject = `[TravelGo] Thông báo HỦY đơn tour #${booking_code}`;
     headerTitle = "Thông báo hủy đơn tour";
     welcomeMessage = `Chào ${full_name}, đơn đặt tour của bạn đã bị HỦY.`;
@@ -44,7 +44,6 @@ module.exports.sendBookingEmail = async ({
       </div>
     `;
   } else if (booking_status === "completed") {
-    // 2. Hoàn thành chuyến đi
     subject = `[TravelGo] Cảm ơn bạn đã hoàn thành chuyến đi #${booking_code}`;
     headerTitle = "Hoàn thành chuyến đi";
     welcomeMessage = `Cảm ơn ${full_name} đã đồng hành cùng TravelGo!`;
@@ -55,8 +54,20 @@ module.exports.sendBookingEmail = async ({
           </p>
       </div>
     `;
+    reviewCallToActionHtml = `
+      <div style="background-color: #f0f7ff; border: 1px dashed #1976d2; padding: 20px; border-radius: 10px; text-align: center; margin: 25px 0;">
+          <p style="margin: 0 0 8px 0; font-size: 15px; color: #1976d2; font-weight: bold;">
+              Hãy chia sẻ cảm nhận của bạn về chuyến đi!
+          </p>
+          <p style="margin: 0 0 15px 0; font-size: 13px; color: #555; line-height: 1.5;">
+              Đánh giá của bạn giúp TravelGo nâng cao chất lượng dịch vụ và hỗ trợ các du khách khác.
+          </p>
+          <a href="${feUrl}/profile/history" style="background-color: #1976d2; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 20px; font-size: 14px; font-weight: bold; display: inline-block;">
+              Đánh giá chuyến đi ngay
+          </a>
+      </div>
+    `;
   } else if (isPaidSuccess) {
-    // 3. Đã Thanh toán thành công (Xác nhận trả tiền - Đặt lên trên confirmed)
     subject = `[TravelGo] Thanh toán thành công đơn tour #${booking_code}`;
     headerTitle = "Biên nhận thanh toán thành công";
     welcomeMessage = `Cảm ơn ${full_name}! Chúng tôi đã nhận được thanh toán cho đơn hàng của bạn.`;
@@ -68,10 +79,9 @@ module.exports.sendBookingEmail = async ({
       </div>
     `;
   } else if (booking_status === "confirmed") {
-    // 4. Xác nhận đơn tour (Khi chưa thanh toán)
     subject = `[TravelGo] Đơn tour #${booking_code} đã được XÁC NHẬN`;
     headerTitle = "Xác nhận đơn tour thành công";
-    welcomeMessage = `Chúc mừng ${full_name}! Đơn đặt tour của bạn đã được XÁC NHẬN`;
+    welcomeMessage = `Chúc mừng ${full_name}! Đơn đặt tour của bạn đã được XÁC NHẬN.`;
     statusBannerHtml = `
       <div style="background-color: #e8f5e9; border-left: 4px solid #2e7d32; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
           <p style="margin: 0; font-size: 14px; color: #2e7d32; font-weight: bold;">
@@ -80,7 +90,6 @@ module.exports.sendBookingEmail = async ({
       </div>
     `;
   } else {
-    // 5. Mới khởi tạo đơn (Pending)
     subject = `[TravelGo] Xác nhận khởi tạo đơn tour #${booking_code}`;
     headerTitle = "Xác nhận khởi tạo đơn tour";
     welcomeMessage = `Cảm ơn ${full_name} đã lựa chọn TravelGo!`;
@@ -91,9 +100,9 @@ module.exports.sendBookingEmail = async ({
         <div style="max-width: 650px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
             
             <!-- Header -->
-            <div style="background-color: #4502c7; padding: 30px 20px; text-align: center;">
-                <img src="https://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; color: white; font-size: 24px; font-weight: bold; margin-bottom: 10px;" />
-                <p style="color: #e0d4fc; margin: 5px 0 0 0; font-size: 15px;">${headerTitle}</p>
+            <div style="background-color: #ffffff; padding: 25px 20px; text-align: center; border-bottom: 3px solid #4502c7;">
+                <img src="https://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; font-size: 24px; font-weight: bold; margin-bottom: 5px;" />
+                <p style="color: #666666; margin: 5px 0 0 0; font-size: 14px; font-weight: 500;">${headerTitle}</p>
             </div>
 
             <!-- Body -->
@@ -107,14 +116,15 @@ module.exports.sendBookingEmail = async ({
                 </p>
 
                 ${statusBannerHtml}
+                ${reviewCallToActionHtml}
                 
                 <!-- Khung mã đơn hàng -->
                 <div style="background-color: rgba(69, 2, 199, 0.05); border-left: 4px solid #4502c7; padding: 15px 20px; border-radius: 0 8px 8px 0; margin: 20px 0;">
                     <p style="margin: 0; font-size: 14px; color: #666;">Mã đơn đặt tour:</p>
                     <p style="margin: 4px 0 6px 0; font-size: 22px; font-weight: bold; color: #4502c7; letter-spacing: 1px;">${booking_code}</p>
                     <p style="margin: 0; font-size: 13px; color: #666; line-height: 1.4;">
-                        💡 <i>Dùng mã này để tra cứu thông tin tour trên website.</i> 
-                        <a href="${process.env.URL_FE_1}/booking/lookup/${booking_code}" style="color: #ff3b2f; font-weight: bold; text-decoration: underline; margin-left: 5px;">Tra cứu ngay ➔</a>
+                        Dùng mã này để tra cứu thông tin tour trên website. 
+                        <a href="${feUrl}/booking/lookup/${booking_code}" style="color: #ff3b2f; font-weight: bold; text-decoration: underline; margin-left: 5px;">Tra cứu ngay</a>
                     </p>
                 </div>
 
@@ -191,7 +201,7 @@ module.exports.sendBookingEmail = async ({
 
                 <!-- Nút xem chi tiết -->
                 <div style="text-align: center; margin: 40px 0;">
-                    <a href="${process.env.URL_FE_1}/booking/lookup/${booking_code}" style="background-color: #ff3b2f; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 15px; font-weight: bold; display: inline-block;">
+                    <a href="${feUrl}/booking/lookup/${booking_code}" style="background-color: #ff3b2f; color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 30px; font-size: 15px; font-weight: bold; display: inline-block;">
                         Kiểm tra đơn hàng ngay
                     </a>
                 </div>
@@ -204,12 +214,12 @@ module.exports.sendBookingEmail = async ({
 
             <!-- Footer -->
             <div style="background-color: #f2f3f5; padding: 20px; text-align: center; font-size: 13px; color: #777; line-height: 1.5;">
-                <p style="margin: 0 0 5px 0;">© 2026 TravelGo. Tất cả các quyền được bảo lưu.</p>
+                <p style="margin: 0 0 5px 0;">2026 TravelGo. Tất cả các quyền được bảo lưu.</p>
                 <p style="margin: 0;">Email này được gửi tự động từ hệ thống, vui lòng không trả lời trực tiếp.</p>
             </div>
         </div>
     </div>
   `;
 
-  return mailHelper.sendMail(email, subject, htmlContent);
+  return await mailHelper.sendMail(email, subject, htmlContent);
 };
