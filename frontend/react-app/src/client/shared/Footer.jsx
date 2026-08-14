@@ -113,7 +113,7 @@ function Footer() {
           </div>
 
           <Link to="/" className="footer-logo">
-            <img src="http://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TRAVELGO" />
+            <img src="https://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TRAVELGO" />
           </Link>
 
           <div className="footer-policy">

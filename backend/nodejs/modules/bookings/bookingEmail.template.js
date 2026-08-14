@@ -92,7 +92,7 @@ module.exports.sendBookingEmail = async ({
             
             <!-- Header -->
             <div style="background-color: #4502c7; padding: 30px 20px; text-align: center;">
-                <img src="http://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; color: white; font-size: 24px; font-weight: bold; margin-bottom: 10px;" />
+                <img src="https://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; color: white; font-size: 24px; font-weight: bold; margin-bottom: 10px;" />
                 <p style="color: #e0d4fc; margin: 5px 0 0 0; font-size: 15px;">${headerTitle}</p>
             </div>
 

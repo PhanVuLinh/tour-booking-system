@@ -105,7 +105,7 @@ function Header() {
             </button>
 
             <Link to="/" className="logo">
-              <img className="logo__img" src="http://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TRAVELGO" />
+              <img className="logo__img" src="https://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TRAVELGO" />
             </Link>
 
             <div
