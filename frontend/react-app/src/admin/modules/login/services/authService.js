@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const getBaseURL = () => {
     return process.env.NODE_ENV === 'production' 
-        ? 'https://java-tour-booking.onrender.com/api' 
+        ? 'https://backend-java-booking-tour.onrender.com/api' 
         : 'http://localhost:8080/api';               
 };
 
