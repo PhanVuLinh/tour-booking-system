@@ -104,7 +104,7 @@ public class BlogController {
     }
 
     @PutMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> restore(@PathVariable Long id) {
         try {
             Integer restorerId = securityUtils.getCurrentAccountId();
