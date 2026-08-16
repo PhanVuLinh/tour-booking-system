@@ -1,7 +1,7 @@
 const mailHelper = require("../../helpers/sendMail.helper");
 const formatHelper = require("../../helpers/format.helper");
 
-module.exports.sendBookingEmail = async ({
+module.exports.sendBookingEmail = ({
   email,
   full_name,
   booking_code,
@@ -221,5 +221,5 @@ module.exports.sendBookingEmail = async ({
     </div>
   `;
 
-  return await mailHelper.sendMail(email, subject, htmlContent);
+  mailHelper.sendMail(email, subject, htmlContent);
 };

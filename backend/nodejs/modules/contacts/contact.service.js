@@ -59,7 +59,7 @@ module.exports.saveEmail = async (email) => {
         </div>
     `;
 
-    await mailHelper.sendMail(email, subject, htmlContent);
+    mailHelper.sendMail(email, subject, htmlContent);
 
     return { success: true };
   } catch (error) {

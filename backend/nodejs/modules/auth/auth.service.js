@@ -83,7 +83,7 @@ module.exports.register = async (userData) => {
             </div>
         </div>
     `;
-    await mailHelper.sendMail(userData.email, subject, htmlContent);
+    mailHelper.sendMail(userData.email, subject, htmlContent);
 
     return {
       success: true,
