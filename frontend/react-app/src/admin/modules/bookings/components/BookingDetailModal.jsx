@@ -220,14 +220,7 @@ export function BookingDetailModal({ booking, onClose, onChangePaymentStatus, on
             Đóng
           </button>
           
-          {pendingPayment && (
-            <button 
-              onClick={() => onChangePaymentStatus && onChangePaymentStatus(pendingPayment.id, "paid")}
-              className="px-5 py-2 text-sm font-medium text-white bg-green-600 border border-green-600 rounded-xl hover:bg-green-700 transition-colors shadow-sm"
-            >
-              Xác nhận thanh toán
-            </button>
-          )}
+          
         </div>
       </div>
     </div>

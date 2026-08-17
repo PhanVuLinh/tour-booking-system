@@ -33,6 +33,8 @@ export default function BookingList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
+  const [isAscending, setIsAscending] = useState(false);
+
   const [confirmConfig, setConfirmConfig] = useState({isOpen: false,title: "",message: "",variant: "info",action: null});
 
   const userPermissions = useMemo(() => {
@@ -66,7 +68,7 @@ export default function BookingList() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, activeTab]);
+  }, [searchTerm, activeTab, isAscending]); 
 
   const closeConfirm = () => {
     setConfirmConfig(prev => ({ ...prev, isOpen: false }));
@@ -164,6 +166,12 @@ export default function BookingList() {
     return matchesSearch && matchesTab;
   });
 
+  filteredBookings.sort((a, b) => {
+    const timeA = new Date(a.createdAt).getTime();
+    const timeB = new Date(b.createdAt).getTime();
+    return isAscending ? timeA - timeB : timeB - timeA;
+  });
+
   const getCount = (status) => bookings.filter(b => b.status === status).length;
 
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
@@ -213,11 +221,14 @@ export default function BookingList() {
           </div>
         ) : (
           <>
+            {/* 👉 4. TRUYỀN PROPS SẮP XẾP XUỐNG BẢNG */}
             <BookingTable 
               data={paginatedBookings} 
               onView={handleView}
               onChangeStatus={handleChangeStatus}
               canUpdate={canUpdate}
+              isAscending={isAscending}
+              onSort={() => setIsAscending(!isAscending)}
             />
             <Pagination 
               currentPage={currentPage} 

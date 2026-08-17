@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react";
+import { Eye, ChevronUp, ChevronDown } from "lucide-react";
 
 export const getStatusBadge = (status) => {
   switch (status) {
@@ -37,10 +37,15 @@ const STATUS_OPTIONS = [
   { value: "cancelled", label: "Đã hủy" },
 ];
 
-export function BookingTable({ data, onView, onChangeStatus, canUpdate }) {
+export function BookingTable({ data, onView, onChangeStatus, canUpdate, isAscending, onSort }) {
+
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
   };
+
+  const renderSortIcon = () => (
+    isAscending ? <ChevronUp className="w-4 h-4 text-blue-600" /> : <ChevronDown className="w-4 h-4 text-blue-600" />
+  );
 
   return (
     <div className="w-full overflow-x-auto">
@@ -52,7 +57,12 @@ export function BookingTable({ data, onView, onChangeStatus, canUpdate }) {
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tour</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Số lượng vé</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tổng tiền</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Ngày đặt</th>
+            <th 
+              className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer hover:text-gray-900 transition-colors select-none" 
+              onClick={onSort}
+            >
+              <div className="flex items-center gap-1">Ngày đặt {renderSortIcon()}</div> 
+            </th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Trạng thái</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 text-right">Thao tác</th>
           </tr>
@@ -68,7 +78,7 @@ export function BookingTable({ data, onView, onChangeStatus, canUpdate }) {
               <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
                 <td className="py-3 px-4 font-mono text-sm font-medium text-gray-900">{booking.bookingCode}</td>
                 <td className="py-3 px-4 text-sm text-gray-700">{booking.fullName}</td>
-                <td className="py-3 px-4 text-sm text-gray-700">{booking.tourTitle}</td>
+                <td className="py-3 px-4 text-sm text-gray-700 max-w-[200px] truncate" title={booking.tourTitle}>{booking.tourTitle}</td>
                 <td className="py-3 px-4 text-sm text-gray-700 font-medium">{guests.join(" - ")}</td>
                 <td className="py-3 px-4 text-sm font-semibold text-blue-600">{formatCurrency(booking.total)}</td>
                 <td className="py-3 px-4 text-sm text-gray-500">
