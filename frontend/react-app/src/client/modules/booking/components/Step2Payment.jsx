@@ -9,6 +9,14 @@ const Step2Payment = ({
 }) => {
   const navigate = useNavigate();
   const contactInfo = formData?.contact || {};
+  const isCash = payment_method === "cash";
+
+  const handleMethodChange = (method) => {
+    setPaymentMethod(method);
+    if (method === "cash" && payment_type === "50") {
+      setPaymentType("100");
+    }
+  };
 
   return (
     <div className="step2-payment-wrapper">
@@ -60,13 +68,13 @@ const Step2Payment = ({
 
         <div className="ratio-cards-grid">
           <label
-            className={`ratio-card ${payment_type === "100" ? "active" : ""}`}
+            className={`ratio-card ${payment_type === "100" || isCash ? "active" : ""}`}
           >
             <input
               type="radio"
               name="payment_type"
               value="100"
-              checked={payment_type === "100"}
+              checked={payment_type === "100" || isCash}
               onChange={(e) => setPaymentType(e.target.value)}
             />
             <div className="rc-content">
@@ -81,20 +89,34 @@ const Step2Payment = ({
           </label>
 
           <label
-            className={`ratio-card ${payment_type === "50" ? "active" : ""}`}
+            className={`ratio-card ${isCash ? "disabled" : ""} ${payment_type === "50" && !isCash ? "active" : ""}`}
+            onClick={(e) => {
+              if (isCash) {
+                e.preventDefault();
+              }
+            }}
           >
             <input
               type="radio"
               name="payment_type"
               value="50"
-              checked={payment_type === "50"}
-              onChange={(e) => setPaymentType(e.target.value)}
+              disabled={isCash}
+              checked={payment_type === "50" && !isCash}
+              onChange={(e) => {
+                if (!isCash) setPaymentType(e.target.value);
+              }}
             />
             <div className="rc-content">
-              <span className="rc-title">Đặt cọc trước (50%)</span>
+              <div className="rc-title-flex">
+                <span className="rc-title">Đặt cọc trước (50%)</span>
+                {isCash && (
+                  <span className="rc-badge-info">Chỉ áp dụng thanh toán online</span>
+                )}
+              </div>
               <span className="rc-desc">
-                Thanh toán 50% giá trị để giữ chỗ. Phần còn lại thanh toán trước
-                ngày khởi hành 7 ngày.
+                {isCash
+                  ? "Hình thức đặt cọc 50% chỉ hỗ trợ qua cổng thanh toán trực tuyến (VNPAY)."
+                  : "Thanh toán 50% giá trị để giữ chỗ. Phần còn lại thanh toán trước ngày khởi hành 7 ngày."}
               </span>
             </div>
             <div className="rc-check">
@@ -120,7 +142,7 @@ const Step2Payment = ({
                 name="payment_method"
                 value="vnpay"
                 checked={payment_method === "vnpay"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                onChange={() => handleMethodChange("vnpay")}
               />
               <span className="custom-radio"></span>
             </div>
@@ -137,7 +159,7 @@ const Step2Payment = ({
             </div>
           </label>
 
-          <label
+          {/* <label
             className={`method-item ${payment_method === "momo" ? "active" : ""}`}
           >
             <div className="mi-radio">
@@ -146,7 +168,7 @@ const Step2Payment = ({
                 name="payment_method"
                 value="momo"
                 checked={payment_method === "momo"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                onChange={() => handleMethodChange("momo")}
               />
               <span className="custom-radio"></span>
             </div>
@@ -161,9 +183,9 @@ const Step2Payment = ({
                 Thanh toán nhanh chóng, an toàn qua ứng dụng MoMo.
               </span>
             </div>
-          </label>
+          </label> */}
 
-          <label
+          {/* <label
             className={`method-item ${payment_method === "bank" ? "active" : ""}`}
           >
             <div className="mi-radio">
@@ -172,7 +194,7 @@ const Step2Payment = ({
                 name="payment_method"
                 value="bank"
                 checked={payment_method === "bank"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                onChange={() => handleMethodChange("bank")}
               />
               <span className="custom-radio"></span>
             </div>
@@ -188,7 +210,7 @@ const Step2Payment = ({
                 MBBank...).
               </span>
             </div>
-          </label>
+          </label> */}
 
           <label
             className={`method-item ${payment_method === "cash" ? "active" : ""}`}
@@ -199,7 +221,7 @@ const Step2Payment = ({
                 name="payment_method"
                 value="cash"
                 checked={payment_method === "cash"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                onChange={() => handleMethodChange("cash")}
               />
               <span className="custom-radio"></span>
             </div>
@@ -218,7 +240,7 @@ const Step2Payment = ({
           </label>
         </div>
 
-        {payment_method === "bank" && (
+        {/* {payment_method === "bank" && (
           <div className="bank-transfer-details">
             <h4 className="btd-title">Thông tin chuyển khoản:</h4>
             <ul>
@@ -237,7 +259,7 @@ const Step2Payment = ({
               </li>
             </ul>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

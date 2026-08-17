@@ -63,6 +63,13 @@ const PassengerCard = ({ type, index, isAdult, groupKey, passengerData = {}, onD
                   selected={passengerData.dob ? parseISO(passengerData.dob) : null}
                   onChange={(date) => onDataChange("dob", date ? format(date, "yyyy-MM-dd") : "")}
                   dateFormat="dd/MM/yyyy"
+                  showYearDropdown
+                  showMonthDropdown
+                  dropdownMode="select"
+                  yearDropdownItemNumber={100}
+                  scrollableYearDropdown
+                  maxDate={new Date()}
+                  minDate={new Date("1920-01-01")}
                   className={`b-input ${formErrors[`passengerDetails.${groupKey}.${arrayIndex}.dob`] ? "error-border" : ""}`}
                   placeholderText="dd/mm/yyyy"
                 />
