@@ -5,37 +5,37 @@ function Promotions() {
     {
       id: 1,
       image:
-        "https://s3-cmc.travel.com.vn/vtv-image/Images/Advertisings/bn_260505_resize-banner-tour-nuoc-ngoai.webp",
+        "http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988752/mmbok4uwgbtpyidsogc8.webp",
     },
     {
       id: 2,
       image:
-        "https://s3-cmc.travel.com.vn/vtv-image/Images/Advertisings/bn_260416_bn260410bannerwebmoiesg.webp",
+        "http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988830/jcq0ocsafe6li73usea3.jpg",
     },
     {
       id: 3,
       image:
-        "https://s3-cmc.travel.com.vn/vtv-image/Images/Advertisings/bn_260505_resize-banner-tour-nuoc-ngoai.webp",
+        "http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988752/mmbok4uwgbtpyidsogc8.webp",
     },
     {
       id: 4,
       image:
-        "https://s3-cmc.travel.com.vn/vtv-image/Images/Advertisings/bn_260416_bn260410bannerwebmoiesg.webp",
+        "http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988830/jcq0ocsafe6li73usea3.jpg",
     },
     {
       id: 5,
       image:
-        "https://s3-cmc.travel.com.vn/vtv-image/Images/Advertisings/bn_260505_resize-banner-tour-nuoc-ngoai.webp",
+        "http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988752/mmbok4uwgbtpyidsogc8.webp",
     },
     {
       id: 6,
       image:
-        "https://s3-cmc.travel.com.vn/vtv-image/Images/Advertisings/bn_260416_bn260410bannerwebmoiesg.webp",
+        "http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988830/jcq0ocsafe6li73usea3.jpg",
     },
     {
       id: 7,
       image:
-        "https://s3-cmc.travel.com.vn/vtv-image/Images/Advertisings/bn_260505_resize-banner-tour-nuoc-ngoai.webp",
+        "http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988752/mmbok4uwgbtpyidsogc8.webp",
     },
   ];
 

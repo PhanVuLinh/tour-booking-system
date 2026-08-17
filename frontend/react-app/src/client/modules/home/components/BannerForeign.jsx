@@ -2,11 +2,9 @@ function BannerForeign() {
   return (
     <section className={`banner-ad`}>
       <div className="container">
-        {/* Dùng thẻ <a> bọc ngoài để banner có thể click được */}
         <a href="#" className="banner-ad__link">
           <img
-            // Tạm thời dùng ảnh chữ nhật giả lập, bạn thay bằng link ảnh Nam Du thật nhé
-            src="https://saigontourist.net/_next/image?url=https%3A%2F%2Fsaigontourist.net%2Fstorage%2Fmedia%2Fbanner-tour-uc_1778233829.jpg&w=1920&q=75"
+            src="http://res.cloudinary.com/dlxbhq8pw/image/upload/v1786988643/pcq8getam4vdgqb738nd.jpg"
             alt="Siêu bão Tour đảo Nam Du"
             className="banner-ad__img"
           />
