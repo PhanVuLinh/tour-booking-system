@@ -97,7 +97,7 @@ module.exports.getCategoryAndToursBySlug = async (
   }
 
   if (start_date) {
-    sqlConditions += ` AND DATE(departures.start_date) >= ?`;
+    sqlConditions += ` AND DATE(departures.start_date) = ?`;
     queryParams.push(start_date);
   }
 
