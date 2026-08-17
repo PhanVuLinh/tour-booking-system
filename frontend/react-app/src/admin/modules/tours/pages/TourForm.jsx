@@ -6,6 +6,8 @@ import { TourImageUpload } from "../components/TourImageUpload";
 import { tourService } from "../services/tourService";
 import { saveSchedules, getSchedulesByTourId } from "../services/scheduleService";
 
+import AlertModal from "../../../components/AlertModal"; 
+
 export default function TourForm() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -28,6 +30,25 @@ export default function TourForm() {
   const [itinerary, setItinerary] = useState([
     { dayNumber: 1, title: "", content: "", status: "active" }
   ]);
+
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    variant: "info",
+    onCloseAction: null 
+  });
+
+  const showAlert = (title, message, variant = "info", onCloseAction = null) => {
+    setAlertConfig({ isOpen: true, title, message, variant, onCloseAction });
+  };
+
+  const handleCloseAlert = () => {
+    if (alertConfig.onCloseAction) {
+      alertConfig.onCloseAction(); 
+    }
+    setAlertConfig(prev => ({ ...prev, isOpen: false }));
+  };
 
   useEffect(() => {
     return () => {
@@ -76,8 +97,7 @@ export default function TourForm() {
           console.log(scheduleErr);
         }
       } catch (err) {
-        alert("Không tìm thấy tour: " + err.message);
-        navigate("/admin/tours");
+        showAlert("Lỗi", "Không tìm thấy tour: " + err.message, "danger", () => navigate("/admin/tours"));
       } finally {
         setLoading(false);
       }
@@ -88,11 +108,11 @@ export default function TourForm() {
   const handleThumbnailChange = (file, previewUrl) => {
     if (file) {
       if (!file.type.startsWith("image/")) {
-        alert("Vui lòng chọn file ảnh (PNG, JPG, WEBP...)");
+        showAlert("Lỗi định dạng", "Vui lòng chọn file ảnh (PNG, JPG, WEBP...)", "warning");
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert("Ảnh không được vượt quá 5MB");
+        showAlert("Dung lượng quá lớn", "Ảnh không được vượt quá 5MB", "warning");
         return;
       }
       setImageFile(file);
@@ -113,18 +133,18 @@ export default function TourForm() {
 
     const validFiles = files.filter(file => {
       if (!file.type.startsWith("image/")) {
-        alert(`File ${file.name} không phải là ảnh!`);
+        showAlert("Lỗi định dạng", `File ${file.name} không phải là ảnh!`, "warning");
         return false;
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert(`Ảnh ${file.name} vượt quá 5MB`);
+        showAlert("Dung lượng quá lớn", `Ảnh ${file.name} vượt quá 5MB`, "warning");
         return false;
       }
       return true;
     });
 
     if (galleryPreviews.length + validFiles.length > 5) {
-      alert("Bạn chỉ có thể tải lên tối đa 5 ảnh phụ!");
+      showAlert("Vượt quá giới hạn", "Bạn chỉ có thể tải lên tối đa 5 ảnh phụ!", "warning");
       return;
     }
 
@@ -152,11 +172,11 @@ export default function TourForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.category) {
-      alert("Vui lòng điền đầy đủ thông tin bắt buộc (*)");
+      showAlert("Thiếu thông tin", "Vui lòng điền đầy đủ thông tin bắt buộc (*)", "warning");
       return;
     }
     if (!isEdit && !imageFile && !formData.image) {
-      alert("Vui lòng chọn ảnh cho tour");
+      showAlert("Thiếu hình ảnh", "Vui lòng chọn ảnh cho tour", "warning");
       return;
     }
     const existingImageUrls = galleryPreviews.filter(url => !url.startsWith("blob:"));
@@ -175,16 +195,15 @@ export default function TourForm() {
       if (isEdit) {
         await tourService.update(id, payload, imageFile, galleryFiles);
         await saveSchedules(id, itinerary);
-        alert("Cập nhật tour và lộ trình thành công!");
+        showAlert("Thành công", "Cập nhật tour và lộ trình thành công!", "success", () => navigate("/admin/tours"));
       } else {
         const res = await tourService.create(payload, imageFile, galleryFiles);
         const newTourId = res.id || res.data?.id;
         if (newTourId) await saveSchedules(newTourId, itinerary);
-        alert("Thêm tour mới thành công!");
+        showAlert("Thành công", "Thêm tour mới thành công!", "success", () => navigate("/admin/tours"));
       }
-      navigate("/admin/tours");
     } catch (err) {
-      alert("Lỗi: " + err.message);
+      showAlert("Lỗi xử lý", "Lỗi: " + err.message, "danger");
     } finally {
       setSubmitting(false);
     }
@@ -237,7 +256,6 @@ export default function TourForm() {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100">
@@ -277,7 +295,7 @@ export default function TourForm() {
                       type="text"
                       value={formData.duration}
                       onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                      placeholder="Ví dụ: 3N2Đ"
+                      placeholder="Ví dụ: 3 Ngày 2 Đêm"
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
                   </div>
@@ -352,6 +370,14 @@ export default function TourForm() {
           </div>
         </div>
       </form>
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        variant={alertConfig.variant}
+        onClose={handleCloseAlert}
+      />
     </div>
   );
 }

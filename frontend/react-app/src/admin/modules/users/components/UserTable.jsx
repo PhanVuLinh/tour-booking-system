@@ -12,8 +12,8 @@ export function CustomerTable({ data, onView, onToggleLock, onDelete, startIndex
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">STT</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Khách hàng</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Liên hệ</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tổng đơn</th>
-            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tổng chi tiêu</th>
+            {/* <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tổng đơn</th>
+            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Tổng chi tiêu</th> */}
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Ngày tham gia</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Trạng thái</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 text-right">Thao tác</th>
@@ -28,12 +28,12 @@ export function CustomerTable({ data, onView, onToggleLock, onDelete, startIndex
                 <div className="text-gray-900">{customer.email}</div>
                 <div className="text-gray-500 mt-0.5">{customer.phone}</div>
               </td>
-              <td className="py-3 px-4 text-sm text-gray-600">
+              {/* <td className="py-3 px-4 text-sm text-gray-600">
                 <span className="font-medium text-gray-900">{customer.totalBookings}</span> đơn
               </td>
               <td className="py-3 px-4 text-sm font-medium text-green-600">
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(customer.totalSpent)}
-              </td>
+              </td> */}
               <td className="py-3 px-4 text-sm text-gray-600">{customer.joinedDate}</td>
               <td className="py-3 px-4">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${

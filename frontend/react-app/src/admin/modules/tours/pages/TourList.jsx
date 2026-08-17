@@ -9,6 +9,9 @@ import { accountService } from "../../users/services/accountService";
 import Pagination from "../../../components/Pagination";
 import { usePermission } from "../../../hooks/usePermission";
 
+import ConfirmModal from "../../../components/ConfirmModal";
+import AlertModal from "../../../components/AlertModal";
+
 export function TourList() {
   const { hasPermission } = usePermission();
 
@@ -34,6 +37,29 @@ export function TourList() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
+
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false, title: "", message: "", variant: "info", action: null
+  });
+
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false, title: "", message: "", variant: "info"
+  });
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  
+  const executeConfirmAction = async () => {
+    if (confirmConfig.action) {
+      await confirmConfig.action();
+    }
+    closeConfirm();
+  };
+
+  const showAlert = (title, message, variant = "info") => {
+    setAlertConfig({ isOpen: true, title, message, variant });
+  };
+  
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, isOpen: false }));
 
   useEffect(() => {
     setCurrentPage(1);
@@ -105,48 +131,71 @@ export function TourList() {
     setIsDetailOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa tour này? Tour sẽ được chuyển vào thùng rác.")) return;
-    try {
-      await tourService.delete(id);
-      const tour = tours.find((t) => t.id === id);
-      if (tour) {
-        setDeletedTours([
-          ...deletedTours,
-          { ...tour, deletedBy: localStorage.getItem("userId"), deletedAt: new Date().toISOString() },
-        ]);
-        setTours(tours.filter((t) => t.id !== id));
+  const handleDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xác nhận xóa",
+      message: "Bạn có chắc chắn muốn xóa tour này? Tour sẽ được chuyển vào thùng rác.",
+      variant: "danger",
+      action: async () => {
+        try {
+          await tourService.delete(id);
+          const tour = tours.find((t) => t.id === id);
+          if (tour) {
+            setDeletedTours([
+              ...deletedTours,
+              { ...tour, deletedBy: localStorage.getItem("userId"), deletedAt: new Date().toISOString() },
+            ]);
+            setTours(tours.filter((t) => t.id !== id));
+          }
+          showAlert("Thành công", "Đã chuyển tour vào thùng rác.", "success");
+        } catch (err) {
+          showAlert("Lỗi", "Lỗi khi xóa: " + err.message, "danger");
+        }
       }
-    } catch (err) {
-      alert("Lỗi khi xóa: " + err.message);
-    }
+    });
   };
 
-  const handleRestore = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn khôi phục tour này?")) return;
-    try {
-      await tourService.restore(id); 
-      const tour = deletedTours.find((t) => t.id === id);
-      if (tour) {
-        const { deletedBy: _deletedBy, deletedAt: _deletedAt, ...restTour } = tour;
-        setTours([...tours, restTour]);
-        setDeletedTours(deletedTours.filter((t) => t.id !== id));
+  const handleRestore = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Khôi phục Tour",
+      message: "Bạn có chắc chắn muốn khôi phục tour này về danh sách hoạt động?",
+      variant: "info",
+      action: async () => {
+        try {
+          await tourService.restore(id); 
+          const tour = deletedTours.find((t) => t.id === id);
+          if (tour) {
+            const { deletedBy: _deletedBy, deletedAt: _deletedAt, ...restTour } = tour;
+            setTours([...tours, restTour]);
+            setDeletedTours(deletedTours.filter((t) => t.id !== id));
+          }
+          showAlert("Thành công", "Đã khôi phục tour thành công.", "success");
+        } catch (err) {
+          showAlert("Lỗi", "Lỗi khi khôi phục: " + err.message, "danger");
+        }
       }
-    } catch (err) {
-      alert("Lỗi khi khôi phục: " + err.message);
-    }
+    });
   };
 
-  const handlePermanentDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn tour này? Hành động này không thể hoàn tác.")) return;
-    try{
-      await tourService.hardDelete(id);
-      setDeletedTours(deletedTours.filter((t) => t.id !== id));
-    }catch(err){
-      alert("Lỗi khi xóa vĩnh viễn: " + err.message);
-    }
+  const handlePermanentDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xóa vĩnh viễn",
+      message: "Bạn có chắc chắn muốn xóa vĩnh viễn tour này? Hành động này không thể hoàn tác.",
+      variant: "danger",
+      action: async () => {
+        try {
+          await tourService.hardDelete(id);
+          setDeletedTours(deletedTours.filter((t) => t.id !== id));
+          showAlert("Thành công", "Đã xóa vĩnh viễn tour.", "success");
+        } catch (err) {
+          showAlert("Lỗi", "Lỗi khi xóa vĩnh viễn: " + err.message, "danger");
+        }
+      }
+    });
   };
-
 
   if (error) {
     return (
@@ -255,6 +304,23 @@ export function TourList() {
         onClose={() => setIsDetailOpen(false)}
         selectedTour={selectedTour}
         getAccountName={getAccountName}
+      />
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        onCancel={closeConfirm}
+        onConfirm={executeConfirmAction}
+      />
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        variant={alertConfig.variant}
+        onClose={closeAlert}
       />
     </div>
   );
