@@ -4,6 +4,7 @@ import com.lvtn.java.common.ApiResponse;
 import com.lvtn.java.dto.booking.BookingResponse;
 import com.lvtn.java.dto.booking.BookingStatusUpdateRequest;
 import com.lvtn.java.modules.booking.service.BookingService;
+import com.lvtn.java.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,8 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final SecurityUtils securityUtils;
+
 
     @GetMapping
 //    @PreAuthorize("@permissionCheckService.hasPermission(principal.accountId(), 'VIEW_BOOKING')")
@@ -36,6 +39,9 @@ public class BookingController {
     public ResponseEntity<ApiResponse<BookingResponse>> updateStatus(
             @PathVariable Integer id,
             @Valid @RequestBody BookingStatusUpdateRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(bookingService.updateStatus(id, request.getStatus())));
+        Integer updaterId = securityUtils.getCurrentAccountId();
+        return ResponseEntity.ok(ApiResponse.success(
+                bookingService.updateStatus(id, request.getStatus(), updaterId)
+        ));
     }
 }

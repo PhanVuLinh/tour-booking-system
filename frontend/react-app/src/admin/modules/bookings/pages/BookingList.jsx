@@ -8,6 +8,7 @@ import { BookingTable } from "../components/BookingTable";
 import { BookingDetailModal, getOverallPaymentStatus } from "../components/BookingDetailModal";
 import ConfirmModal from "../../../components/ConfirmModal";
 import Pagination from "../../../components/Pagination";
+import { accountService } from "../../users/services/accountService";
 
 const STATUS_LABELS = {
   pending: "Chờ xác nhận",
@@ -29,7 +30,7 @@ export default function BookingList() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  
+  const [accountMap, setAccountMap] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
@@ -53,8 +54,14 @@ export default function BookingList() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await bookingService.getAll();
+      const [data, accounts] = await Promise.all([
+        bookingService.getAll(),
+        accountService.getAllActive(),
+      ]);
       setBookings(data);
+      const map = {};
+      accounts.forEach(acc => { map[acc.id] = acc.fullName; });
+      setAccountMap(map);
     } catch (error) {
       toast.error(error.message || "Lỗi khi tải dữ liệu");
     } finally {
@@ -221,7 +228,6 @@ export default function BookingList() {
           </div>
         ) : (
           <>
-            {/* 👉 4. TRUYỀN PROPS SẮP XẾP XUỐNG BẢNG */}
             <BookingTable 
               data={paginatedBookings} 
               onView={handleView}
@@ -246,6 +252,7 @@ export default function BookingList() {
           onChangePaymentStatus={handleChangePaymentStatus}
           onUpdatePassenger={handleUpdatePassenger}
           canUpdate={canUpdate}
+          accountMap={accountMap}
         />
       )}
 
