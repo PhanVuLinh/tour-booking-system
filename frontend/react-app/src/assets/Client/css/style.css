@@ -1776,7 +1776,8 @@ body {
 
 .gallery-thumbnails {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 1 ảnh đại diện + tối đa 5 ảnh gallery: hiển thị gọn một hàng trên desktop. */
+  grid-template-columns: repeat(6, 1fr);
   gap: 12px;
 }
 
@@ -6492,6 +6493,10 @@ input:checked+.slider:before {
     height: 300px;
   }
 
+  .gallery-thumbnails {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
   .gallery-thumbnails img {
     height: 70px;
   }
@@ -6634,6 +6639,10 @@ input:checked+.slider:before {
 }
 
 @media (max-width: 480px) {
+  .gallery-thumbnails {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .login-right {
     padding: 30px 20px;
   }
