@@ -1,42 +1,62 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Search, Lock, Loader2 } from "lucide-react"; 
-import { toast } from "sonner";
 
 import { roleService, permissionService } from "../services/roleService";
 import PermissionMatrix from "../components/PermissionMatrix";
 import { RoleTable } from "../components/RoleTable"; 
 import { RoleDetailModal } from "../components/RoleDetailModal";
 
+import ConfirmModal from "../../../components/ConfirmModal";
+import AlertModal from "../../../components/AlertModal";
+
 const RolePage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [activeTab, setActiveTab] = useState("roles"); 
-    const [searchTerm, setSearchTerm] = useState("");
-    
-    const [roles, setRoles] = useState([]);
-    const [allPermissions, setAllPermissions] = useState([]);
-    const [rolePermissions, setRolePermissions] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
-    
-    const [selectedRoleForDetail, setSelectedRoleForDetail] = useState(null);
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("roles"); 
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const [roles, setRoles] = useState([]);
+  const [allPermissions, setAllPermissions] = useState([]);
+  const [rolePermissions, setRolePermissions] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const [selectedRoleForDetail, setSelectedRoleForDetail] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-    const { isAdmin, canManagePermissions, canCreateRole } = useMemo(() => {
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", variant: "info", action: null });
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: "", message: "", variant: "info" });
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  
+  const executeConfirmAction = async () => {
+    if (confirmConfig.action) {
+      await confirmConfig.action();
+    }
+    closeConfirm();
+  };
+
+  const showAlert = (title, message, variant = "info") => {
+    setAlertConfig({ isOpen: true, title, message, variant });
+  };
+  
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, isOpen: false }));
+
+  const { isAdmin, canManagePermissions, canCreateRole } = useMemo(() => {
     try {
-        const userString = localStorage.getItem("user");
-        if (!userString) return { isAdmin: false, canManagePermissions: false, canCreateRole: false };
-        
-        const user = JSON.parse(userString);
-        const isSuperAdmin = user.role && String(user.role).toUpperCase() === "ADMIN";
-        
-        const permissions = user.permissions || []; 
+      const userString = localStorage.getItem("user");
+      if (!userString) return { isAdmin: false, canManagePermissions: false, canCreateRole: false };
+      
+      const user = JSON.parse(userString);
+      const isSuperAdmin = user.role && String(user.role).toUpperCase() === "ADMIN";
+      
+      const permissions = user.permissions || []; 
 
       return {
         isAdmin: isSuperAdmin,
         canManagePermissions: isSuperAdmin || permissions.includes("UPDATE_ROLE"), 
         canCreateRole: isSuperAdmin || permissions.includes("CREATE_ROLE"),      
-       };
+      };
     } catch (e) {
       return { isAdmin: false, canManagePermissions: false, canCreateRole: false };
     }
@@ -58,7 +78,7 @@ const RolePage = () => {
       });
       setRolePermissions(permMap);
     } catch (error) {
-      toast.error("Lỗi khi tải dữ liệu. Vui lòng thử lại!");
+      showAlert("Lỗi", "Lỗi khi tải dữ liệu. Vui lòng thử lại!", "danger");
     } finally {
       setIsLoading(false);
     }
@@ -78,35 +98,41 @@ const RolePage = () => {
     setIsDetailOpen(true);
   };
 
-  const handleToggleLock = async (role) => {
-    if (!canManagePermissions) return toast.error("Bạn không có quyền thực hiện thao tác này!");
+  const handleToggleLock = (role) => {
+    if (!canManagePermissions) return showAlert("Cảnh báo", "Bạn không có quyền thực hiện thao tác này!", "warning");
 
     const isCurrentlyLocked = role.deleted === 1; 
     const actionText = isCurrentlyLocked ? "mở khóa" : "khóa";
     
-    if (window.confirm(`Bạn có chắc chắn muốn ${actionText} vai trò "${role.name}"?`)) {
-      try {
-        if (isCurrentlyLocked) {
-          await roleService.unlock(role.id);
-        } else {
-          await roleService.lock(role.id);
+    setConfirmConfig({
+      isOpen: true,
+      title: `Xác nhận ${actionText}`,
+      message: `Bạn có chắc chắn muốn ${actionText} vai trò "${role.name}"?`,
+      variant: isCurrentlyLocked ? "info" : "danger",
+      action: async () => {
+        try {
+          if (isCurrentlyLocked) {
+            await roleService.unlock(role.id);
+          } else {
+            await roleService.lock(role.id);
+          }
+          showAlert("Thành công", `Đã ${actionText} vai trò "${role.name}" thành công!`, "success");
+          loadData(); 
+        } catch (error) {
+          showAlert("Lỗi", error.response?.data?.message || `Lỗi khi ${actionText} vai trò`, "danger");
         }
-        toast.success(`Đã ${actionText} vai trò "${role.name}" thành công!`);
-        loadData(); 
-      } catch (error) {
-        toast.error(error.response?.data?.message || `Lỗi khi ${actionText} vai trò`);
       }
-    }
+    });
   };
 
   const handleSavePermissions = async (roleId, selectedPermIds) => {
     setIsLoading(true);
     try {
       await roleService.updatePermissions(roleId, selectedPermIds);
-      toast.success("Cập nhật phân quyền thành công!");
+      showAlert("Thành công", "Cập nhật phân quyền thành công!", "success");
       loadData();
     } catch (error) {
-      toast.error("Lỗi khi lưu phân quyền");
+      showAlert("Lỗi", "Lỗi khi lưu phân quyền", "danger");
     } finally {
       setIsLoading(false);
     }
@@ -194,6 +220,23 @@ const RolePage = () => {
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
         role={selectedRoleForDetail}
+      />
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        onCancel={closeConfirm}
+        onConfirm={executeConfirmAction}
+      />
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        variant={alertConfig.variant}
+        onClose={closeAlert}
       />
     </div>
   );

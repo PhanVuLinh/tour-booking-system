@@ -49,7 +49,7 @@ public class UserController {
 //    }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody UserRequest request) {
         try {
             Integer accountId = securityUtils.getCurrentAccountId();
@@ -60,7 +60,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
             Integer accountId = securityUtils.getCurrentAccountId();

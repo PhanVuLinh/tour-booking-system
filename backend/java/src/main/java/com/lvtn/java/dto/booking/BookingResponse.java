@@ -41,6 +41,7 @@ public class BookingResponse {
     private Integer deletedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Integer updatedBy;
     private List<PassengerResponse> passengers;
     private List<PaymentResponse> payments;
 }

@@ -11,6 +11,9 @@ import { roleService } from "../services/roleService";
 import Pagination from "../../../components/Pagination";
 import { usePermission } from "../../../hooks/usePermission";
 
+import ConfirmModal from "../../../components/ConfirmModal";
+import AlertModal from "../../../components/AlertModal";
+
 export default function UserManagement() {
   const { hasPermission } = usePermission();
 
@@ -39,6 +42,24 @@ export default function UserManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", variant: "info", action: null });
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: "", message: "", variant: "info" });
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  
+  const executeConfirmAction = async () => {
+    if (confirmConfig.action) {
+      await confirmConfig.action();
+    }
+    closeConfirm();
+  };
+
+  const showAlert = (title, message, variant = "info") => {
+    setAlertConfig({ isOpen: true, title, message, variant });
+  };
+  
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, isOpen: false }));
+
   useEffect(() => {
     setCurrentPage(1);
   }, [customerSearch, employeeSearch, activeTab]);
@@ -49,7 +70,7 @@ export default function UserManagement() {
       const data = await userService.getAllActive();
       setCustomers(data);
     } catch (error) {
-      alert(error.message || "Lỗi tải danh sách khách hàng");
+      showAlert("Lỗi", error.message || "Lỗi tải danh sách khách hàng", "danger");
     } finally {
       setLoading(false);
     }
@@ -61,7 +82,7 @@ export default function UserManagement() {
       const data = await accountService.getAllActive();
       setEmployees(data);
     } catch (error) {
-      alert(error.message || "Lỗi tải danh sách nhân viên");
+      showAlert("Lỗi", error.message || "Lỗi tải danh sách nhân viên", "danger");
     } finally {
       setLoading(false);
     }
@@ -73,7 +94,7 @@ export default function UserManagement() {
       const data = await accountService.getAllTrash();
       setTrashItems(data);
     } catch (error) {
-      alert(error.message || "Lỗi tải thùng rác");
+      showAlert("Lỗi", error.message || "Lỗi tải thùng rác", "danger");
     } finally {
       setLoading(false);
     }
@@ -131,47 +152,48 @@ export default function UserManagement() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedList = currentList.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleToggleLock = async (id, userType, currentStatus) => {
-    const action = currentStatus === "active" ? "khóa" : "mở khóa";
-    if (!window.confirm(`Bạn có chắc chắn muốn ${action} tài khoản này không?`)) return;
-
+  const handleToggleLock = (id, userType, currentStatus) => {
+    const actionText = currentStatus === "active" ? "khóa" : "mở khóa";
     const newStatus = currentStatus === "active" ? "inactive" : "active";
 
-    if (userType === "customer") {
-      try {
-        const user = await userService.getById(id);
-        const payload = {
-          fullName: user.name,
-          email: user.email,
-          phone: user.phone || "",
-          status: newStatus,
-          password: ""
-        };
-        await userService.update(id, payload);
-        loadCustomers();
-        alert(`Đã ${action} tài khoản khách hàng thành công!`);
-      } catch (error) {
-        alert(error.message || `Lỗi khi ${action} tài khoản`);
+    setConfirmConfig({
+      isOpen: true,
+      title: `Xác nhận ${actionText}`,
+      message: `Bạn có chắc chắn muốn ${actionText} tài khoản này không?`,
+      variant: currentStatus === "active" ? "danger" : "info",
+      action: async () => {
+        try {
+          if (userType === "customer") {
+            const user = await userService.getById(id);
+            const payload = {
+              fullName: user.name,
+              email: user.email,
+              phone: user.phone || "",
+              status: newStatus,
+              password: ""
+            };
+            await userService.update(id, payload);
+            loadCustomers();
+          } else {
+            const account = await accountService.getById(id);
+            const payload = {
+              fullName: account.fullName,
+              email: account.email,
+              phone: account.phone || "",
+              jobTitle: account.jobTitle || "",
+              roleId: account.roleId,
+              status: newStatus,
+              password: ""
+            };
+            await accountService.update(id, payload);
+            loadEmployees();
+          }
+          showAlert("Thành công", `Đã ${actionText} tài khoản thành công!`, "success");
+        } catch (error) {
+          showAlert("Lỗi", error.message || `Lỗi khi ${actionText} tài khoản`, "danger");
+        }
       }
-    } else {
-      try {
-        const account = await accountService.getById(id);
-        const payload = {
-          fullName: account.fullName,
-          email: account.email,
-          phone: account.phone || "",
-          jobTitle: account.jobTitle || "",
-          roleId: account.roleId,
-          status: newStatus,
-          password: ""
-        };
-        await accountService.update(id, payload);
-        loadEmployees();
-        alert(`Đã ${action} tài khoản nhân viên thành công!`);
-      } catch (error) {
-        alert(error.message || `Lỗi khi ${action} tài khoản`);
-      }
-    }
+    });
   };
 
   const handleEditEmployee = (employee) => {
@@ -191,7 +213,7 @@ export default function UserManagement() {
 
   const handleUpdateEmployee = async () => {
     if (!employeeFormData.fullName || !employeeFormData.email) {
-      alert("Vui lòng điền đầy đủ thông tin bắt buộc");
+      showAlert("Cảnh báo", "Vui lòng điền đầy đủ thông tin bắt buộc", "warning");
       return;
     }
     try {
@@ -205,7 +227,7 @@ export default function UserManagement() {
         password: employeeFormData.password || "" 
       };
       await accountService.update(editingEmployee.id, payload);
-      alert("Cập nhật nhân viên thành công!");
+      showAlert("Thành công", "Cập nhật nhân viên thành công!", "success");
       setIsEmployeeFormOpen(false);
       setIsEditMode(false);
       setEditingEmployee(null);
@@ -213,42 +235,63 @@ export default function UserManagement() {
       loadEmployees();
       loadTrash();
     } catch (error) {
-      alert(error.message || "Cập nhật thất bại");
+      showAlert("Lỗi", error.message || "Cập nhật thất bại", "danger");
     }
   };
 
-  const handleDeleteEmployee = async (id) => {
-    if (!window.confirm("Đưa nhân viên này vào thùng rác?")) return;
-    try {
-      await accountService.softDelete(id);
-      loadEmployees();
-      alert("Đã chuyển nhân viên vào thùng rác!");
-    } catch (error) {
-      alert(error.message || "Lỗi xóa nhân viên");
-    }
+  const handleDeleteEmployee = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Chuyển vào thùng rác",
+      message: "Bạn có chắc chắn muốn đưa nhân viên này vào thùng rác?",
+      variant: "danger",
+      action: async () => {
+        try {
+          await accountService.softDelete(id);
+          loadEmployees();
+          showAlert("Thành công", "Đã chuyển nhân viên vào thùng rác!", "success");
+        } catch (error) {
+          showAlert("Lỗi", error.message || "Lỗi xóa nhân viên", "danger");
+        }
+      }
+    });
   };
 
-  const handleRestoreEmployee = async (id) => {
-    if (!window.confirm("Khôi phục nhân viên này?")) return;
-    try {
-      await accountService.restore(id);
-      await loadTrash();
-      await loadEmployees();
-      alert("Khôi phục nhân viên thành công!");
-    } catch (error) {
-      alert(error.message || "Khôi phục thất bại");
-    }
+  const handleRestoreEmployee = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Khôi phục nhân viên",
+      message: "Bạn có chắc chắn muốn khôi phục nhân viên này?",
+      variant: "info",
+      action: async () => {
+        try {
+          await accountService.restore(id);
+          await loadTrash();
+          await loadEmployees();
+          showAlert("Thành công", "Khôi phục nhân viên thành công!", "success");
+        } catch (error) {
+          showAlert("Lỗi", error.message || "Khôi phục thất bại", "danger");
+        }
+      }
+    });
   };
 
-  const handleForceDeleteEmployee = async (id) => {
-    if (!window.confirm("Xóa vĩnh viễn nhân viên này? Hành động không thể hoàn tác!")) return;
-    try {
-      await accountService.hardDelete(id);
-      await loadTrash();
-      alert("Đã xóa vĩnh viễn nhân viên!");
-    } catch (error) {
-      alert(error.message || "Xóa vĩnh viễn thất bại");
-    }
+  const handleForceDeleteEmployee = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xóa vĩnh viễn",
+      message: "Bạn có chắc chắn muốn xóa vĩnh viễn nhân viên này? Hành động không thể hoàn tác!",
+      variant: "danger",
+      action: async () => {
+        try {
+          await accountService.hardDelete(id);
+          await loadTrash();
+          showAlert("Thành công", "Đã xóa vĩnh viễn nhân viên!", "success");
+        } catch (error) {
+          showAlert("Lỗi", error.message || "Xóa vĩnh viễn thất bại", "danger");
+        }
+      }
+    });
   };
 
   const viewDetail = (user, type) => {
@@ -258,7 +301,7 @@ export default function UserManagement() {
 
   const handleCreateEmployee = async () => {
     if (!employeeFormData.fullName || !employeeFormData.email || !employeeFormData.password) {
-      alert("Vui lòng điền đầy đủ các thông tin bắt buộc (*)");
+      showAlert("Cảnh báo", "Vui lòng điền đầy đủ các thông tin bắt buộc (*)", "warning");
       return;
     }
     try {
@@ -271,13 +314,13 @@ export default function UserManagement() {
         roleId: Number(employeeFormData.roleId),
         status: "active"
       });
-      alert("Đã tạo tài khoản nhân viên thành công!");
+      showAlert("Thành công", "Đã tạo tài khoản nhân viên thành công!", "success");
       setIsEmployeeFormOpen(false);
       setEmployeeFormData(defaultEmployeeForm);
       loadEmployees();
       loadRoles();
     } catch (error) {
-      alert(error.message || "Tạo tài khoản thất bại");
+      showAlert("Lỗi", error.message || "Tạo tài khoản thất bại", "danger");
     }
   };
 
@@ -443,6 +486,23 @@ export default function UserManagement() {
         roles={roles}
         isEdit={isEditMode}
         loading={false}
+      />
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        onCancel={closeConfirm}
+        onConfirm={executeConfirmAction}
+      />
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        variant={alertConfig.variant}
+        onClose={closeAlert}
       />
     </div>
   );

@@ -5,6 +5,9 @@ import { VehicleModal } from "../components/VehicleModal";
 import { vehicleService } from "../services/vehicleService";
 import { accountService } from "../../users/services/accountService";
 
+import ConfirmModal from "../../../components/ConfirmModal";
+import AlertModal from "../../../components/AlertModal";
+
 const initialFormState = {
   name: "",
   vehicleType: "BUS" 
@@ -39,6 +42,24 @@ export default function VehicleList() {
   const [editVehicle, setEditVehicle] = useState(null);
   const [formData, setFormData] = useState(initialFormState);
 
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", variant: "info", action: null });
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: "", message: "", variant: "info" });
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  
+  const executeConfirmAction = async () => {
+    if (confirmConfig.action) {
+      await confirmConfig.action();
+    }
+    closeConfirm();
+  };
+
+  const showAlert = (title, message, variant = "info") => {
+    setAlertConfig({ isOpen: true, title, message, variant });
+  };
+  
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, isOpen: false }));
+
   const fetchVehicles = async () => {
     try {
       setIsLoading(true);
@@ -52,7 +73,7 @@ export default function VehicleList() {
       setDeletedVehicles(Array.isArray(trashData) ? trashData : []);
       setAccountList(Array.isArray(accData) ? accData : []);
     } catch (error) {
-      alert("Lỗi tải dữ liệu: " + error.message);
+      showAlert("Lỗi", "Lỗi tải dữ liệu: " + error.message, "danger");
     } finally {
       setIsLoading(false);
     }
@@ -83,24 +104,24 @@ export default function VehicleList() {
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      alert("Vui lòng nhập tên phương tiện!");
+      showAlert("Cảnh báo", "Vui lòng nhập tên phương tiện!", "warning");
       return;
     }
 
     try {
       if (editVehicle) {
         await vehicleService.update(editVehicle.id, formData);
-        alert("Cập nhật phương tiện thành công!");
+        showAlert("Thành công", "Cập nhật phương tiện thành công!", "success");
       } else {
         await vehicleService.create(formData);
-        alert("Thêm phương tiện mới thành công!");
+        showAlert("Thành công", "Thêm phương tiện mới thành công!", "success");
       }
       
       setIsDialogOpen(false);
       resetForm();
       fetchVehicles(); 
     } catch (error) {
-      alert("Lỗi khi lưu dữ liệu: " + error.message);
+      showAlert("Lỗi", "Lỗi khi lưu dữ liệu: " + error.message, "danger");
     }
   };
 
@@ -118,42 +139,62 @@ export default function VehicleList() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     if (!canDelete) return;
     const vehicle = vehicles.find(v => v.id === id);
-    if (window.confirm(`Bạn có chắc chắn muốn chuyển phương tiện "${vehicle?.name}" vào thùng rác?`)) {
-      try {
-        await vehicleService.delete(id);
-        alert("Đã chuyển vào thùng rác thành công!");
-        fetchVehicles();
-      } catch (error) {
-        alert("Lỗi khi xóa: " + error.message);
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xác nhận xóa",
+      message: `Bạn có chắc chắn muốn chuyển phương tiện "${vehicle?.name}" vào thùng rác?`,
+      variant: "danger",
+      action: async () => {
+        try {
+          await vehicleService.delete(id);
+          showAlert("Thành công", "Đã chuyển vào thùng rác thành công!", "success");
+          fetchVehicles();
+        } catch (error) {
+          showAlert("Lỗi", "Lỗi khi xóa: " + error.message, "danger");
+        }
       }
-    }
+    });
   };
 
-  const handleRestore = async (id) => {
+  const handleRestore = (id) => {
     if (!canUpdate) return;
-    try {
-      await vehicleService.restore(id);
-      alert("Khôi phục thành công!");
-      fetchVehicles();
-    } catch (error) {
-      alert("Lỗi khi khôi phục: " + error.message);
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xác nhận khôi phục",
+      message: "Bạn có chắc chắn muốn khôi phục phương tiện này?",
+      variant: "info",
+      action: async () => {
+        try {
+          await vehicleService.restore(id);
+          showAlert("Thành công", "Khôi phục thành công!", "success");
+          fetchVehicles();
+        } catch (error) {
+          showAlert("Lỗi", "Lỗi khi khôi phục: " + error.message, "danger");
+        }
+      }
+    });
   };
 
-  const handlePermanentDelete = async (id) => {
+  const handlePermanentDelete = (id) => {
     if (!canDelete) return;
-    if (window.confirm("Hành động này sẽ xóa vĩnh viễn dữ liệu. Bạn có chắc chắn không?")) {
-      try {
-        await vehicleService.hardDelete(id);
-        alert("Đã xóa vĩnh viễn!");
-        fetchVehicles();
-      } catch (error) {
-        alert("Lỗi khi xóa vĩnh viễn: " + error.message);
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xóa vĩnh viễn",
+      message: "Hành động này sẽ xóa vĩnh viễn dữ liệu. Bạn có chắc chắn không?",
+      variant: "danger",
+      action: async () => {
+        try {
+          await vehicleService.hardDelete(id);
+          showAlert("Thành công", "Đã xóa vĩnh viễn!", "success");
+          fetchVehicles();
+        } catch (error) {
+          showAlert("Lỗi", "Lỗi khi xóa vĩnh viễn: " + error.message, "danger");
+        }
       }
-    }
+    });
   };
 
   return (
@@ -255,6 +296,23 @@ export default function VehicleList() {
         formData={formData} 
         setFormData={setFormData} 
         isEdit={!!editVehicle} 
+      />
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        onCancel={closeConfirm}
+        onConfirm={executeConfirmAction}
+      />
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        variant={alertConfig.variant}
+        onClose={closeAlert}
       />
       
     </div>

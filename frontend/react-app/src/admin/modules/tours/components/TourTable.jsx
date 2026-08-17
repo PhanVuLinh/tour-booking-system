@@ -83,7 +83,6 @@ export function TourTable({ tours, onView, onDelete, getAccountName }) {
               <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-1">
                   
-                  {/* 👉 [THÊM MỚI] Ẩn/hiện bằng hasPermission */}
                   {hasPermission("VIEW_TOUR") && (
                     <button onClick={() => onView(tour)} className="p-2 text-gray-600 hover:bg-gray-200 rounded-md transition-colors" title="Xem chi tiết">
                       <Eye className="w-4 h-4" />
@@ -112,9 +111,7 @@ export function TourTable({ tours, onView, onDelete, getAccountName }) {
   );
 }
 
-// Bảng Trash giữ nguyên cấu trúc hiển thị, chỉ thêm sắp xếp nếu bạn muốn
 export function TourTrashTable({ tours, onRestore, onPermanentDelete, getAccountName }) {
-  // 👉 [THÊM MỚI] Áp dụng logic sắp xếp tương tự cho thùng rác
   const { hasPermission } = usePermission();
   const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
 

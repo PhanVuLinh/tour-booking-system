@@ -67,6 +67,7 @@ public class BookingServiceImpl implements BookingService {
                 .deletedBy(booking.getDeletedBy())
                 .createdAt(booking.getCreatedAt())
                 .updatedAt(booking.getUpdatedAt())
+                .updatedBy(booking.getUpdatedBy())
                 .passengers(passengers)
                 .payments(payments)
                 .build();
@@ -89,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponse updateStatus(Integer id, String newStatus) {
+    public BookingResponse updateStatus(Integer id, String newStatus, Integer updaterId) {
         if (newStatus == null || !ALLOWED_STATUSES.contains(newStatus.toLowerCase())) {
             throw new BadRequestException("Trạng thái không hợp lệ! Chỉ chấp nhận: " + ALLOWED_STATUSES);
         }
@@ -103,6 +104,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setStatus(newStatus.toLowerCase());
+        booking.setUpdatedBy(updaterId);
         Booking saved = bookingRepository.save(booking);
         return mapToResponse(saved);
     }

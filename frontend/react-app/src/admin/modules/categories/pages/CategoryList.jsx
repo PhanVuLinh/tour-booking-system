@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, RefreshCw, Lock, Loader2 } from "lucide-react";
+import { Plus, Search, Lock, Loader2 } from "lucide-react";
 import { CategoryTable, CategoryTrashTable } from "../components/CategoryTable";
 import { CategoryModal } from "../components/CategoryModal";
 import { CategoryDetailModal } from "../components/CategoryDetailModal";
 import { categoryService } from "../services/categoryApi";
 import { accountService } from "../../users/services/accountService"; 
-
 import Pagination from "../../../components/Pagination";
 import { usePermission } from "../../../hooks/usePermission";
+import ConfirmModal from "../../../components/ConfirmModal";
+import AlertModal from "../../../components/AlertModal";
 
 const initialFormState = { title: "", description: "", parentId: "" };
 
@@ -31,6 +32,9 @@ export default function CategoryList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", variant: "info", action: null });
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: "", message: "", variant: "info" });
+
   const isAdmin = useMemo(() => {
     try {
       const userString = localStorage.getItem("user");
@@ -39,6 +43,21 @@ export default function CategoryList() {
       return user.role && String(user.role).toLowerCase() === "admin";
     } catch (e) { return false; }
   }, []);
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  
+  const executeConfirmAction = async () => {
+    if (confirmConfig.action) {
+      await confirmConfig.action();
+    }
+    closeConfirm();
+  };
+
+  const showAlert = (title, message, variant = "info") => {
+    setAlertConfig({ isOpen: true, title, message, variant });
+  };
+  
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, isOpen: false }));
 
   useEffect(() => {
     setCurrentPage(1);
@@ -50,7 +69,7 @@ export default function CategoryList() {
         const accData = await accountService.getAllActive(); 
         setAccounts(accData);
       } catch (error) {
-        console.error("Lỗi tải danh sách tài khoản:", error);
+        console.error(error);
       }
     };
     fetchAccounts();
@@ -67,7 +86,7 @@ export default function CategoryList() {
         setDeletedCategories(trashData);
       }
     } catch (error) {
-      alert("Không thể tải dữ liệu: " + error.message);
+      showAlert("Lỗi", "Không thể tải dữ liệu: " + error.message, "danger");
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +110,9 @@ export default function CategoryList() {
   const paginatedList = currentList.slice(startIndex, startIndex + itemsPerPage);
 
   const handleSubmit = async () => {
-    if (!formData.title?.trim()) return alert("Vui lòng nhập tên danh mục!");
+    if (!formData.title?.trim()) {
+      return showAlert("Cảnh báo", "Vui lòng nhập tên danh mục!", "warning");
+    }
     try {
       const payload = {
         title: formData.title.trim(),
@@ -102,10 +123,10 @@ export default function CategoryList() {
 
       if (editCategory) {
         await categoryService.update(editCategory.id, payload);
-        alert("Cập nhật thành công!");
+        showAlert("Thành công", "Cập nhật thành công!", "success");
       } else {
         await categoryService.create(payload);
-        alert("Thêm mới thành công!");
+        showAlert("Thành công", "Thêm mới thành công!", "success");
       }
       
       setIsDialogOpen(false);
@@ -113,7 +134,7 @@ export default function CategoryList() {
       setEditCategory(null);
       fetchData();
     } catch (error) {
-      alert("Lỗi: " + error.message);
+      showAlert("Lỗi", "Lỗi: " + error.message, "danger");
     }
   };
 
@@ -128,35 +149,58 @@ export default function CategoryList() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Chuyển danh mục vào thùng rác?")) {
-      try {
-        await categoryService.softDelete(id);
-        fetchData();
-      } catch (error) {
-        alert("Lỗi: " + error.message);
+  const handleDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xác nhận xóa",
+      message: "Chuyển danh mục này vào thùng rác?",
+      variant: "danger",
+      action: async () => {
+        try {
+          await categoryService.softDelete(id);
+          fetchData();
+          showAlert("Thành công", "Đã chuyển danh mục vào thùng rác.", "success");
+        } catch (error) {
+          showAlert("Lỗi", "Lỗi: " + error.message, "danger");
+        }
       }
-    }
+    });
   };
 
-  const handleRestore = async (id) => {
-    try {
-      await categoryService.restore(id);
-      fetchData();
-    } catch (error) {
-      alert("Lỗi: " + error.message);
-    }
+  const handleRestore = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xác nhận khôi phục",
+      message: "Khôi phục danh mục này?",
+      variant: "info",
+      action: async () => {
+        try {
+          await categoryService.restore(id);
+          fetchData();
+          showAlert("Thành công", "Đã khôi phục danh mục thành công.", "success");
+        } catch (error) {
+          showAlert("Lỗi", "Lỗi: " + error.message, "danger");
+        }
+      }
+    });
   };
 
-  const handlePermanentDelete = async (id) => {
-    if (window.confirm("Xóa vĩnh viễn?")) {
-      try {
-        await categoryService.hardDelete(id);
-        fetchData();
-      } catch (error) {
-        alert("Lỗi: " + error.message);
+  const handlePermanentDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xóa vĩnh viễn",
+      message: "Bạn có chắc chắn muốn xóa vĩnh viễn? Hành động này không thể hoàn tác.",
+      variant: "danger",
+      action: async () => {
+        try {
+          await categoryService.hardDelete(id);
+          fetchData();
+          showAlert("Thành công", "Đã xóa vĩnh viễn danh mục.", "success");
+        } catch (error) {
+          showAlert("Lỗi", "Lỗi: " + error.message, "danger");
+        }
       }
-    }
+    });
   };
 
   return (
@@ -209,7 +253,7 @@ export default function CategoryList() {
                   startIndex={startIndex} 
                   onView={setViewCategory} 
                   onEdit={handleEdit} 
-                  onDelete={handleDelete} 
+                  onDelete={handleDelete}
                 />
               ) : (
                 <CategoryTrashTable 
@@ -217,7 +261,7 @@ export default function CategoryList() {
                   startIndex={startIndex} 
                   accounts={accounts} 
                   onRestore={handleRestore} 
-                  onPermanentDelete={handlePermanentDelete} 
+                  onPermanentDelete={handlePermanentDelete}
                 />
               )}
 
@@ -237,6 +281,23 @@ export default function CategoryList() {
 
       <CategoryModal isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSubmit={handleSubmit} formData={formData} setFormData={setFormData} isEdit={!!editCategory} categories={categories} currentCategoryId={editCategory?.id} />
       <CategoryDetailModal isOpen={!!viewCategory} category={viewCategory} categories={categories} accounts={accounts} onClose={() => setViewCategory(null)} />
+      
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        onCancel={closeConfirm}
+        onConfirm={executeConfirmAction}
+      />
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        variant={alertConfig.variant}
+        onClose={closeAlert}
+      />
     </div>
   );
 }

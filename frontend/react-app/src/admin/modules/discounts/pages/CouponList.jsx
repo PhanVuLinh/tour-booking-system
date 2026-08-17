@@ -10,6 +10,9 @@ import { CouponDetailModal } from "../components/CouponDetailModal";
 import Pagination from "../../../components/Pagination";
 import { usePermission } from "../../../hooks/usePermission";
 
+import ConfirmModal from "../../../components/ConfirmModal";
+import AlertModal from "../../../components/AlertModal";
+
 const initialFormState = {
   code: "", 
   discountPercentage: "",
@@ -41,6 +44,24 @@ export default function CouponList() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: "", message: "", variant: "info", action: null });
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: "", message: "", variant: "info" });
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+  
+  const executeConfirmAction = async () => {
+    if (confirmConfig.action) {
+      await confirmConfig.action();
+    }
+    closeConfirm();
+  };
+
+  const showAlert = (title, message, variant = "info") => {
+    setAlertConfig({ isOpen: true, title, message, variant });
+  };
+  
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, isOpen: false }));
 
   useEffect(() => {
     setCurrentPage(1);
@@ -90,17 +111,17 @@ export default function CouponList() {
 
   const handleSubmit = async () => {
     if (!formData.code || !formData.code.trim()) {
-      alert("Vui lòng nhập mã code!");
+      showAlert("Cảnh báo", "Vui lòng nhập mã code!", "warning");
       return;
     }
 
     try {
       if (editCoupon) {
         await couponService.update(editCoupon.id, formData);
-        alert("Cập nhật mã giảm giá thành công!");
+        showAlert("Thành công", "Cập nhật mã giảm giá thành công!", "success");
       } else {
         await couponService.create(formData);
-        alert("Tạo mã giảm giá mới thành công!");
+        showAlert("Thành công", "Tạo mã giảm giá mới thành công!", "success");
       }
       
       setIsDialogOpen(false);
@@ -108,7 +129,7 @@ export default function CouponList() {
       setEditCoupon(null);
       fetchData(); 
     } catch (err) {
-      alert("Lỗi khi lưu: " + err.message);
+      showAlert("Lỗi", "Lỗi khi lưu: " + err.message, "danger");
     }
   };
 
@@ -122,35 +143,58 @@ export default function CouponList() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Đưa mã giảm giá này vào thùng rác?")) {
-      try {
-        await couponService.delete(id);
-        fetchData();
-      } catch (err) { 
-        alert("Lỗi: " + err.message); 
+  const handleDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Chuyển vào thùng rác",
+      message: "Đưa mã giảm giá này vào thùng rác?",
+      variant: "danger",
+      action: async () => {
+        try {
+          await couponService.delete(id);
+          fetchData();
+          showAlert("Thành công", "Đã chuyển vào thùng rác.", "success");
+        } catch (err) {
+          showAlert("Lỗi", "Lỗi: " + err.message, "danger");
+        }
       }
-    }
+    });
   };
 
-  const handleRestore = async (id) => {
-    try {
-      await couponService.restore(id);
-      fetchData();
-    } catch (err) { 
-      alert("Lỗi: " + err.message); 
-    }
+  const handleRestore = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Khôi phục mã giảm giá",
+      message: "Bạn có chắc chắn muốn khôi phục mã giảm giá này?",
+      variant: "info",
+      action: async () => {
+        try {
+          await couponService.restore(id);
+          fetchData();
+          showAlert("Thành công", "Khôi phục thành công!", "success");
+        } catch (err) {
+          showAlert("Lỗi", "Lỗi: " + err.message, "danger");
+        }
+      }
+    });
   };
 
-  const handlePermanentDelete = async (id) => {
-    if (window.confirm("Hành động này không thể hoàn tác. Bạn chắc chắn chứ?")) {
-      try {
-        await couponService.hardDelete(id);
-        fetchData();
-      } catch (err) { 
-        alert("Lỗi: " + err.message); 
+  const handlePermanentDelete = (id) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xóa vĩnh viễn",
+      message: "Hành động này không thể hoàn tác. Bạn chắc chắn chứ?",
+      variant: "danger",
+      action: async () => {
+        try {
+          await couponService.hardDelete(id);
+          fetchData();
+          showAlert("Thành công", "Đã xóa vĩnh viễn mã giảm giá!", "success");
+        } catch (err) {
+          showAlert("Lỗi", "Lỗi: " + err.message, "danger");
+        }
       }
-    }
+    });
   };
 
   return (
@@ -262,11 +306,29 @@ export default function CouponList() {
         setFormData={setFormData} 
         isEdit={!!editCoupon} 
       />
+
       <CouponDetailModal
         isOpen={!!viewCoupon}
         coupon={viewCoupon}
         getAccountName={getAccountName}
         onClose={() => setViewCoupon(null)}
+      />
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        onCancel={closeConfirm}
+        onConfirm={executeConfirmAction}
+      />
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        variant={alertConfig.variant}
+        onClose={closeAlert}
       />
     </div>
   );

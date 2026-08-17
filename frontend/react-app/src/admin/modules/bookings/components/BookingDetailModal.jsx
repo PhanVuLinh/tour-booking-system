@@ -35,7 +35,7 @@ const getPaidPercent = (payments) => {
   return Math.max(...paidPayments.map(p => Number(p.paymentType) || 0));
 };
 
-export function BookingDetailModal({ booking, onClose, onChangePaymentStatus, onUpdatePassenger }) {
+export function BookingDetailModal({ booking, onClose, onChangePaymentStatus, onUpdatePassenger, accountMap = {} }) {
   if (!booking) return null;
 
   const overallPaymentStatus = getOverallPaymentStatus(booking.payments);
@@ -207,7 +207,7 @@ export function BookingDetailModal({ booking, onClose, onChangePaymentStatus, on
               {booking.updatedBy && (
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-400">Người cập nhật:</span>
-                  <span className="text-xs font-medium text-gray-600">ID: {booking.updatedBy}</span>
+                  <span className="text-xs font-medium text-gray-600">{accountMap[booking.updatedBy] || `ID: ${booking.updatedBy}`}</span>
                 </div>
               )}
             </div>

@@ -87,4 +87,7 @@ public class Booking extends BaseEntity {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Payment> payments;
+
+    @Column(name = "updated_by")
+    private Integer updatedBy;
 }

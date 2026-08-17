@@ -7,5 +7,5 @@ import java.util.List;
 public interface BookingService {
     List<BookingResponse> findAllActive();
     BookingResponse findById(Integer id);
-    BookingResponse updateStatus(Integer id, String newStatus);
+    BookingResponse updateStatus(Integer id, String newStatus , Integer updaterId);
 }
