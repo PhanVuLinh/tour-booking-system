@@ -135,7 +135,10 @@ function OrderBooking() {
     infantCount * priceInfant;
 
   const total = Math.max(Math.round(subtotal - discount), 0);
-  const payable_amount = payment_type === "50" ? Math.ceil(total * 0.5) : total;
+  const effectivePaymentType =
+    payment_method === "cash" ? "100" : payment_type;
+  const payable_amount =
+    effectivePaymentType === "50" ? Math.ceil(total * 0.5) : total;
   const remainingAmount = Math.max(total - payable_amount, 0);
 
   const currentStep = location.pathname.includes("/success")
@@ -326,7 +329,7 @@ function OrderBooking() {
         coupon_id: coupon_id,
         note: formData.note,
         payment_method,
-        payment_type,
+        payment_type: effectivePaymentType,
         passengers: [
           ...formData.passengerDetails.adults.map((passenger) => ({
             ...passenger,
@@ -447,7 +450,7 @@ function OrderBooking() {
                 formData,
                 setFormData,
                 formErrors,
-                payment_type,
+                payment_type: effectivePaymentType,
                 setPaymentType,
                 payment_method,
                 setPaymentMethod,
@@ -474,7 +477,7 @@ function OrderBooking() {
               total={total}
               payable_amount={payable_amount}
               remainingAmount={remainingAmount}
-              payment_type={payment_type}
+              payment_type={effectivePaymentType}
               promoCode={promoCode}
               setPromoCode={setPromoCode}
               isPromoApplied={Boolean(coupon_id)}

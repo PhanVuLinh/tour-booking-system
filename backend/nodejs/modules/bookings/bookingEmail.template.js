@@ -20,21 +20,19 @@ module.exports.sendBookingEmail = ({
   payment_status = "pending", // 'pending' | 'paid' | 'failed'
   transaction_id,
 }) => {
-  const feUrl = (process.env.URL_FE_1 || "https://tralvelgo.vercel.app").replace(/\/+$/, "");
+  const feUrl = (process.env.URL_FE_1);
   const isPaidSuccess = payment_status === "paid";
   const methodText =
     formatHelper.formatPaymentMethod(payment_method) ||
     "Tiền mặt / Chuyển khoản";
 
   let subject = "";
-  let headerTitle = "";
   let welcomeMessage = "";
   let statusBannerHtml = "";
   let reviewCallToActionHtml = "";
 
   if (booking_status === "cancelled") {
     subject = `[TravelGo] Thông báo HỦY đơn tour #${booking_code}`;
-    headerTitle = "Thông báo hủy đơn tour";
     welcomeMessage = `Chào ${full_name}, đơn đặt tour của bạn đã bị HỦY.`;
     statusBannerHtml = `
       <div style="background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
@@ -45,7 +43,6 @@ module.exports.sendBookingEmail = ({
     `;
   } else if (booking_status === "completed") {
     subject = `[TravelGo] Cảm ơn bạn đã hoàn thành chuyến đi #${booking_code}`;
-    headerTitle = "Hoàn thành chuyến đi";
     welcomeMessage = `Cảm ơn ${full_name} đã đồng hành cùng TravelGo!`;
     statusBannerHtml = `
       <div style="background-color: #e3f2fd; border-left: 4px solid #1976d2; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
@@ -69,7 +66,6 @@ module.exports.sendBookingEmail = ({
     `;
   } else if (isPaidSuccess) {
     subject = `[TravelGo] Thanh toán thành công đơn tour #${booking_code}`;
-    headerTitle = "Biên nhận thanh toán thành công";
     welcomeMessage = `Cảm ơn ${full_name}! Chúng tôi đã nhận được thanh toán cho đơn hàng của bạn.`;
     statusBannerHtml = `
       <div style="background-color: #e8f5e9; border-left: 4px solid #2e7d32; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
@@ -80,7 +76,6 @@ module.exports.sendBookingEmail = ({
     `;
   } else if (booking_status === "confirmed") {
     subject = `[TravelGo] Đơn tour #${booking_code} đã được XÁC NHẬN`;
-    headerTitle = "Xác nhận đơn tour thành công";
     welcomeMessage = `Chúc mừng ${full_name}! Đơn đặt tour của bạn đã được XÁC NHẬN.`;
     statusBannerHtml = `
       <div style="background-color: #e8f5e9; border-left: 4px solid #2e7d32; padding: 12px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
@@ -91,7 +86,6 @@ module.exports.sendBookingEmail = ({
     `;
   } else {
     subject = `[TravelGo] Xác nhận khởi tạo đơn tour #${booking_code}`;
-    headerTitle = "Xác nhận khởi tạo đơn tour";
     welcomeMessage = `Cảm ơn ${full_name} đã lựa chọn TravelGo!`;
   }
 
@@ -101,8 +95,7 @@ module.exports.sendBookingEmail = ({
             
             <!-- Header -->
             <div style="background-color: #ffffff; padding: 25px 20px; text-align: center; border-bottom: 3px solid #4502c7;">
-                <img src="https://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; font-size: 24px; font-weight: bold; margin-bottom: 5px;" />
-                <p style="color: #666666; margin: 5px 0 0 0; font-size: 14px; font-weight: 500;">${headerTitle}</p>
+                <img src="https://res.cloudinary.com/dlxbhq8pw/image/upload/v1785948618/lgmhzfeeoal2bblfdp6s.png" alt="TravelGo Logo" style="height: 45px; object-fit: contain; max-width: 100%; display: inline-block; font-size: 24px; font-weight: bold;" />
             </div>
 
             <!-- Body -->
@@ -162,15 +155,14 @@ module.exports.sendBookingEmail = ({
                         <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #f9f9f9;">Tạm tính:</td>
                         <td style="padding: 10px 0; text-align: right; color: #333; border-bottom: 1px solid #f9f9f9;">${formatHelper.formatCurrency(sub_total)}</td>
                     </tr>
-                    ${
-                      discount > 0
-                        ? `
+                    ${discount > 0
+      ? `
                     <tr>
                         <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #f9f9f9;">Giảm giá:</td>
                         <td style="padding: 10px 0; text-align: right; color: #2e7d32; border-bottom: 1px solid #f9f9f9;">-${formatHelper.formatCurrency(discount)}</td>
                     </tr>`
-                        : ""
-                    }
+      : ""
+    }
                     <tr style="border-top: 1px dashed #ddd;">
                         <td style="padding: 15px 0; font-weight: bold; color: #111; font-size: 16px;">Tổng tiền tour:</td>
                         <td style="padding: 15px 0; text-align: right; font-weight: bold; color: #4502c7; font-size: 20px;">${formatHelper.formatCurrency(total)}</td>
@@ -184,15 +176,14 @@ module.exports.sendBookingEmail = ({
                             ${formatHelper.formatCurrency(payable_amount)}
                         </td>
                     </tr>
-                    ${
-                      payment_type === "50"
-                        ? `
+                    ${payment_type === "50"
+      ? `
                     <tr>
                         <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #f9f9f9;">Số tiền còn lại (Thanh toán khi đi tour):</td>
                         <td style="padding: 10px 0; text-align: right; color: #e65100; font-weight: 700; border-bottom: 1px solid #f9f9f9;">${formatHelper.formatCurrency(remainingAmount)}</td>
                     </tr>`
-                        : ""
-                    }
+      : ""
+    }
                     <tr>
                         <td style="padding: 10px 0; color: #666;">Phương thức:</td>
                         <td style="padding: 10px 0; text-align: right; color: #333; font-weight: 600;">${formatHelper.formatPaymentMethod(payment_method)}</td>

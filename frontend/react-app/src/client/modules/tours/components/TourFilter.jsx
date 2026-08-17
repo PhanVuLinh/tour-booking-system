@@ -8,22 +8,18 @@ import { format, parseISO } from "date-fns";
 function TourFilter() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [departureLocations, setDepartureLocations] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Lấy danh sách điểm đi từ backend khi render lần đầu
   useEffect(() => {
     getDepartureLocations()
-      .then(res => {
+      .then((res) => {
         if (res.success) {
           setDepartureLocations(res.data);
         }
       })
-      .catch(err => console.log("Lỗi tải điểm đi:", err));
+      .catch((err) => console.log("Lỗi tải điểm đi:", err));
   }, []);
 
-  // Trạng thái lưu trữ xem bộ lọc trên mobile đang mở hay đóng
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Trạng thái lưu các giá trị lọc cục bộ trước khi Áp Dụng
   const [filters, setFilters] = useState({
     departure_from: searchParams.get("departure_from") || "",
     priceLevel: searchParams.get("priceLevel") || "",
@@ -33,7 +29,7 @@ function TourFilter() {
     babies: searchParams.get("babies") || "0",
   });
 
-  // Đồng bộ lại filters nếu URL thay đổi
+  // Đồng bộ lại filters khi URL search params thay đổi
   useEffect(() => {
     setFilters({
       departure_from: searchParams.get("departure_from") || "",
@@ -45,13 +41,11 @@ function TourFilter() {
     });
   }, [searchParams]);
 
-  // Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Nút Áp Dụng: Đẩy filters lên URL
   const handleApply = () => {
     const params = new URLSearchParams(searchParams);
 
@@ -91,9 +85,7 @@ function TourFilter() {
       params.delete("babies");
     }
 
-    // Reset về trang 1
     params.set("page", "1");
-
     setSearchParams(params);
     setIsOpen(false);
   };
@@ -112,7 +104,6 @@ function TourFilter() {
     setIsOpen(false);
   };
 
-  // Kiểm tra xem có bất kỳ bộ lọc nào đang active trên URL không
   const hasActiveFilter =
     searchParams.has("departure_from") ||
     searchParams.has("priceLevel") ||
@@ -121,19 +112,17 @@ function TourFilter() {
     searchParams.has("children") ||
     searchParams.has("babies");
 
-  // Hàm bật/tắt bộ lọc
   const toggleFilter = () => {
     setIsOpen(!isOpen);
   };
 
   return (
     <>
-      {/* 1. NÚT BẤM TRÊN MOBILE (Chỉ hiện trên điện thoại) */}
+      {/* Mobile Trigger & Overlay */}
       <button className="mobile-filter-btn" onClick={toggleFilter}>
         <i className="fa-solid fa-filter"></i> Lọc Tour
       </button>
 
-      {/* 2. LỚP PHỦ NỀN ĐEN TRÊN MOBILE (Bấm vào đây để đóng bộ lọc) */}
       <div
         className={`filter-overlay ${isOpen ? "active" : ""}`}
         onClick={toggleFilter}
@@ -142,12 +131,9 @@ function TourFilter() {
       <aside className={`tour-filter ${isOpen ? "active" : ""}`}>
         <div className="filter-header">
           <h3>Bộ Lọc</h3>
-
-          {/* Nút X để đóng (Chỉ hiện trên mobile) */}
           <button className="close-filter-btn" onClick={toggleFilter}>
             <i className="fa-solid fa-xmark"></i>
           </button>
-
           <i className="fa-solid fa-filter desktop-filter-icon"></i>
         </div>
 
@@ -160,9 +146,7 @@ function TourFilter() {
               value={filters.departure_from}
               onChange={handleChange}
             >
-              <option value="">
-                -- Tất cả điểm đi --
-              </option>
+              <option value="">-- Tất cả điểm đi --</option>
               {departureLocations.map((loc, idx) => (
                 <option key={idx} value={loc}>
                   {loc}
@@ -171,11 +155,12 @@ function TourFilter() {
             </select>
           </div>
 
-          {/* Ngày khởi hành */}
           <div className="filter-group custom-datepicker-wrapper">
             <label className="filter-label">Ngày khởi hành</label>
             <DatePicker
-              selected={filters.start_date ? parseISO(filters.start_date) : null}
+              selected={
+                filters.start_date ? parseISO(filters.start_date) : null
+              }
               onChange={(date) => {
                 setFilters((prev) => ({
                   ...prev,
@@ -183,12 +168,17 @@ function TourFilter() {
                 }));
               }}
               dateFormat="dd/MM/yyyy"
+              showYearDropdown
+              showMonthDropdown
+              dropdownMode="select"
+              yearDropdownItemNumber={10}
+              scrollableYearDropdown
+              minDate={new Date()}
               className="filter-input"
               placeholderText="dd/mm/yyyy"
             />
           </div>
 
-          {/* Số lượng hành khách */}
           <div className="filter-group">
             <label className="filter-label">Số Lượng Hành Khách</label>
             <div className="passenger-inputs">
@@ -228,7 +218,6 @@ function TourFilter() {
             </div>
           </div>
 
-          {/* Mức giá */}
           <div className="filter-group">
             <label className="filter-label">Mức giá</label>
             <select
@@ -237,17 +226,17 @@ function TourFilter() {
               value={filters.priceLevel}
               onChange={handleChange}
             >
-              <option value="">
-                -- Tất cả mức giá --
-              </option>
+              <option value="">-- Tất cả mức giá --</option>
               <option value="1">Dưới 5 triệu</option>
               <option value="2">5 - 10 triệu</option>
               <option value="3">Trên 10 triệu</option>
             </select>
           </div>
 
-          {/* Nút tác vụ */}
-          <div className="filter-actions" style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+          <div
+            className="filter-actions"
+            style={{ display: "flex", gap: "10px", marginTop: "15px" }}
+          >
             <button
               type="button"
               className="btn-apply-filter"
@@ -268,7 +257,7 @@ function TourFilter() {
                   border: "1px solid #ccc",
                   borderRadius: "8px",
                   fontWeight: "600",
-                  cursor: "pointer"
+                  cursor: "pointer",
                 }}
                 onClick={handleClearFilter}
               >

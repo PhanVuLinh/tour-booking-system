@@ -39,6 +39,14 @@ module.exports.createBooking = async (bookingData) => {
       throw error;
     }
 
+    if (payment_method === "cash" && payment_type === "50") {
+      const error = new Error(
+        "Phương thức thanh toán tại quầy chỉ áp dụng thanh toán toàn bộ 100%.",
+      );
+      error.isBusinessError = true;
+      throw error;
+    }
+
     //Kiểm tra đơn đặt tour trùng lặp (được gửi lại trong vòng 2 phút)
     const [existingBooking] = await connection.query(
       `SELECT id FROM bookings

@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, parseISO } from "date-fns";
 
 function Hero() {
   const navigate = useNavigate();
@@ -65,19 +68,29 @@ function Hero() {
               <i className="fa-solid fa-chevron-down icon-right"></i>
             </div>
 
-            <div className="search-input-group">
+            <div className="search-input-group custom-datepicker-wrapper">
               <i className="fa-regular fa-calendar icon-left"></i>
-              <input
-                type="date"
-                placeholder="Lịch khởi hành"
-                name="departureDate"
-                value={searchData.departureDate}
-                onChange={(e) =>
+              <DatePicker
+                selected={
+                  searchData.departureDate
+                    ? parseISO(searchData.departureDate)
+                    : null
+                }
+                onChange={(date) =>
                   setSearchData({
                     ...searchData,
-                    departureDate: e.target.value,
+                    departureDate: date ? format(date, "yyyy-MM-dd") : "",
                   })
                 }
+                dateFormat="dd/MM/yyyy"
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                yearDropdownItemNumber={10}
+                scrollableYearDropdown
+                minDate={new Date()}
+                placeholderText="Lịch khởi hành (dd/mm/yyyy)"
+                className="hero-date-picker-input"
               />
             </div>
 

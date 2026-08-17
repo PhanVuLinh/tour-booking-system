@@ -40,13 +40,6 @@ module.exports.validateCreateBooking = (req, res, next) => {
     });
   }
 
-  if (!["50", "100"].includes(String(bookingData.payment_type || "100"))) {
-    return res.status(400).json({
-      success: false,
-      message: "Hình thức thanh toán không hợp lệ",
-    });
-  }
-
   const payment_method = String(
     bookingData.payment_method || "cash",
   ).toLowerCase();
@@ -55,6 +48,21 @@ module.exports.validateCreateBooking = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: "Phương thức thanh toán không hợp lệ",
+    });
+  }
+
+  const payment_type = String(bookingData.payment_type || "100");
+  if (!["50", "100"].includes(payment_type)) {
+    return res.status(400).json({
+      success: false,
+      message: "Hình thức thanh toán không hợp lệ",
+    });
+  }
+
+  if (payment_method === "cash" && payment_type === "50") {
+    return res.status(400).json({
+      success: false,
+      message: "Phương thức thanh toán tại quầy chỉ áp dụng thanh toán toàn bộ 100%.",
     });
   }
 
