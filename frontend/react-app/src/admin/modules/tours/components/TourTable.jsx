@@ -1,14 +1,11 @@
-// 👉 [THÊM MỚI] Import useState, useMemo, usePermission và Icon sắp xếp
 import { useState, useMemo } from "react";
 import { Edit, Trash2, RotateCcw, Eye, UserX, Calendar, ChevronUp, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePermission } from "../../../hooks/usePermission";
 
 export function TourTable({ tours, onView, onDelete, getAccountName }) {
-  // 👉 [THÊM MỚI] Lấy hàm kiểm tra quyền
   const { hasPermission } = usePermission();
   
-  // 👉 [THÊM MỚI] State sắp xếp
   const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
 
   const handleSort = (key) => {
@@ -19,7 +16,6 @@ export function TourTable({ tours, onView, onDelete, getAccountName }) {
     setSortConfig({ key, direction });
   };
 
-  // 👉 [THÊM MỚI] Xử lý sắp xếp dữ liệu
   const sortedTours = useMemo(() => {
     const sorted = [...tours];
     if (sortConfig.key) {
@@ -27,7 +23,6 @@ export function TourTable({ tours, onView, onDelete, getAccountName }) {
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
 
-        // Lấy tên thật của người tạo để sắp xếp thay vì ID
         if (sortConfig.key === "createdBy") {
           aValue = getAccountName(a.createdBy) || "";
           bValue = getAccountName(b.createdBy) || "";
@@ -59,7 +54,6 @@ export function TourTable({ tours, onView, onDelete, getAccountName }) {
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-16">STT</th>
             <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-16">Ảnh</th>
             
-            {/* 👉 [THAY ĐỔI] Gắn sự kiện sắp xếp */}
             <th onClick={() => handleSort("name")} className="py-3 px-4 text-sm font-semibold text-gray-600 w-48 cursor-pointer select-none group">
               <div className="flex items-center gap-1.5">Tên Tour {renderSortIcon("name")}</div>
             </th>
@@ -73,7 +67,6 @@ export function TourTable({ tours, onView, onDelete, getAccountName }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
-          {/* 👉 [THAY ĐỔI] Render sortedTours thay vì tours gốc */}
           {sortedTours.map((tour, index) => (
             <tr key={tour.id} className="hover:bg-gray-50 transition-colors">
               <td className="py-3 px-4 text-sm text-gray-500">{index + 1}</td>
