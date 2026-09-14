@@ -1,24 +1,28 @@
 package com.lvtn.java.modules.tour.service.impl;
 
-import com.lvtn.java.modules.tour.entity.Tour;
-import com.lvtn.java.modules.tour.entity.TourImage;
+import com.lvtn.java.dto.schedule.ScheduleResponse;
 import com.lvtn.java.dto.tour.TourCreateRequest;
 import com.lvtn.java.dto.tour.TourResponse;
-import com.lvtn.java.modules.tripDetails.repository.DepartureRepository;
+import com.lvtn.java.modules.tour.entity.Tour;
+import com.lvtn.java.modules.tour.entity.TourImage;
 import com.lvtn.java.modules.tour.repository.TourImageRepository;
 import com.lvtn.java.modules.tour.repository.TourRepository;
-import com.lvtn.java.modules.tripDetails.service.ScheduleService;
 import com.lvtn.java.modules.tour.service.TourService;
+import com.lvtn.java.modules.tripDetails.entity.Schedule;
+import com.lvtn.java.modules.tripDetails.repository.DepartureRepository;
+import com.lvtn.java.modules.tripDetails.repository.ScheduleRepository;
+import com.lvtn.java.modules.tripDetails.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.text.Normalizer;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,7 @@ public class TourServiceImpl implements TourService {
     private final TourRepository tourRepository;
     private final DepartureRepository departureRepository;
     private final ScheduleService scheduleService;
+    private final ScheduleRepository scheduleRepository;
     private final TourImageRepository tourImageRepository;
     private final ModelMapper mapper;
 
@@ -55,6 +60,34 @@ public class TourServiceImpl implements TourService {
         response.setImages(galleryUrls);
 
         return response;
+    }
+
+    private List<TourResponse> mapToResponses(List<Tour> tours) {
+        if (tours == null || tours.isEmpty()) {
+            return List.of();
+        }
+        List<Integer> tourIds = tours.stream().map(Tour::getId).toList();
+
+        List<Schedule> allSchedules = scheduleRepository.findByTourIdsAndDeletedFalse(tourIds);
+        Map<Integer, List<ScheduleResponse>> scheduleMap = allSchedules.stream()
+                .collect(Collectors.groupingBy(
+                        s -> s.getTour().getId(),
+                        Collectors.mapping(s -> mapper.map(s, ScheduleResponse.class), Collectors.toList())
+                ));
+
+        List<TourImage> allImages = tourImageRepository.findByTourIdInAndDeletedFalse(tourIds);
+        Map<Integer, List<String>> imageMap = allImages.stream()
+                .collect(Collectors.groupingBy(
+                        TourImage::getTourId,
+                        Collectors.mapping(TourImage::getImageUrl, Collectors.toList())
+                ));
+
+        return tours.stream().map(tour -> {
+            TourResponse response = mapper.map(tour, TourResponse.class);
+            response.setSchedules(scheduleMap.getOrDefault(tour.getId(), List.of()));
+            response.setImages(imageMap.getOrDefault(tour.getId(), List.of()));
+            return response;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -109,9 +142,7 @@ public class TourServiceImpl implements TourService {
 
     @Override
     public List<TourResponse> getAllTours() {
-        return tourRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return mapToResponses(tourRepository.findAll());
     }
 
     @Override
@@ -193,16 +224,12 @@ public class TourServiceImpl implements TourService {
 
     @Override
     public List<TourResponse> findAllActive() {
-        return tourRepository.findAllActiveTours().stream()
-                .map(this::mapToResponse)
-                .toList();
+        return mapToResponses(tourRepository.findAllActiveTours());
     }
 
     @Override
     public List<TourResponse> findAllTrash() {
-        return tourRepository.findAllTrashTours().stream()
-                .map(this::mapToResponse)
-                .toList();
+        return mapToResponses(tourRepository.findAllTrashTours());
     }
 
     @Override

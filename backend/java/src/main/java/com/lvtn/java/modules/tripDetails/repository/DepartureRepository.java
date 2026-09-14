@@ -1,6 +1,7 @@
 package com.lvtn.java.modules.tripDetails.repository;
 
 import com.lvtn.java.modules.tripDetails.entity.Departure;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,11 +21,17 @@ public interface DepartureRepository extends JpaRepository<Departure, Integer> {
     @Query(value = "DELETE FROM departures WHERE tour_id = :tourId", nativeQuery = true)
     void hardDeleteDeparturesByTourId(@Param("tourId") Integer tourId);
 
+    @EntityGraph(attributePaths = {"tourId", "vehicle", "guide"})
     @Query("SELECT d FROM Departure d WHERE d.deleted = false")
     List<Departure> findAllActive();
 
+    @EntityGraph(attributePaths = {"tourId", "vehicle", "guide"})
     @Query("SELECT d FROM Departure d WHERE d.deleted = true")
     List<Departure> findAllTrash();
+
+    @Override
+    @EntityGraph(attributePaths = {"tourId", "vehicle", "guide"})
+    java.util.Optional<Departure> findById(Integer id);
 
     @Query(value = "SELECT * FROM departures " +
             "WHERE guide_id = :guideId " +

@@ -5,10 +5,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     List<Schedule> findByTourIdAndDeletedFalseOrderByDayNumberAsc(Integer tourId);
+
+    @Query("SELECT s FROM Schedule s WHERE s.tour.id IN :tourIds AND s.deleted = false ORDER BY s.dayNumber ASC")
+    List<Schedule> findByTourIdsAndDeletedFalse(@Param("tourIds") List<Integer> tourIds);
+
     @Modifying
     @Query("UPDATE Schedule s SET s.deleted = true WHERE s.tour.id = :tourId")
     void softDeleteByTourId(Integer tourId);

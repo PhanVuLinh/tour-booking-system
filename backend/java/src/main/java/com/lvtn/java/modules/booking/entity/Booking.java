@@ -5,6 +5,7 @@ import com.lvtn.java.modules.tripDetails.entity.Departure;
 import com.lvtn.java.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -82,9 +83,11 @@ public class Booking extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @BatchSize(size = 50)
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Passenger> passengers;
 
+    @BatchSize(size = 50)
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Payment> payments;
 

@@ -2,7 +2,9 @@ package com.lvtn.java.modules.category.service.impl;
 
 import java.text.Normalizer;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.modelmapper.ModelMapper;
@@ -37,6 +39,17 @@ public class CategoryServiceImpl implements CategoryService {
                 .replaceAll("^-|-$", "");
     }
 
+    private Map<Integer, Integer> getTourCountsMap() {
+        List<Object[]> rawCounts = tourRepository.countToursGroupByCategory();
+        Map<Integer, Integer> map = new HashMap<>();
+        for (Object[] row : rawCounts) {
+            if (row[0] != null && row[1] != null) {
+                map.put((Integer) row[0], ((Number) row[1]).intValue());
+            }
+        }
+        return map;
+    }
+
     private CategoryResponse mapToResponse(Category category) {
         CategoryResponse response = mapper.map(category, CategoryResponse.class);
         int count = tourRepository.countByCategoryIdAndDeletedFalse(category.getId());
@@ -47,11 +60,24 @@ public class CategoryServiceImpl implements CategoryService {
         return response;
     }
 
+    private List<CategoryResponse> mapToResponses(List<Category> categories) {
+        if (categories == null || categories.isEmpty()) {
+            return List.of();
+        }
+        Map<Integer, Integer> countMap = getTourCountsMap();
+        return categories.stream().map(cat -> {
+            CategoryResponse response = mapper.map(cat, CategoryResponse.class);
+            response.setTourCount(countMap.getOrDefault(cat.getId(), 0));
+            if (cat.getParent() != null) {
+                response.setParentId(cat.getParent().getId());
+            }
+            return response;
+        }).toList();
+    }
+
     @Override
     public List<CategoryResponse> findAll() {
-        return categoryRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .toList();
+        return mapToResponses(categoryRepository.findAll());
     }
 
     @Override
@@ -123,16 +149,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponse> findAllActive() {
-        return categoryRepository.findByDeletedFalse().stream()
-                .map(this::mapToResponse)
-                .toList();
+        return mapToResponses(categoryRepository.findByDeletedFalse());
     }
 
     @Override
     public List<CategoryResponse> findAllTrash() {
-        return categoryRepository.findByDeletedTrue().stream()
-                .map(this::mapToResponse)
-                .toList();
+        return mapToResponses(categoryRepository.findByDeletedTrue());
     }
 
     @Override

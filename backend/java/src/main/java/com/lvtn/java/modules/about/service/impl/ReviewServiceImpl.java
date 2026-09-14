@@ -18,7 +18,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +38,32 @@ public class ReviewServiceImpl implements ReviewService {
     private final ModelMapper mapper;
 
     private ReviewResponse mapToResponse(Review review) {
+        if (review == null) return null;
+        return mapToResponses(List.of(review)).get(0);
+    }
+
+    private List<ReviewResponse> mapToResponses(List<Review> reviews) {
+        if (reviews == null || reviews.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Integer> accountIds = new HashSet<>();
+        for (Review r : reviews) {
+            if (r.getApprovedBy() != null) accountIds.add(r.getApprovedBy());
+            if (r.getDeletedBy() != null) accountIds.add(r.getDeletedBy());
+        }
+
+        Map<Integer, String> accountNameMap = new HashMap<>();
+        if (!accountIds.isEmpty()) {
+            accountRepository.findAllById(accountIds).forEach(acc -> {
+                accountNameMap.put(acc.getId(), acc.getFullName());
+            });
+        }
+
+        return reviews.stream().map(r -> mapToResponseWithMap(r, accountNameMap)).collect(Collectors.toList());
+    }
+
+    private ReviewResponse mapToResponseWithMap(Review review, Map<Integer, String> accountNameMap) {
         ReviewResponse response = mapper.map(review, ReviewResponse.class);
 
         if (review.getUser() != null) {
@@ -52,11 +82,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (Boolean.TRUE.equals(review.getIsApproved())) {
             if (review.getApprovedBy() != null) {
-                accountRepository.findById(review.getApprovedBy())
-                        .ifPresentOrElse(
-                                acc -> response.setApprovedByName(acc.getFullName()),
-                                () -> response.setApprovedByName("Admin #" + review.getApprovedBy())
-                        );
+                String name = accountNameMap.get(review.getApprovedBy());
+                response.setApprovedByName(name != null ? name : ("Admin #" + review.getApprovedBy()));
             } else {
                 response.setApprovedByName("Tự động");
             }
@@ -66,11 +93,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (Boolean.TRUE.equals(review.getDeleted())) {
             if (review.getDeletedBy() != null) {
-                accountRepository.findById(review.getDeletedBy())
-                        .ifPresentOrElse(
-                                acc -> response.setDeletedByName(acc.getFullName()),
-                                () -> response.setDeletedByName("Admin #" + review.getDeletedBy())
-                        );
+                String name = accountNameMap.get(review.getDeletedBy());
+                response.setDeletedByName(name != null ? name : ("Admin #" + review.getDeletedBy()));
             } else {
                 response.setDeletedByName("Hệ thống");
             }
@@ -81,16 +105,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<ReviewResponse> findAll() {
-        return reviewRepository.findByDeletedFalse().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return mapToResponses(reviewRepository.findByDeletedFalse());
     }
 
     @Override
     public List<ReviewResponse> findApprovedByTour(Integer tourId) {
-        return reviewRepository.findByTourIdAndDeletedFalseAndIsApprovedTrue(tourId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return mapToResponses(reviewRepository.findByTourIdAndDeletedFalseAndIsApprovedTrue(tourId));
     }
 
     @Override
@@ -140,9 +160,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<ReviewResponse> getTrash() {
-        return reviewRepository.findByDeletedTrue().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return mapToResponses(reviewRepository.findByDeletedTrue());
     }
 
     @Override

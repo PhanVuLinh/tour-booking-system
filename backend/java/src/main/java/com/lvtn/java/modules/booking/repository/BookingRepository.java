@@ -2,6 +2,7 @@ package com.lvtn.java.modules.booking.repository;
 
 import com.lvtn.java.modules.booking.entity.Booking;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,8 +13,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
+    @EntityGraph(attributePaths = {"user", "departure", "departure.tourId"})
     List<Booking> findByDeletedFalse();
+
+    @EntityGraph(attributePaths = {"user", "departure", "departure.tourId"})
     Optional<Booking> findByBookingCode(String bookingCode);
+
+    @Override
+    @EntityGraph(attributePaths = {"user", "departure", "departure.tourId"})
+    Optional<Booking> findById(Integer id);
 
     long count();
     long countByStatus(String status);
