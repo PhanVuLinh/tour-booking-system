@@ -1,16 +1,27 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import ETicketBoardingPass from "./ETicketBoardingPass";
 
 export default function TicketQRCode({
   bookingCode,
   tourTitle = "",
   startDate = "",
   customerName = "",
+  booking = null,
   compact = false,
 }) {
   const [isZoomed, setIsZoomed] = useState(false);
+  const [isBoardingPassOpen, setIsBoardingPassOpen] = useState(false);
 
   if (!bookingCode) return null;
+
+  // Đối tượng booking fallback nếu không truyền đầy đủ
+  const fullBooking = booking || {
+    booking_code: bookingCode,
+    tour: { title: tourTitle },
+    start_date: startDate,
+    contact: { full_name: customerName },
+  };
 
   return (
     <>
@@ -77,7 +88,15 @@ export default function TicketQRCode({
                 className="btn-action btn-outline btn-sm"
                 onClick={() => setIsZoomed(true)}
               >
-                <i className="fa-solid fa-expand"></i> Mở toàn màn hình
+                <i className="fa-solid fa-expand"></i> Phóng to mã QR
+              </button>
+
+              <button
+                type="button"
+                className="btn-action btn-fill btn-sm btn-action-eticket"
+                onClick={() => setIsBoardingPassOpen(true)}
+              >
+                <i className="fa-solid fa-print"></i> In vé & Tải PDF
               </button>
             </div>
           </div>
@@ -126,15 +145,36 @@ export default function TicketQRCode({
               </p>
             )}
 
-            <button
-              type="button"
-              className="btn-action btn-fill tqm-btn-done"
-              onClick={() => setIsZoomed(false)}
-            >
-              Đóng lại
-            </button>
+            <div className="tqm-actions-row">
+              <button
+                type="button"
+                className="btn-action btn-outline tqm-btn-pass"
+                onClick={() => {
+                  setIsZoomed(false);
+                  setIsBoardingPassOpen(true);
+                }}
+              >
+                <i className="fa-solid fa-file-invoice"></i> Xem vé A4 / In vé
+              </button>
+
+              <button
+                type="button"
+                className="btn-action btn-fill tqm-btn-done"
+                onClick={() => setIsZoomed(false)}
+              >
+                Đóng lại
+              </button>
+            </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL PHIẾU XÁC NHẬN VÉ TOUR & THẺ LÊN TOUR (BOARDING PASS) */}
+      {isBoardingPassOpen && (
+        <ETicketBoardingPass
+          booking={fullBooking}
+          onClose={() => setIsBoardingPassOpen(false)}
+        />
       )}
     </>
   );

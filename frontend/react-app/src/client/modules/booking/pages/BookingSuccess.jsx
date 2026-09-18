@@ -102,12 +102,28 @@ export default function BookingSuccess() {
           <strong className="ref-number">{booking_code}</strong>
         </div>
 
-        {/* Mã QR Vé Điện Tử */}
+        {/* Mã QR Vé Điện Tử & Thẻ Lên Tour Boarding Pass */}
         <TicketQRCode
           bookingCode={booking_code}
           tourTitle={tour.title}
           startDate={formatDate(selectedDate.start_date)}
           customerName={contactInfo.full_name}
+          booking={{
+            booking_code,
+            tour,
+            start_date: selectedDate.start_date,
+            contact: contactInfo,
+            passengers: passengerRows,
+            payment: {
+              status: payment_status,
+              method: data.payment_method || (data.isVnpay ? "vnpay" : "cash"),
+              payable_amount,
+            },
+            pricing: {
+              final_total: total,
+            },
+            totalAmount: total,
+          }}
         />
 
         <div className="success-card-grid">

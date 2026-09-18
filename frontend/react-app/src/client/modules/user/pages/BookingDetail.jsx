@@ -118,12 +118,13 @@ function BookingDetail() {
       </div>
 
       <div className="bd-wrapper">
-        {/* Mã QR Vé Điện Tử Check-in */}
+        {/* Mã QR Vé Điện Tử Check-in & Thẻ Lên Tour Boarding Pass */}
         <TicketQRCode
           bookingCode={booking.booking_code}
           tourTitle={booking.tour?.title}
           startDate={formatDate(booking.tour?.start_date)}
           customerName={booking.contact?.full_name}
+          booking={booking}
         />
 
         <BookingTripInfo

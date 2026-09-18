@@ -143,6 +143,7 @@ module.exports.getBookingDetail = async (user_id, bookingId) => {
         bookings.status,
         bookings.created_at,
         departures.start_date,
+        departures.departure_from,
         tours.title AS tourTitle,
         tours.thumbnail AS tourThumbnail
     from bookings 
@@ -182,6 +183,7 @@ module.exports.getBookingDetail = async (user_id, bookingId) => {
         title: booking.tourTitle,
         thumbnail: booking.tourThumbnail,
         start_date: booking.start_date,
+        departure_from: booking.departure_from,
       },
       contact: {
         full_name: booking.contactName,

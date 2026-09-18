@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { lookupBookingService } from "../services";
-import { Breadcrumb, TicketQRCode } from "../../../shared";
+import { lookupBookingService } from "../services/bookingService";
+import {
+  Breadcrumb,
+  TicketQRCode,
+  QRScannerModal,
+} from "../../../shared";
 import { BookingStatusBadge } from "../../user/components/StatusBadge";
 import { formatDate } from "../../../utils/format.helper";
 
@@ -20,6 +24,7 @@ export default function BookingLookup() {
   const [inputCode, setInputCode] = useState(code || "");
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const fetchBooking = (bookingCode) => {
     setInputCode(bookingCode);
@@ -121,6 +126,29 @@ export default function BookingLookup() {
               {loading ? " Tra cứu..." : " Tra cứu"}
             </button>
           </form>
+
+          {/* Công cụ quét nhanh QR Camera & Upload ảnh */}
+          <div className="lookup-quick-tools">
+            <span className="lqt-label">
+              <i className="fa-solid fa-bolt text-amber-500"></i> Hoặc tra cứu nhanh:
+            </span>
+            <div className="lqt-btn-group">
+              <button
+                type="button"
+                className="btn-lookup-tool"
+                onClick={() => setIsScannerOpen(true)}
+              >
+                <i className="fa-solid fa-camera text-primary"></i> Quét camera trực tiếp
+              </button>
+              <button
+                type="button"
+                className="btn-lookup-tool"
+                onClick={() => setIsScannerOpen(true)}
+              >
+                <i className="fa-solid fa-image text-emerald-600"></i> Tải ảnh vé lên
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Trạng thái đang tải */}
@@ -148,12 +176,13 @@ export default function BookingLookup() {
             </div>
 
             <div className="bd-wrapper">
-              {/* Mã QR Vé Điện Tử */}
+              {/* Mã QR Vé Điện Tử & Thẻ Lên Tour Boarding Pass */}
               <TicketQRCode
                 bookingCode={booking.booking_code}
                 tourTitle={booking.tour?.title}
                 startDate={formatDate(booking.tour?.start_date)}
                 customerName={booking.contact?.full_name}
+                booking={booking}
               />
 
               <BookingTripInfo
@@ -178,6 +207,16 @@ export default function BookingLookup() {
           </div>
         )}
       </div>
+
+      {/* Modal Quét Mã QR Camera & File Ảnh */}
+      <QRScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanSuccess={(scannedCode) => {
+          setInputCode(scannedCode);
+          navigate(`/booking/lookup/${encodeURIComponent(scannedCode)}`);
+        }}
+      />
     </div>
   );
 }
