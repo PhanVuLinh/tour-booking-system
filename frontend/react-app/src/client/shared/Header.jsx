@@ -210,7 +210,7 @@ function Header() {
                     Tra Cứu Đơn
                   </Link>
                 </li>
-                {/* <li>
+                <li>
                   <Link
                     to="/support"
                     className={
@@ -220,8 +220,9 @@ function Header() {
                   >
                     Hỗ Trợ
                   </Link>
-                </li> */}
+                </li>
               </ul>
+
             </div>
             <div className="nav-actions">
               {currentUser ? (

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { lookupBookingService } from "../services";
-import { Breadcrumb } from "../../../shared";
+import { Breadcrumb, TicketQRCode } from "../../../shared";
 import { BookingStatusBadge } from "../../user/components/StatusBadge";
+import { formatDate } from "../../../utils/format.helper";
 
 import {
   BookingTripInfo,
@@ -147,6 +148,14 @@ export default function BookingLookup() {
             </div>
 
             <div className="bd-wrapper">
+              {/* Mã QR Vé Điện Tử */}
+              <TicketQRCode
+                bookingCode={booking.booking_code}
+                tourTitle={booking.tour?.title}
+                startDate={formatDate(booking.tour?.start_date)}
+                customerName={booking.contact?.full_name}
+              />
+
               <BookingTripInfo
                 tour={booking.tour}
                 passengersCount={booking.passengers?.length || 0}

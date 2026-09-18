@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 
 import "@/assets/Client/css/style.css";
+import "@/assets/Client/css/phase1.css";
 
 import { Header, Footer, BoxContact } from "../shared";
 

@@ -26,10 +26,22 @@ export function BookingStatusBadge({ status }) {
           <i className="fa-solid fa-check-circle"></i> Đã hoàn thành
         </span>
       );
+    case "pending_cancel":
+      return (
+        <span className="h-badge badge-pending-cancel">
+          <i className="fa-solid fa-hourglass-half"></i> Chờ duyệt hủy
+        </span>
+      );
     case "cancelled":
       return (
         <span className="h-badge badge-danger">
           <i className="fa-solid fa-times-circle"></i> Đã hủy
+        </span>
+      );
+    case "refunded":
+      return (
+        <span className="h-badge badge-refunded">
+          <i className="fa-solid fa-rotate-left"></i> Đã hoàn tiền
         </span>
       );
     default:

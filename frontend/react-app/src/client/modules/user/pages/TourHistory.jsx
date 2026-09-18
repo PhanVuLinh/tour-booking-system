@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import HistoryCard from "../components/HistoryCard";
 import ReviewModal from "../components/ReviewModal";
+import RefundRequestModal from "../components/RefundRequestModal";
 import { getTourHistory } from "../services/userService";
 
 function ProfileHistory() {
@@ -9,6 +10,7 @@ function ProfileHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviewBooking, setReviewBooking] = useState(null);
+  const [cancelBooking, setCancelBooking] = useState(null);
 
   const fetchHistory = () => {
     setLoading(true);
@@ -61,6 +63,7 @@ function ProfileHistory() {
                 key={booking.id}
                 booking={booking}
                 onOpenReviewModal={(item) => setReviewBooking(item)}
+                onOpenCancelModal={(item) => setCancelBooking(item)}
               />
             ))}
           </div>
@@ -91,6 +94,15 @@ function ProfileHistory() {
         <ReviewModal
           booking={reviewBooking}
           onClose={() => setReviewBooking(null)}
+          onSuccess={fetchHistory}
+        />
+      )}
+
+      {/* MODAL YÊU CẦU HỦY & HOÀN TIỀN */}
+      {cancelBooking && (
+        <RefundRequestModal
+          booking={cancelBooking}
+          onClose={() => setCancelBooking(null)}
           onSuccess={fetchHistory}
         />
       )}

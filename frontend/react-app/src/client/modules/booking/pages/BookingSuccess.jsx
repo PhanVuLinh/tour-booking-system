@@ -11,6 +11,7 @@ import { getPaymentTypeName } from "../../../utils/booking.helper";
 import {
   getVnPayBookingResultService,
 } from "../services";
+import { TicketQRCode } from "../../../shared";
 
 export default function BookingSuccess() {
   const location = useLocation();
@@ -100,6 +101,14 @@ export default function BookingSuccess() {
           <span className="ref-label">Mã đơn đặt tour:</span>
           <strong className="ref-number">{booking_code}</strong>
         </div>
+
+        {/* Mã QR Vé Điện Tử */}
+        <TicketQRCode
+          bookingCode={booking_code}
+          tourTitle={tour.title}
+          startDate={formatDate(selectedDate.start_date)}
+          customerName={contactInfo.full_name}
+        />
 
         <div className="success-card-grid">
           {/* Card Thông tin hành khách */}
