@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { BookingStatusBadge } from "../components/StatusBadge";
 import { getBookingDetail } from "../services/userService";
+import { TicketQRCode } from "../../../shared";
+import { RefundRequestModal } from "../components";
+import { formatDate } from "../../../utils/format.helper";
 
 import {
   BookingTripInfo,
@@ -15,8 +18,9 @@ function BookingDetail() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  useEffect(() => {
+  const loadDetail = () => {
     setLoading(true);
     setError(null);
     getBookingDetail(id)
@@ -33,7 +37,12 @@ function BookingDetail() {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadDetail();
   }, [id]);
+
 
   if (loading) {
     return (
@@ -109,6 +118,15 @@ function BookingDetail() {
       </div>
 
       <div className="bd-wrapper">
+        {/* Mã QR Vé Điện Tử Check-in & Thẻ Lên Tour Boarding Pass */}
+        <TicketQRCode
+          bookingCode={booking.booking_code}
+          tourTitle={booking.tour?.title}
+          startDate={formatDate(booking.tour?.start_date)}
+          customerName={booking.contact?.full_name}
+          booking={booking}
+        />
+
         <BookingTripInfo
           tour={booking.tour}
           passengersCount={booking.passengers?.length || 0}
@@ -125,17 +143,49 @@ function BookingDetail() {
           status={booking.status}
         />
 
-        {/* Nút thao tác dưới cùng: Chỉ hiển thị khi đang Chờ xác nhận (pending) */}
-        {booking.status === "pending" && (
+        {/* Trạng thái Chờ duyệt hủy */}
+        {booking.status === "pending_cancel" && (
+          <div className="bd-cancel-notice">
+            <i className="fa-solid fa-hourglass-half"></i>
+            <div>
+              <strong>Đơn tour đang chờ xét duyệt hủy & hoàn tiền</strong>
+              <p>
+                Yêu cầu của bạn đã được tiếp nhận. Đội ngũ TravelGo đang kiểm tra
+                và xử lý theo chính sách hoàn hủy.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Nút thao tác dưới cùng: Hiển thị khi đang Chờ xác nhận hoặc Đã xác nhận */}
+        {(booking.status === "pending" || booking.status === "confirmed") && (
           <div className="bd-actions-footer">
-            <button className="btn-action btn-danger-outline">
-              <i className="fa-solid fa-times"></i> Hủy đơn tour này
+            <button
+              type="button"
+              onClick={() => setIsCancelModalOpen(true)}
+              className="btn-action btn-danger-outline"
+            >
+              <i className="fa-solid fa-triangle-exclamation"></i>{" "}
+              {booking.payment?.status === "paid"
+                ? "Yêu cầu hủy tour & hoàn tiền"
+                : "Hủy đặt chỗ này"}
             </button>
           </div>
         )}
+
       </div>
+
+      {/* Modal Yêu cầu Hủy & Hoàn tiền */}
+      {isCancelModalOpen && (
+        <RefundRequestModal
+          booking={booking}
+          onClose={() => setIsCancelModalOpen(false)}
+          onSuccess={loadDetail}
+        />
+      )}
     </main>
   );
 }
+
 
 export default BookingDetail;

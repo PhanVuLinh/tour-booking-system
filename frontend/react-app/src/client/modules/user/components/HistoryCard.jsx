@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { BookingStatusBadge } from "./StatusBadge";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
 
-export default function HistoryCard({ booking, onOpenReviewModal }) {
+export default function HistoryCard({
+  booking,
+  onOpenReviewModal,
+  onOpenCancelModal,
+}) {
   return (
     <div className="history-card">
       {/* Header thẻ: Mã Code & Trạng thái */}
@@ -62,8 +66,32 @@ export default function HistoryCard({ booking, onOpenReviewModal }) {
             Xem chi tiết
           </Link>
           {booking.status === "pending" && (
-            <button className="btn-action btn-danger-outline btn-sm">
-              Hủy đơn
+            <button
+              type="button"
+              onClick={() => onOpenCancelModal && onOpenCancelModal(booking)}
+              className="btn-action btn-danger-outline btn-sm"
+            >
+              Hủy giữ chỗ
+            </button>
+          )}
+          {booking.status === "confirmed" && (
+            <button
+              type="button"
+              onClick={() => onOpenCancelModal && onOpenCancelModal(booking)}
+              className="btn-action btn-danger-outline btn-sm"
+            >
+              {booking.payment?.status === "paid" || booking.payment_status === "paid"
+                ? "Yêu cầu hoàn tiền"
+                : "Hủy giữ chỗ"}
+            </button>
+          )}
+          {booking.status === "pending_cancel" && (
+            <button
+              type="button"
+              disabled
+              className="btn-action btn-sm btn-pending-status"
+            >
+              <i className="fa-solid fa-hourglass-half"></i> Chờ duyệt hủy
             </button>
           )}
           {booking.status === "completed" &&
@@ -86,10 +114,10 @@ export default function HistoryCard({ booking, onOpenReviewModal }) {
                 ⭐ Đánh giá tour
               </button>
             ))}
-
         </div>
       </div>
     </div>
   );
 }
+
 

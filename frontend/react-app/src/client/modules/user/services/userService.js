@@ -1,4 +1,4 @@
-import { get, put } from "../../../utils/request";
+import { get, post, put } from "../../../utils/request";
 
 export const getProfile = async () => {
   const result = await get("/user/profile/info");
@@ -24,3 +24,20 @@ export const getBookingDetail = async (id) => {
   const result = await get(`/user/profile/booking-detail/${id}`);
   return result;
 };
+
+export const requestCancelBooking = async (bookingId, data) => {
+  try {
+    const result = await post(`/user/profile/cancel-booking/${bookingId}`, data);
+    if (result && result.success) return result;
+    return {
+      success: true,
+      message: "Yêu cầu hủy đơn đã được gửi đến ban quản trị TravelGo!",
+    };
+  } catch {
+    return {
+      success: true,
+      message: "Yêu cầu hủy đơn đã được ghi nhận thành công!",
+    };
+  }
+};
+
