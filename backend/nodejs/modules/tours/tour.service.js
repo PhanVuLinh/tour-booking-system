@@ -117,6 +117,9 @@ module.exports.searchTours = async ({
   destination,
   quantity,
   date,
+  departure_from,
+  priceLevel,
+  sort,
   page = 1,
   limit = 8,
 }) => {
@@ -141,9 +144,10 @@ module.exports.searchTours = async ({
     AND (
       tours.title LIKE ?
       OR categories.title LIKE ?
+      OR departures.departure_from LIKE ?
     )
   `;
-    queryParams.push(keyword, keyword);
+    queryParams.push(keyword, keyword, keyword);
   }
 
   if (date) {
@@ -162,6 +166,22 @@ module.exports.searchTours = async ({
       ) >= ?
     `;
       queryParams.push(num);
+    }
+  }
+
+  if (departure_from?.trim()) {
+    sql += ` AND departures.departure_from = ?`;
+    queryParams.push(departure_from.trim());
+  }
+
+  if (priceLevel) {
+    const level = Number.parseInt(priceLevel, 10);
+    if (level === 1) {
+      sql += ` AND (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) < 5000000`;
+    } else if (level === 2) {
+      sql += ` AND (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) BETWEEN 5000000 AND 10000000`;
+    } else if (level === 3) {
+      sql += ` AND (departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) > 10000000`;
     }
   }
 
@@ -212,7 +232,7 @@ module.exports.searchTours = async ({
     ${sql}
 
     ORDER BY
-      departures.start_date ASC,
+      ${sort === 'priceAsc' ? '(departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) ASC' : sort === 'priceDesc' ? '(departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) DESC' : sort === 'hot' ? 'departures.discount_percentage DESC' : 'departures.start_date ASC'},
       tours.created_at DESC
 
     LIMIT ? OFFSET ?
@@ -229,5 +249,65 @@ module.exports.searchTours = async ({
       totalTours: paginationMeta.totalItems,
       limit: paginationMeta.limit,
     },
+  };
+};
+
+module.exports.getSuggestions = async () => {
+  // Lấy các điểm khởi hành phổ biến
+  const sqlLocations = `
+    SELECT DISTINCT departures.departure_from
+    FROM departures
+    JOIN tours ON departures.tour_id = tours.id
+    WHERE departures.deleted = 0
+      AND departures.status = 'active'
+      AND tours.deleted = 0
+      AND tours.status = 'active'
+      AND departures.start_date >= NOW()
+      AND departures.departure_from IS NOT NULL
+      AND departures.departure_from != ''
+    ORDER BY departures.departure_from ASC
+    LIMIT 10
+  `;
+  const [locations] = await pool.query(sqlLocations);
+
+  // Lấy top tour phổ biến (có nhiều chuyến khởi hành nhất)
+  const sqlPopularTours = `
+    SELECT 
+      tours.id,
+      tours.title,
+      tours.slug,
+      tours.thumbnail,
+      tours.time,
+      COUNT(departures.id) AS departure_count,
+      MIN(departures.price_adult - (departures.price_adult * departures.discount_percentage / 100)) AS newPrice,
+      MIN(departures.price_adult) AS oldPrice,
+      MAX(departures.discount_percentage) AS discount_percentage,
+      MIN(departures.departure_from) AS departure_from
+    FROM tours
+    JOIN departures ON tours.id = departures.tour_id
+    WHERE tours.deleted = 0
+      AND tours.status = 'active'
+      AND departures.deleted = 0
+      AND departures.status = 'active'
+      AND departures.start_date >= NOW()
+    GROUP BY tours.id, tours.title, tours.slug, tours.thumbnail, tours.time
+    ORDER BY departure_count DESC
+    LIMIT 6
+  `;
+  const [popularTours] = await pool.query(sqlPopularTours);
+
+  return {
+    locations: locations.map((row) => row.departure_from),
+    popularTours: popularTours.map((row) => ({
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      thumbnail: row.thumbnail,
+      time: row.time,
+      newPrice: row.newPrice,
+      oldPrice: row.oldPrice,
+      discount_percentage: row.discount_percentage,
+      departure_from: row.departure_from,
+    })),
   };
 };
