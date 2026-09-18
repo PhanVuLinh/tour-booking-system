@@ -6,3 +6,4 @@ export { default as Pagination } from "./Pagination";
 export { default as TicketQRCode } from "./TicketQRCode";
 export { default as ETicketBoardingPass } from "./ETicketBoardingPass";
 export { default as QRScannerModal } from "./QRScannerModal";
+export { default as LiveSearchDropdown } from "./LiveSearchDropdown";

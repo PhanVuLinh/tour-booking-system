@@ -38,6 +38,9 @@ export const searchTours = async ({
   destination = "",
   quantity = "",
   date = "",
+  departure_from = "",
+  priceLevel = "",
+  sort = "",
   page = 1,
   limit = 8,
 } = {}) => {
@@ -58,7 +61,24 @@ export const searchTours = async ({
     queryParams.append("date", date);
   }
 
+  if (departure_from) {
+    queryParams.append("departure_from", departure_from);
+  }
+
+  if (priceLevel) {
+    queryParams.append("priceLevel", priceLevel);
+  }
+
+  if (sort) {
+    queryParams.append("sort", sort);
+  }
+
   const result = await get(`/tours/search?${queryParams.toString()}`);
 
+  return result;
+};
+
+export const getSuggestions = async () => {
+  const result = await get("/tours/suggestions");
   return result;
 };

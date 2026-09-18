@@ -28,12 +28,24 @@ module.exports.getTourDetail = async (req, res) => {
 
 module.exports.searchTours = async (req, res) => {
   try {
-    const { destination, quantity, date, page = 1, limit = 8 } = req.query;
+    const {
+      destination,
+      quantity,
+      date,
+      departure_from,
+      priceLevel,
+      sort,
+      page = 1,
+      limit = 8,
+    } = req.query;
 
     const tours = await tourService.searchTours({
       destination,
       quantity,
       date,
+      departure_from,
+      priceLevel,
+      sort,
       page,
       limit,
     });
@@ -46,6 +58,24 @@ module.exports.searchTours = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi Controller searchTours:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi hệ thống bên Server!",
+    });
+  }
+};
+
+module.exports.getSuggestions = async (req, res) => {
+  try {
+    const suggestions = await tourService.getSuggestions();
+
+    return res.status(200).json({
+      success: true,
+      message: "Lấy gợi ý thành công!",
+      data: suggestions,
+    });
+  } catch (error) {
+    console.error("Lỗi Controller getSuggestions:", error);
     return res.status(500).json({
       success: false,
       message: "Đã xảy ra lỗi hệ thống bên Server!",
