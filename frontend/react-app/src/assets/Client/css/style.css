@@ -6157,12 +6157,18 @@ input:checked+.slider:before {
   object-fit: cover;
 }
 
+.bd-tour-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .bd-tour-info h4 {
   font-size: 18px;
   font-weight: 700;
   color: var(--color-primary);
   margin-bottom: 10px;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .bd-tour-meta p {
@@ -6365,135 +6371,1065 @@ input:checked+.slider:before {
 }
 
 /* =========================================
-   LAYOUT TRANG TRA CỨU ĐƠN HÀNG (BOOKING LOOKUP)
+   GIAO DIỆN HIỆN ĐẠI TRANG TRA CỨU ĐƠN HÀNG (BOOKING LOOKUP)
    ========================================= */
-.lookup-search-box {
-  max-width: 700px;
-  margin: 0 auto 40px;
-  padding: 30px 25px;
+.booking-lookup-page {
+  background-color: #f8fafc;
+  min-height: 80vh;
+  padding-bottom: 60px;
+  overflow-x: hidden;
+}
+
+.booking-lookup-container {
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 30px 16px;
+  box-sizing: border-box;
+}
+
+/* 1. HERO SEARCH HUB */
+.lookup-hero-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 38px 30px 30px;
+  box-shadow: 0 16px 40px rgba(69, 2, 199, 0.07);
+  border: 1px solid rgba(69, 2, 199, 0.08);
+  margin-bottom: 32px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border-radius: 16px;
-  background-color: var(--white);
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
-.lookup-title {
-  font-size: 24px;
-  color: var(--text-dark);
-  margin-bottom: 10px;
-  font-weight: 600;
+.lookup-hero-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4502c7 0%, #7c3aed 50%, #06b6d4 100%);
 }
 
-.lookup-title-icon {
-  color: var(--color-primary);
-  margin-right: 10px;
-}
-
-.lookup-desc {
-  color: #666;
-  font-size: 15px;
-  margin-bottom: 25px;
-}
-
-.lookup-form {
-  display: flex;
-  gap: 12px;
+.lookup-hero-badge {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  gap: 7px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(69, 2, 199, 0.08);
+  color: var(--color-primary, #4502c7);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  letter-spacing: 0.3px;
+  max-width: 100%;
+  box-sizing: border-box;
+  line-height: 1.4;
 }
 
-.lookup-input {
+.lookup-hero-badge i {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.lookup-hero-title {
+  font-size: 27px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+
+.lookup-hero-desc {
+  font-size: 15px;
+  color: #64748b;
+  max-width: 660px;
+  width: 100%;
+  margin: 0 auto 26px;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+/* Form tra cứu */
+.lookup-search-form {
+  max-width: 620px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.lookup-input-wrap {
+  position: relative;
   flex: 1;
-  min-width: 250px;
-  padding: 12px 18px;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.lookup-input-icon {
+  position: absolute;
+  left: 16px;
+  color: #94a3b8;
   font-size: 16px;
+  pointer-events: none;
+}
+
+.lookup-input-field {
+  width: 100%;
+  padding: 13px 40px 13px 44px;
+  font-size: 15.5px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  border-radius: 10px;
-  border: 1.5px solid #ccc;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  transition: all 0.22s ease;
+  box-sizing: border-box;
+}
+
+.lookup-input-field:focus {
+  border-color: var(--color-primary, #4502c7);
+  box-shadow: 0 0 0 4px rgba(69, 2, 199, 0.12);
+  outline: none;
+}
+
+.lookup-input-field::placeholder {
+  font-weight: 400;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #94a3b8;
+  font-size: 14.5px;
+}
+
+.lookup-clear-btn {
+  position: absolute;
+  right: 12px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.lookup-clear-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
 }
 
 .lookup-submit-btn {
-  padding: 12px 28px;
-  font-size: 16px;
-  border-radius: 10px;
-  display: flex;
+  padding: 13px 26px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4502c7 0%, #6366f1 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(69, 2, 199, 0.22);
+  transition: all 0.22s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
-.lookup-detail-card {
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: var(--white);
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+.lookup-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(69, 2, 199, 0.32);
 }
 
-.lookup-detail-header {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 20px;
-  margin-bottom: 25px;
+.lookup-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.lookup-header-inner {
+.lookup-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Thanh công cụ quét nhanh */
+.lookup-quick-bar {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px dashed #e2e8f0;
   display: flex;
-  justify-content: space-between;
-  width: 100%;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lookup-quick-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lookup-quick-label i {
+  color: #f59e0b;
+}
+
+.lookup-quick-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lookup-pill-btn {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.lookup-pill-btn:hover {
+  border-color: var(--color-primary, #4502c7);
+  color: var(--color-primary, #4502c7);
+  background: #f8faff;
+  transform: translateY(-1px);
+}
+
+.lookup-pill-btn .icon-cam {
+  color: var(--color-primary, #4502c7);
+}
+
+.lookup-pill-btn .icon-img {
+  color: #059669;
+}
+
+.lookup-pill-btn .icon-demo {
+  color: #ea580c;
+}
+
+.lookup-hint-text {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.lookup-hint-text i {
+  flex-shrink: 0;
+}
+
+/* 2. KHỐI HƯỚNG DẪN 3 BƯỚC (DEFAULT STATE KHI CHƯA TRA CỨU) */
+.lookup-guide-section {
+  margin-top: 10px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.lookup-guide-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.lookup-guide-tag {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-primary, #4502c7);
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.lookup-guide-title {
+  font-size: 21px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.lookup-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.lookup-step-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 26px 22px;
+  border: 1px solid #eef2f6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.lookup-step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(69, 2, 199, 0.08);
+  border-color: rgba(69, 2, 199, 0.18);
+}
+
+.lookup-step-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(69, 2, 199, 0.08) 0%, rgba(99, 102, 241, 0.16) 100%);
+  color: var(--color-primary, #4502c7);
+  font-weight: 800;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.lookup-step-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.lookup-step-card-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Thanh Cam kết & An toàn */
+.lookup-trust-bar {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 24px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lookup-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.lookup-trust-item i {
+  font-size: 17px;
+  color: var(--color-primary, #4502c7);
+  flex-shrink: 0;
+}
+
+/* 3. TRẠNG THÁI KHÔNG TÌM THẤY ĐƠN HÀNG (NOT FOUND STATE) */
+.lookup-not-found-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 44px 30px;
+  text-align: center;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1.5px dashed #cbd5e1;
+  box-sizing: border-box;
+}
+
+.lookup-nf-icon-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.lookup-nf-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.lookup-nf-desc {
+  font-size: 14.5px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.lookup-nf-desc strong {
+  color: #0f172a;
+}
+
+.lookup-nf-tips {
+  background: #fffbeb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: left;
+  margin-bottom: 24px;
+  border-left: 4px solid #f59e0b;
+  box-sizing: border-box;
+}
+
+.lookup-nf-tips-heading {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lookup-nf-tips-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.6;
+}
+
+.lookup-nf-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lookup-btn-secondary {
+  padding: 10px 22px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.lookup-btn-secondary:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.lookup-btn-hotline {
+  padding: 10px 22px;
+  border-radius: 10px;
+  background: #0284c7;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.lookup-btn-hotline:hover {
+  background: #0369a1;
+  color: #ffffff;
+}
+
+/* 4. DASHBOARD KẾT QUẢ TRA CỨU (BOOKING FOUND) */
+.lookup-result-dashboard {
+  animation: fadeIn 0.3s ease-in-out;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Thanh Header đơn hàng */
+.lookup-order-header-bar {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.lookup-oh-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.lookup-oh-code-box {
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-.lookup-header-title {
-  margin: 0;
-  font-size: 22px;
+.lookup-oh-code-title {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
 }
 
-.lookup-highlight-code {
-  color: var(--color-primary);
+.lookup-oh-code-value {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--color-primary, #4502c7);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.5px;
 }
 
-.lookup-section {
-  margin-bottom: 30px;
+.lookup-oh-copy-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
 }
 
-.lookup-section-title {
-  font-size: 18px;
-  margin-bottom: 15px;
+.lookup-oh-copy-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
-.lookup-section-icon {
-  margin-right: 8px;
-  color: var(--color-primary);
+.lookup-oh-date {
+  font-size: 13px;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.lookup-tour-title {
-  font-size: 18px;
+.lookup-oh-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lookup-btn-reset {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.lookup-btn-reset:hover {
+  border-color: #94a3b8;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+/* Lưới 2 cột Dashboard */
+.lookup-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+
+.lookup-col-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.lookup-col-side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  position: sticky;
+  top: 90px;
+}
+
+/* Điều chỉnh hiển thị cho các khối trong Sidebar tra cứu */
+.lookup-col-side .bd-section {
+  padding: 20px;
+  border-radius: 14px;
+}
+
+.lookup-col-side .bd-section-title {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.lookup-col-side .bd-grid-info {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.lookup-col-side .bd-info-item .value {
+  word-break: break-word;
+}
+
+.lookup-col-side .bd-payment-summary {
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.lookup-col-side .bd-ps-left {
+  width: 100%;
+  border-right: none;
+  border-bottom: 1px dashed #e2e8f0;
+  padding: 16px 18px;
+  box-sizing: border-box;
+}
+
+.lookup-col-side .bd-ps-right {
+  width: 100%;
+  padding: 16px 18px;
+  background: #f8fafc;
+  box-sizing: border-box;
+}
+
+/* Card Hỗ trợ khách hàng */
+.lookup-support-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.lookup-sc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 12px;
 }
 
-.lookup-note-box {
-  margin-top: 15px;
+.lookup-sc-icon {
+  font-size: 20px;
+  color: #38bdf8;
 }
 
-.lookup-status-unpaid {
-  color: #d97706;
-  font-weight: 600;
+.lookup-sc-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
 }
 
-.lookup-status-paid {
-  color: #16a34a;
-  font-weight: 600;
+.lookup-sc-body {
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
 
-.lookup-amount-red {
-  font-size: 18px;
-  color: var(--red-main);
+.lookup-sc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lookup-sc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #e2e8f0;
+}
+
+.lookup-sc-item i {
+  color: #38bdf8;
+  width: 16px;
+}
+
+.lookup-sc-link {
+  color: #38bdf8;
+  font-weight: 700;
+  font-size: 14.5px;
+  text-decoration: none;
+}
+
+.lookup-sc-link:hover {
+  text-decoration: underline;
+}
+
+.lookup-sc-note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* =========================================
+   RESPONSIVE HOÀN CHỈNH CHO TRANG TRA CỨU ĐƠN
+   ========================================= */
+@media (max-width: 1024px) {
+  .lookup-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .lookup-col-side {
+    position: static;
+  }
+
+  .lookup-steps-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 860px) {
+  .lookup-steps-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .lookup-trust-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 20px;
+    gap: 12px;
+  }
+
+  .lookup-trust-item {
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .lookup-order-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .lookup-oh-left {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .lookup-oh-code-box {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lookup-oh-right {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 14px;
+    gap: 10px;
+  }
+
+  /* Khối chi tiết tour và thanh toán */
+  .bd-tour-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .bd-tour-img {
+    width: 100%;
+    height: 190px;
+    border-radius: 10px;
+  }
+
+  .bd-grid-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .bd-payment-summary {
+    flex-direction: column;
+  }
+
+  .bd-ps-left {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px dashed #e2e8f0;
+    padding: 16px;
+  }
+
+  .bd-ps-right {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .bd-passenger-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .bd-pd-body {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ticket-qr-container {
+    padding: 18px;
+  }
+
+  .ticket-qr-body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .ticket-qr-info {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tq-row {
+    justify-content: space-between;
+  }
+
+  .ticket-qr-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ticket-qr-actions .btn-action {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .booking-lookup-container {
+    padding: 20px 12px 40px;
+  }
+
+  .lookup-hero-card {
+    padding: 24px 14px 20px;
+    border-radius: 16px;
+  }
+
+  .lookup-hero-badge {
+    font-size: 11.5px;
+    padding: 5px 12px;
+  }
+
+  .lookup-hero-title {
+    font-size: 20px;
+    line-height: 1.35;
+  }
+
+  .lookup-hero-desc {
+    font-size: 13.5px;
+    margin-bottom: 20px;
+  }
+
+  .lookup-search-form {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .lookup-input-wrap {
+    width: 100%;
+  }
+
+  .lookup-input-field {
+    font-size: 14px;
+    padding: 12px 36px 12px 38px;
+  }
+
+  .lookup-submit-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 14.5px;
+  }
+
+  .lookup-quick-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .lookup-quick-label {
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  .lookup-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .lookup-pill-btn {
+    justify-content: center;
+    font-size: 12px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+
+  .lookup-hint-text {
+    font-size: 11.5px;
+    text-align: center;
+  }
+
+  .lookup-step-card {
+    padding: 20px 16px;
+  }
+
+  .lookup-step-card-title {
+    font-size: 15px;
+  }
+
+  .lookup-step-card-desc {
+    font-size: 13px;
+  }
+
+  .lookup-not-found-card {
+    padding: 30px 16px;
+  }
+
+  .lookup-nf-title {
+    font-size: 18px;
+  }
+
+  .lookup-nf-desc {
+    font-size: 13.5px;
+  }
+
+  .lookup-nf-tips {
+    padding: 14px;
+  }
+
+  .lookup-nf-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .lookup-btn-secondary,
+  .lookup-btn-hotline {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .lookup-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .lookup-oh-code-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .lookup-oh-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .lookup-btn-reset {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* --- TOUR REVIEW SECTION & MODAL STYLES --- */
