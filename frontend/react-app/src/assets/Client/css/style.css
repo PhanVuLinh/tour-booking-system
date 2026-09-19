@@ -2825,7 +2825,17 @@ body {
   }
 }
 
-/* 2. Cá.box-title {
+/* 2. Các Box Nội Dung */
+.detail-box {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eee;
+}
+
+.box-title {
   color: var(--color-primary);
   font-size: 22px;
   font-weight: 700;
@@ -2853,7 +2863,7 @@ body {
   color: #444;
 }
 
-/* --- 3. ĐIỂM NHẤN TOUR & DỊCH VỤ BAO GỒM / KHÔNG BAO GỒM --- */
+/* --- 3. DỊCH VỤ BAO GỒM & KHÔNG BAO GỒM --- */
 .tour-highlights-box {
   background-color: var(--white);
   padding: 30px;
@@ -2861,86 +2871,6 @@ body {
   margin-bottom: 30px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
   border: 1px solid #eee;
-}
-
-.highlights-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 30px;
-}
-
-.highlight-feature-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px;
-  background: #f8f8f8;
-  border-radius: 10px;
-  border: 1px solid #eee;
-  transition: all 0.25s ease;
-}
-
-.highlight-feature-card:hover {
-  transform: translateY(-2px);
-  background: #ffffff;
-  border-color: var(--color-primary);
-  box-shadow: 0 6px 15px rgba(69, 2, 199, 0.08);
-}
-
-.highlight-feature-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-  background: rgba(69, 2, 199, 0.08);
-  color: var(--color-primary);
-  border: 1px solid rgba(69, 2, 199, 0.15);
-}
-
-.highlight-icon-shield,
-.highlight-icon-hotel,
-.highlight-icon-bus,
-.highlight-icon-guide {
-  background: rgba(69, 2, 199, 0.08);
-  color: var(--color-primary);
-}
-
-.highlight-feature-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 4px;
-}
-
-.highlight-feature-desc {
-  font-size: 13px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* Bảng dịch vụ bao gồm & không bao gồm */
-.service-policy-section {
-  margin-bottom: 24px;
-}
-
-.service-policy-heading {
-  font-size: 17px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.service-policy-heading i {
-  color: var(--color-primary);
 }
 
 .service-policy-grid {
@@ -3035,288 +2965,6 @@ body {
 
 .service-col-excluded .service-list li span {
   color: #991b1b;
-}
-
-.refund-policy-bar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #f8f8f8;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 14px 18px;
-}
-
-.rpb-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(69, 2, 199, 0.08);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 17px;
-  flex-shrink: 0;
-}
-
-.rpb-content h4 {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 2px;
-}
-
-.rpb-content p {
-  font-size: 13px;
-  color: #666;
-  line-height: 1.4;
-  margin: 0;
-}
-
-.rpb-content strong {
-  color: #16a34a;
-}
-
-/* --- 4. TIỆN ÍCH DỰ BÁO THỜI TIẾT TẠI ĐIỂM ĐẾN --- */
-.tour-weather-box {
-  background-color: var(--white);
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-}
-
-.weather-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.weather-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.weather-badge-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: rgba(69, 2, 199, 0.08);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.weather-heading {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--color-primary);
-}
-
-.weather-subtitle {
-  font-size: 13.5px;
-  color: #666;
-  margin: 2px 0 0;
-}
-
-.weather-subtitle strong {
-  color: var(--color-primary);
-}
-
-.weather-live-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #16a34a;
-  animation: pulseDot 1.8s infinite;
-}
-
-@keyframes pulseDot {
-  0% { transform: scale(0.9); opacity: 0.7; }
-  50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0.7; }
-}
-
-.weather-summary-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1.8fr;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.weather-main-stat {
-  background: #f8f8f8;
-  border-radius: 10px;
-  padding: 16px 20px;
-  border: 1px solid #eee;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.wms-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.wms-icon {
-  font-size: 34px;
-  color: #f59e0b;
-}
-
-.wms-temp {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-dark);
-  display: block;
-}
-
-.wms-status {
-  font-size: 13px;
-  color: #555;
-  font-weight: 500;
-}
-
-.wms-right {
-  display: flex;
-  gap: 16px;
-  border-top: 1px dashed #e0e0e0;
-  padding-top: 10px;
-}
-
-.wms-meta-item {
-  font-size: 12.5px;
-  color: #666;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.wms-meta-item i {
-  color: var(--color-primary);
-}
-
-.weather-days-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.weather-day-pill {
-  background: #f8f8f8;
-  border-radius: 10px;
-  padding: 14px 10px;
-  border: 1px solid #eee;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
-}
-
-.weather-day-pill:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(69, 2, 199, 0.08);
-}
-
-.wdp-day {
-  font-size: 12px;
-  font-weight: 700;
-  color: #333;
-}
-
-.wdp-icon {
-  font-size: 22px;
-  color: #f59e0b;
-  margin: 2px 0;
-}
-
-.wdp-temp {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
-.wdp-desc {
-  font-size: 11px;
-  color: #777;
-  line-height: 1.3;
-}
-
-.weather-advice-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.advice-card {
-  background: #f8f8f8;
-  border-radius: 10px;
-  padding: 14px 16px;
-  border: 1px solid #eee;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.advice-icon-wrap {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-  background: rgba(69, 2, 199, 0.08);
-  color: var(--color-primary);
-}
-
-.icon-cloth,
-.icon-bag {
-  background: rgba(69, 2, 199, 0.08);
-  color: var(--color-primary);
-}
-
-.advice-text h4 {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 3px;
-}
-
-.advice-text p {
-  font-size: 12.5px;
-  color: #666;
-  line-height: 1.45;
-  margin: 0;
 }
 
 /* --- 5. LỊCH TRÌNH TIMELINE TƯƠNG TÁC CAO CẤP --- */
@@ -3763,16 +3411,7 @@ body {
 
 /* RESPONSIVE CHO TRANG CHI TIẾT TOUR MỚI */
 @media (max-width: 992px) {
-  .highlights-cards-grid {
-    grid-template-columns: 1fr;
-  }
   .service-policy-grid {
-    grid-template-columns: 1fr;
-  }
-  .weather-summary-grid {
-    grid-template-columns: 1fr;
-  }
-  .weather-advice-container {
     grid-template-columns: 1fr;
   }
   .tsb-title {
@@ -3790,7 +3429,6 @@ body {
 @media (max-width: 640px) {
   .detail-box,
   .tour-highlights-box,
-  .tour-weather-box,
   .itinerary-interactive-box {
     padding: 20px 15px;
   }
@@ -3801,22 +3439,6 @@ body {
   .box-title i,
   .box-title .title-icon {
     font-size: 18px;
-  }
-  .weather-days-row {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-  }
-  .weather-day-pill {
-    padding: 10px 4px;
-  }
-  .wdp-day {
-    font-size: 10.5px;
-  }
-  .wdp-temp {
-    font-size: 12px;
-  }
-  .wdp-desc {
-    font-size: 9.5px;
   }
   .itinerary-timeline-wrapper {
     padding-left: 0;

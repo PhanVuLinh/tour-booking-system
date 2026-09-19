@@ -6,7 +6,6 @@ import { getTourDetail } from "../services/tourService";
 import {
   TourReviewSection,
   TourItineraryTimeline,
-  TourWeatherWidget,
   TourHighlights,
   TourStickyBookingBar,
 } from "../components";
@@ -139,17 +138,10 @@ function TourDetail() {
               </p>
             </div>
 
-            {/* 3. Điểm nhấn hành trình & Dịch vụ Bao gồm / Không bao gồm */}
+            {/* 3. Dịch vụ Bao gồm / Không bao gồm */}
             <TourHighlights tourData={tourDetail} />
 
-            {/* 4. Tiện ích Dự báo thời tiết tại điểm đến */}
-            <TourWeatherWidget
-              tourTitle={tourDetail.title}
-              departureFrom={selectedDate?.departure_from}
-              startDate={selectedDate?.start_date}
-            />
-
-            {/* 5. Lịch trình chi tiết Timeline tương tác */}
+            {/* 4. Lịch trình chi tiết Timeline tương tác */}
             <TourItineraryTimeline
               schedules={schedules}
               tourTitle={tourDetail.title}

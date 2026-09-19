@@ -79,15 +79,10 @@ export default function TourItineraryTimeline({ schedules = [], tourTitle = "" }
   return (
     <div className="detail-box itinerary-interactive-box">
       <div className="itinerary-header">
-        <div>
-          <h2 className="box-title">
-            <i className="fa-solid fa-map-location-dot title-icon"></i>
-            Lịch Trình Chi Tiết ({schedules.length} Ngày)
-          </h2>
-          <p className="itinerary-subtitle">
-            Hành trình trọn gói được thiết kế tối ưu, kết hợp hài hòa giữa tham quan và trải nghiệm văn hóa bản địa.
-          </p>
-        </div>
+        <h2 className="box-title">
+          <i className="fa-solid fa-map-location-dot title-icon"></i>
+          Lịch Trình Chi Tiết ({schedules.length} Ngày)
+        </h2>
 
         <div className="itinerary-toggle-actions">
           <button
