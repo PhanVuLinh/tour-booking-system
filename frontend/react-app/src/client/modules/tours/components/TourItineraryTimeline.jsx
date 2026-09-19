@@ -90,14 +90,14 @@ export default function TourItineraryTimeline({ schedules = [], tourTitle = "" }
             className="btn-toggle-all"
             onClick={handleExpandAll}
           >
-            <i className="fa-solid fa-angles-down"></i> Mở rộng tất cả
+            <i className="fa-solid fa-chevron-down"></i> Mở rộng tất cả
           </button>
           <button
             type="button"
             className="btn-toggle-all"
             onClick={handleCollapseAll}
           >
-            <i className="fa-solid fa-angles-up"></i> Thu gọn tất cả
+            <i className="fa-solid fa-chevron-up"></i> Thu gọn tất cả
           </button>
         </div>
       </div>

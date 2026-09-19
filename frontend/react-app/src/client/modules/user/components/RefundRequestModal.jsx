@@ -542,7 +542,7 @@ export default function RefundRequestModal({ booking, onClose, onSuccess }) {
               ) : (
                 <div className="rm-vnpay-notice-box">
                   <div className="rm-vnpay-icon">
-                    <i className="fa-solid fa-shield-check"></i>
+                    <i className="fa-solid fa-shield-halved"></i>
                   </div>
                   <div className="rm-vnpay-content">
                     <strong>Hoàn tiền tự động qua cổng VNPAY:</strong>

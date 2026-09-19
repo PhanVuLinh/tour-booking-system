@@ -22,29 +22,12 @@ body {
   line-height: 1.5;
 }
 
-.client-layout,
 .client-layout *,
 .client-layout *::before,
 .client-layout *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-}
-
-.client-layout,
-.client-layout h1,
-.client-layout h2,
-.client-layout h3,
-.client-layout h4,
-.client-layout h5,
-.client-layout h6,
-.client-layout p,
-.client-layout span:not([class*="fa-"]),
-.client-layout a,
-.client-layout label,
-.client-layout strong,
-.client-layout li {
-  font-family: "Lexend Deca", sans-serif;
 }
 
 .client-layout a {
@@ -66,13 +49,26 @@ body {
 .client-layout button,
 .client-layout select,
 .client-layout textarea {
-  font-family: "Lexend Deca", sans-serif;
+  font-family: inherit;
 }
 
-.client-layout [class*="fa-"],
-.client-layout [class*="fa-"]::before,
-.client-layout [class*="fa-"]::after {
-  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+/* Định chuẩn chính xác Font Awesome cho từng loại icon, ngăn ngừa font text ghi đè */
+.client-layout .fa-solid,
+.client-layout .fas {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+}
+
+.client-layout .fa-regular,
+.client-layout .far {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 400 !important;
+}
+
+.client-layout .fa-brands,
+.client-layout .fab {
+  font-family: "Font Awesome 6 Brands" !important;
+  font-weight: 400 !important;
 }
 
 .container {

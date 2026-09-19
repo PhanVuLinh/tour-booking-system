@@ -24,7 +24,7 @@ export default function TourHighlights({ tourData = null }) {
   return (
     <div className="detail-box tour-highlights-box">
       <h2 className="box-title">
-        <i className="fa-solid fa-clipboard-check title-icon"></i>
+        <i className="fa-solid fa-list-check title-icon"></i>
         Dịch Vụ Bao Gồm & Không Bao Gồm
       </h2>
 
