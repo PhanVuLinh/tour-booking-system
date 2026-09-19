@@ -3061,17 +3061,20 @@ body {
 
 .itinerary-timeline-wrapper {
   position: relative;
-  padding-left: 20px;
+  --timeline-pad-left: 20px;
+  --badge-size: 50px;
+  padding-left: var(--timeline-pad-left);
 }
 
 .itinerary-timeline-wrapper::before {
   content: "";
   position: absolute;
-  top: 15px;
+  top: 25px;
   bottom: 25px;
-  left: 35px;
+  left: calc(var(--timeline-pad-left) + (var(--badge-size) / 2) - 1px);
   width: 2px;
   background: #e2e8f0;
+  z-index: 1;
 }
 
 .itinerary-day-card {
@@ -3093,8 +3096,8 @@ body {
 }
 
 .itinerary-day-badge {
-  width: 50px;
-  height: 50px;
+  width: var(--badge-size);
+  height: var(--badge-size);
   border-radius: 10px;
   background: var(--color-primary);
   color: var(--white);
@@ -3437,17 +3440,20 @@ body {
     font-size: 18px;
   }
   .itinerary-timeline-wrapper {
-    padding-left: 0;
+    --timeline-pad-left: 0px;
+    --badge-size: 40px;
+    padding-left: var(--timeline-pad-left);
   }
   .itinerary-timeline-wrapper::before {
-    left: 19px;
+    top: 20px;
+    bottom: 20px;
   }
   .itinerary-day-card {
     gap: 12px;
   }
   .itinerary-day-badge {
-    width: 40px;
-    height: 40px;
+    width: var(--badge-size);
+    height: var(--badge-size);
     border-radius: 8px;
   }
   .idb-day {
