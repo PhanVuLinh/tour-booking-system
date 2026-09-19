@@ -2822,56 +2822,975 @@ body {
   color: #444;
 }
 
-/* 3. Lịch Trình (Timeline) */
-.itinerary-timeline {
-  border-left: 2px solid var(--color-primary);
-  margin-left: 10px;
-  /* Đẩy vạch vào trong một chút */
-  padding-left: 30px;
+/* --- 3. ĐIỂM NHẤN TOUR & DỊCH VỤ BAO GỒM / KHÔNG BAO GỒM --- */
+.tour-highlights-box {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
 }
 
-.timeline-item {
+.highlights-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.highlight-feature-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.25s ease;
+}
+
+.highlight-feature-card:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  border-color: rgba(69, 2, 199, 0.2);
+  box-shadow: 0 8px 20px rgba(69, 2, 199, 0.06);
+}
+
+.highlight-feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+.highlight-icon-shield {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+}
+
+.highlight-icon-hotel {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+}
+
+.highlight-icon-bus {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.highlight-icon-guide {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+}
+
+.highlight-feature-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.highlight-feature-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Bảng dịch vụ bao gồm & không bao gồm */
+.service-policy-section {
+  margin-bottom: 24px;
+}
+
+.service-policy-heading {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-policy-heading i {
+  color: var(--color-primary, #4502c7);
+}
+
+.service-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.service-col {
+  border-radius: 12px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.service-col-included {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+}
+
+.service-col-excluded {
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+}
+
+.service-col-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.service-col-included .service-col-header i {
+  color: #16a34a;
+  font-size: 18px;
+}
+
+.service-col-included .service-col-header h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #15803d;
+  margin: 0;
+}
+
+.service-col-excluded .service-col-header i {
+  color: #dc2626;
+  font-size: 18px;
+}
+
+.service-col-excluded .service-col-header h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #b91c1c;
+  margin: 0;
+}
+
+.service-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.service-col-included .service-list li i {
+  color: #16a34a;
+  margin-top: 3px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.service-col-included .service-list li span {
+  color: #166534;
+}
+
+.service-col-excluded .service-list li i {
+  color: #dc2626;
+  margin-top: 3px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.service-col-excluded .service-list li span {
+  color: #991b1b;
+}
+
+.refund-policy-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.rpb-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.rpb-content h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.rpb-content p {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.rpb-content strong {
+  color: #059669;
+}
+
+/* --- 4. TIỆN ÍCH DỰ BÁO THỜI TIẾT TẠI ĐIỂM ĐẾN --- */
+.tour-weather-box {
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+  border: 1.5px solid #bae6fd;
+  border-radius: 16px;
+  padding: 26px 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.06);
+}
+
+.weather-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.weather-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weather-badge-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.weather-heading {
+  margin: 0;
+  font-size: 20px;
+  color: #0369a1;
+}
+
+.weather-subtitle {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+.weather-subtitle strong {
+  color: #0284c7;
+}
+
+.weather-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulseDot 1.8s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.weather-summary-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.weather-main-stat {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px 20px;
+  border: 1px solid #e0f2fe;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.wms-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.wms-icon {
+  font-size: 34px;
+  color: #f59e0b;
+}
+
+.wms-temp {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  display: block;
+}
+
+.wms-status {
+  font-size: 13px;
+  color: #0284c7;
+  font-weight: 600;
+}
+
+.wms-right {
+  display: flex;
+  gap: 16px;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 10px;
+}
+
+.wms-meta-item {
+  font-size: 12.5px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wms-meta-item i {
+  color: #0284c7;
+}
+
+.weather-days-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.weather-day-pill {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 10px;
+  border: 1px solid #e0f2fe;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.weather-day-pill:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(2, 132, 199, 0.08);
+}
+
+.wdp-day {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.wdp-icon {
+  font-size: 22px;
+  color: #f59e0b;
+  margin: 2px 0;
+}
+
+.wdp-temp {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.wdp-desc {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.weather-advice-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.advice-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e0f2fe;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.advice-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.icon-cloth {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.icon-bag {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.advice-text h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 3px;
+}
+
+.advice-text p {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* --- 5. LỊCH TRÌNH TIMELINE TƯƠNG TÁC CAO CẤP --- */
+.itinerary-interactive-box {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
+}
+
+.itinerary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px dashed #e2e8f0;
+  padding-bottom: 16px;
+}
+
+.itinerary-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+.itinerary-toggle-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-toggle-all {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-toggle-all:hover {
+  background: #f1f5f9;
+  color: var(--color-primary, #4502c7);
+  border-color: var(--color-primary, #4502c7);
+}
+
+.itinerary-filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 24px;
+}
+
+.itinerary-filter-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.itinerary-filter-tabs::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.itinerary-pill-tab {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.itinerary-pill-tab:hover {
+  color: var(--color-primary, #4502c7);
+  background: #ede9fe;
+}
+
+.itinerary-pill-tab.active {
+  background: linear-gradient(135deg, #4502c7 0%, #6366f1 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(69, 2, 199, 0.25);
+}
+
+.itinerary-timeline-wrapper {
   position: relative;
-  margin-bottom: 40px;
+  padding-left: 20px;
 }
 
-.timeline-item:last-child {
+.itinerary-timeline-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  bottom: 25px;
+  left: 36px;
+  width: 3px;
+  background: linear-gradient(180deg, #4502c7 0%, #818cf8 100%);
+  border-radius: 3px;
+}
+
+.itinerary-day-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.itinerary-day-card:last-child {
   margin-bottom: 0;
 }
 
-.timeline-item::before {
-  content: "";
-  position: absolute;
-  left: -37px;
-  top: 5px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: var(--color-primary);
+.itinerary-timeline-node {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
-.timeline-day {
-  display: inline-block;
-  background-color: var(--color-primary);
-  color: var(--white);
-  padding: 6px 15px;
-  border-radius: 6px;
+.itinerary-day-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4502c7 0%, #6366f1 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(69, 2, 199, 0.28);
+  border: 2px solid #ffffff;
+}
+
+.idb-day {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.idb-num {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.itinerary-day-content-wrap {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.itinerary-day-card.expanded .itinerary-day-content-wrap {
+  background: #ffffff;
+  border-color: rgba(69, 2, 199, 0.2);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+.itinerary-day-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: #f8fafc;
+  border-bottom: 1px solid transparent;
+  transition: background 0.2s;
+}
+
+.itinerary-day-card.expanded .itinerary-day-header {
+  border-bottom-color: #f1f5f9;
+  background: #ffffff;
+}
+
+.itinerary-day-header:hover {
+  background: #f1f5f9;
+}
+
+.itinerary-day-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.itinerary-badge-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.itinerary-tag-pill {
+  font-size: 11.5px;
   font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 15px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(69, 2, 199, 0.07);
+  color: var(--color-primary, #4502c7);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.timeline-content p {
-  font-size: 15px;
+.itinerary-chevron-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.itinerary-day-header:hover .itinerary-chevron-btn {
+  border-color: var(--color-primary, #4502c7);
+  color: var(--color-primary, #4502c7);
+}
+
+.itinerary-day-body {
+  padding: 18px 20px 20px;
+}
+
+.itinerary-html-content p {
+  font-size: 14.5px;
   line-height: 1.7;
-  color: #444;
+  color: #334155;
+  margin-bottom: 12px;
+}
+
+.itinerary-html-content p:last-child {
+  margin-bottom: 0;
+}
+
+.itinerary-html-content strong {
+  color: #0f172a;
+}
+
+.itinerary-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+}
+
+.itinerary-empty i {
+  font-size: 40px;
   margin-bottom: 10px;
 }
 
-.timeline-img {
-  width: 100%;
+/* --- 6. THANH CHỐT TOUR NỔI THÔNG MINH (FLOATING STICKY BOOKING BAR) --- */
+.tour-sticky-booking-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(69, 2, 199, 0.1);
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 12px 0;
+}
+
+.tour-sticky-booking-bar.show {
+  transform: translateY(0);
+}
+
+.tour-sticky-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.tsb-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.tsb-thumb {
+  width: 60px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tsb-tour-meta {
+  min-width: 0;
+}
+
+.tsb-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 480px;
+}
+
+.tsb-sub-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tsb-date-badge {
+  font-size: 12px;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tsb-date-badge i {
+  color: var(--color-primary, #4502c7);
+}
+
+.tsb-slot-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #d97706;
+  background: #fffbeb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tsb-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.tsb-pricing-box {
+  text-align: right;
+}
+
+.tsb-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.tsb-price-label {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.tsb-total-amount {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--red-main, #e11d48);
+}
+
+.tsb-price-sub {
+  font-size: 11.5px;
+  color: #94a3b8;
+  display: block;
+}
+
+.tsb-book-btn {
+  padding: 12px 28px;
   border-radius: 12px;
-  margin-top: 15px;
+  background: linear-gradient(135deg, #4502c7 0%, #6366f1 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 18px rgba(69, 2, 199, 0.28);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tsb-book-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(69, 2, 199, 0.4);
+}
+
+.tsb-book-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tsb-book-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tour-detail-loading {
+  min-height: 60vh;
+}
+
+.date-grid-empty-msg {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* RESPONSIVE CHO TRANG CHI TIẾT TOUR MỚI */
+@media (max-width: 992px) {
+  .highlights-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .service-policy-grid {
+    grid-template-columns: 1fr;
+  }
+  .weather-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .weather-advice-container {
+    grid-template-columns: 1fr;
+  }
+  .tsb-title {
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 640px) {
+  .tour-weather-box {
+    padding: 20px 16px;
+  }
+  .weather-days-row {
+    grid-template-columns: 1fr;
+  }
+  .itinerary-interactive-box {
+    padding: 20px 16px;
+  }
+  .itinerary-timeline-wrapper {
+    padding-left: 0;
+  }
+  .itinerary-timeline-wrapper::before {
+    left: 20px;
+  }
+  .itinerary-day-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+  }
+  .idb-num {
+    font-size: 14px;
+  }
+  .itinerary-day-title {
+    font-size: 14.5px;
+  }
+  .tour-sticky-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .tsb-left {
+    display: none; /* Ẩn phần tour meta trên mobile nhỏ để tập trung vào giá và nút bấm */
+  }
+  .tsb-right {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .tsb-book-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 16px;
+  }
 }
 
 /* ================= CỘT PHẢI (SIDEBAR) ================= */
