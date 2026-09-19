@@ -47,8 +47,28 @@ body {
 
 .client-layout input,
 .client-layout button,
+.client-layout select,
 .client-layout textarea {
-  font-family: "Lexend Deca", sans-serif;
+  font-family: inherit;
+}
+
+/* Định chuẩn chính xác Font Awesome cho từng loại icon, ngăn ngừa font text ghi đè */
+.client-layout .fa-solid,
+.client-layout .fas {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+}
+
+.client-layout .fa-regular,
+.client-layout .far {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 400 !important;
+}
+
+.client-layout .fa-brands,
+.client-layout .fab {
+  font-family: "Font Awesome 6 Brands" !important;
+  font-weight: 400 !important;
 }
 
 .container {
@@ -2736,6 +2756,7 @@ body {
   gap: 30px;
   align-items: flex-start;
   margin-bottom: 80px;
+  padding-bottom: 90px;
 }
 
 /* ================= CỘT TRÁI ================= */
@@ -2807,6 +2828,7 @@ body {
   border-radius: 12px;
   margin-bottom: 30px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eee;
 }
 
 .box-title {
@@ -2814,6 +2836,21 @@ body {
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.box-title i,
+.box-title .title-icon {
+  color: var(--color-primary);
+  font-size: 20px;
+  margin-right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .box-desc {
@@ -2822,56 +2859,654 @@ body {
   color: #444;
 }
 
-/* 3. Lịch Trình (Timeline) */
-.itinerary-timeline {
-  border-left: 2px solid var(--color-primary);
-  margin-left: 10px;
-  /* Đẩy vạch vào trong một chút */
-  padding-left: 30px;
+/* --- 3. DỊCH VỤ BAO GỒM & KHÔNG BAO GỒM --- */
+.tour-highlights-box {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eee;
 }
 
-.timeline-item {
+.service-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.service-col {
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.service-col-included {
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+}
+
+.service-col-excluded {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+}
+
+.service-col-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.service-col-included .service-col-header i {
+  color: #16a34a;
+  font-size: 18px;
+}
+
+.service-col-included .service-col-header h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #15803d;
+  margin: 0;
+}
+
+.service-col-excluded .service-col-header i {
+  color: #dc2626;
+  font-size: 18px;
+}
+
+.service-col-excluded .service-col-header h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #b91c1c;
+  margin: 0;
+}
+
+.service-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.service-col-included .service-list li i {
+  color: #16a34a;
+  margin-top: 3px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.service-col-included .service-list li span {
+  color: #166534;
+}
+
+.service-col-excluded .service-list li i {
+  color: #dc2626;
+  margin-top: 3px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.service-col-excluded .service-list li span {
+  color: #991b1b;
+}
+
+/* --- 5. LỊCH TRÌNH TIMELINE TƯƠNG TÁC CAO CẤP --- */
+.itinerary-interactive-box {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eee;
+}
+
+.itinerary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px dashed #eee;
+  padding-bottom: 16px;
+}
+
+.itinerary-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 2px 0 0;
+}
+
+.itinerary-toggle-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-toggle-all {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-toggle-all:hover {
+  background: #f1f1f1;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.itinerary-filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.itinerary-filter-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.itinerary-filter-tabs::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.itinerary-pill-tab {
+  background: #f1f1f1;
+  border: 1px solid #e0e0e0;
+  border-radius: 30px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.itinerary-pill-tab:hover {
+  color: var(--color-primary);
+  background: #ede9fe;
+}
+
+.itinerary-pill-tab.active {
+  background: var(--color-primary);
+  color: var(--white);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 10px rgba(69, 2, 199, 0.2);
+}
+
+.itinerary-timeline-wrapper {
   position: relative;
-  margin-bottom: 40px;
+  --timeline-pad-left: 20px;
+  --badge-size: 50px;
+  padding-left: var(--timeline-pad-left);
 }
 
-.timeline-item:last-child {
+.itinerary-timeline-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 25px;
+  bottom: 25px;
+  left: calc(var(--timeline-pad-left) + (var(--badge-size) / 2) - 1px);
+  width: 2px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.itinerary-day-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.itinerary-day-card:last-child {
   margin-bottom: 0;
 }
 
-.timeline-item::before {
-  content: "";
-  position: absolute;
-  left: -37px;
-  top: 5px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: var(--color-primary);
+.itinerary-timeline-node {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
-.timeline-day {
-  display: inline-block;
-  background-color: var(--color-primary);
+.itinerary-day-badge {
+  width: var(--badge-size);
+  height: var(--badge-size);
+  border-radius: 10px;
+  background: var(--color-primary);
   color: var(--white);
-  padding: 6px 15px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(69, 2, 199, 0.2);
+  border: 2px solid #ffffff;
 }
 
-.timeline-content p {
-  font-size: 15px;
+.idb-day {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.idb-num {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.itinerary-day-content-wrap {
+  flex: 1;
+  min-width: 0;
+  background: #f8f8f8;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.itinerary-day-card.expanded .itinerary-day-content-wrap {
+  background: #ffffff;
+  border-color: rgba(69, 2, 199, 0.25);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+.itinerary-day-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  background: #f8f8f8;
+  border-bottom: 1px solid transparent;
+  transition: background 0.2s;
+}
+
+.itinerary-day-card.expanded .itinerary-day-header {
+  border-bottom-color: #eee;
+  background: #ffffff;
+}
+
+.itinerary-day-header:hover {
+  background: #f1f1f1;
+}
+
+.idh-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.itinerary-day-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+  word-break: break-word;
+}
+
+.itinerary-badge-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.itinerary-tag-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(69, 2, 199, 0.08);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.itinerary-chevron-btn {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.itinerary-day-header:hover .itinerary-chevron-btn {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.itinerary-day-body {
+  padding: 18px 20px 20px;
+}
+
+.itinerary-html-content p {
+  font-size: 14.5px;
   line-height: 1.7;
-  color: #444;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.itinerary-html-content p:last-child {
+  margin-bottom: 0;
+}
+
+.itinerary-html-content strong {
+  color: #111;
+}
+
+.itinerary-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.itinerary-empty i {
+  font-size: 40px;
   margin-bottom: 10px;
 }
 
-.timeline-img {
-  width: 100%;
-  border-radius: 12px;
-  margin-top: 15px;
+/* --- 6. THANH CHỐT TOUR NỔI THÔNG MINH (FLOATING STICKY BOOKING BAR) --- */
+.tour-sticky-booking-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  border-top: 1px solid #eee;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 12px 0;
+}
+
+.tour-sticky-booking-bar.show {
+  transform: translateY(0);
+}
+
+.tour-sticky-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.tsb-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.tsb-thumb {
+  width: 56px;
+  height: 42px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tsb-tour-meta {
+  min-width: 0;
+}
+
+.tsb-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 420px;
+}
+
+.tsb-sub-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tsb-date-badge {
+  font-size: 12px;
+  color: #666;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tsb-date-badge i {
+  color: var(--color-primary);
+}
+
+.tsb-slot-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #d97706;
+  background: #fffbeb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tsb-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.tsb-pricing-box {
+  text-align: right;
+}
+
+.tsb-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.tsb-price-label {
+  font-size: 12.5px;
+  color: #666;
+}
+
+.tsb-total-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--red-main, #ff3b2f);
+}
+
+.tsb-price-sub {
+  font-size: 11.5px;
+  color: #888;
+  display: block;
+}
+
+.tsb-book-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  background-color: var(--color-primary);
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(69, 2, 199, 0.2);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tsb-book-btn:hover:not(:disabled) {
+  background-color: #31009c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(69, 2, 199, 0.3);
+}
+
+.tsb-book-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tsb-book-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tour-detail-loading {
+  min-height: 60vh;
+}
+
+.date-grid-empty-msg {
+  font-size: 13px;
+  color: #666;
+}
+
+/* RESPONSIVE CHO TRANG CHI TIẾT TOUR MỚI */
+@media (max-width: 992px) {
+  .service-policy-grid {
+    grid-template-columns: 1fr;
+  }
+  .tsb-title {
+    max-width: 220px;
+  }
+  .tsb-right {
+    gap: 12px;
+  }
+  .tsb-book-btn {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .detail-box,
+  .tour-highlights-box,
+  .itinerary-interactive-box {
+    padding: 20px 15px;
+  }
+  .box-title {
+    font-size: 18px;
+    gap: 8px;
+  }
+  .box-title i,
+  .box-title .title-icon {
+    font-size: 18px;
+  }
+  .itinerary-timeline-wrapper {
+    --timeline-pad-left: 0px;
+    --badge-size: 40px;
+    padding-left: var(--timeline-pad-left);
+  }
+  .itinerary-timeline-wrapper::before {
+    top: 20px;
+    bottom: 20px;
+  }
+  .itinerary-day-card {
+    gap: 12px;
+  }
+  .itinerary-day-badge {
+    width: var(--badge-size);
+    height: var(--badge-size);
+    border-radius: 8px;
+  }
+  .idb-day {
+    font-size: 8px;
+  }
+  .idb-num {
+    font-size: 14px;
+  }
+  .itinerary-day-header {
+    padding: 12px 14px;
+  }
+  .itinerary-day-title {
+    font-size: 14px;
+  }
+  .itinerary-day-body {
+    padding: 14px;
+  }
+  .tour-sticky-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .tsb-left {
+    display: none;
+  }
+  .tsb-right {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .tsb-pricing-box {
+    text-align: left;
+  }
+  .tsb-price-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .tsb-price-label {
+    font-size: 11px;
+  }
+  .tsb-total-amount {
+    font-size: 17px;
+  }
+  .tsb-price-sub {
+    display: none;
+  }
+  .tsb-book-btn {
+    padding: 10px 16px;
+    font-size: 13.5px;
+  }
 }
 
 /* ================= CỘT PHẢI (SIDEBAR) ================= */
@@ -8399,11 +9034,25 @@ input:checked+.slider:before {
   }
 
   .box-breadcrumb {
-    height: 250px;
+    height: auto;
+    min-height: 230px;
+  }
+
+  .box-breadcrumb .inner-content {
+    position: relative;
+    padding: 75px 0 25px;
   }
 
   .box-breadcrumb .inner-title {
-    font-size: 28px;
+    font-size: 22px;
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+
+  .box-breadcrumb .inner-list {
+    flex-wrap: wrap;
+    font-size: 13px;
+    gap: 6px;
   }
 
   .tour-track .tour-card {

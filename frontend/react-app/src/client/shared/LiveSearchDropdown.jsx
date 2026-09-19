@@ -214,7 +214,7 @@ function LiveSearchDropdown({
       <div className="ls-header">
         {isTyping ? (
           <div className="ls-header-left">
-            <i className="fa-solid fa-sparkles ls-header-icon"></i>
+            <i className="fa-solid fa-wand-magic-sparkles ls-header-icon"></i>
             <span className="ls-header-title">
               Kết quả tìm kiếm cho <strong>"{keyword.trim()}"</strong>
             </span>

@@ -3,7 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Breadcrumb } from "../../../shared";
 import { buildTourDetailBreadcrumb } from "../../../utils/breadcrumb.helper";
 import { getTourDetail } from "../services/tourService";
-import { TourReviewSection } from "../components";
+import {
+  TourReviewSection,
+  TourItineraryTimeline,
+  TourHighlights,
+  TourStickyBookingBar,
+} from "../components";
 import { formatDate, formatPrice } from "../../../utils/format.helper";
 
 function TourDetail() {
@@ -42,7 +47,7 @@ function TourDetail() {
 
   if (loading) {
     return (
-      <div className="client-loading-state" style={{ minHeight: "60vh" }}>
+      <div className="client-loading-state tour-detail-loading">
         <div className="client-spinner"></div>
         <p>Đang tải thông tin chi tiết tour...</p>
       </div>
@@ -88,7 +93,9 @@ function TourDetail() {
 
       <div className="container">
         <div className="tour-detail-layout">
+          {/* CỘT TRÁI: NỘI DUNG TOUR */}
           <div className="tour-detail-left">
+            {/* 1. Gallery hình ảnh */}
             <div className="tour-gallery">
               <img
                 key={mainImage || tourDetail.thumbnail}
@@ -120,43 +127,32 @@ function TourDetail() {
               </div>
             </div>
 
+            {/* 2. Thông tin giới thiệu tour */}
             <div className="detail-box">
-              <h2 className="box-title">Thông Tin Tour</h2>
+              <h2 className="box-title">
+                <i className="fa-solid fa-circle-info title-icon"></i>
+                Giới Thiệu Chuyến Đi
+              </h2>
               <p className="box-desc">
-                {tourDetail.description || "Đang tải mô tả..."}
+                {tourDetail.description || "Đang cập nhật mô tả chi tiết chuyến đi..."}
               </p>
             </div>
 
-            <div className="detail-box">
-              <h2 className="box-title">Lịch Trình Tour</h2>
-              {schedules.length > 0 ? (
-                <div className="itinerary-timeline">
-                  {schedules.map((day) => (
-                    <div className="timeline-item" key={day.id}>
-                      <div className="timeline-day">
-                        NGÀY {day.day_number}: {day.title}
-                      </div>
+            {/* 3. Dịch vụ Bao gồm / Không bao gồm */}
+            <TourHighlights tourData={tourDetail} />
 
-                      <div className="timeline-content">
-                        <div
-                          className="itinerary-html-content"
-                          dangerouslySetInnerHTML={{ __html: day.content }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p style={{ color: "#666" }}>
-                  Đang cập nhật lịch trình chi tiết...
-                </p>
-              )}
-            </div>
+            {/* 4. Lịch trình chi tiết Timeline tương tác */}
+            <TourItineraryTimeline
+              schedules={schedules}
+              tourTitle={tourDetail.title}
+            />
+
+            {/* 6. Đánh giá từ khách hàng */}
             <TourReviewSection tourId={tourDetail.id} />
           </div>
 
           {/* CỘT PHẢI: ĐẶT TOUR */}
-          <aside className="tour-detail-right">
+          <aside className="tour-detail-right" id="booking-sidebar">
             <div className="booking-box">
               <h3 className="booking-title">Chuyến Đi Của Bạn</h3>
 
@@ -209,14 +205,6 @@ function TourDetail() {
               </ul>
 
               <div className="booking-form">
-                {/* <div className="form-group">
-                  <label className="booking-label">Khởi Hành Tại:</label>
-                  <select className="tour-detail-select" defaultValue="hanoi">
-                    <option value="hanoi">Hà Nội</option>
-                    <option value="hcm">TP. Hồ Chí Minh</option>
-                  </select>
-                </div> */}
-
                 {/* --- LƯỚI CHỌN NGÀY KHỞI HÀNH ĐỘNG --- */}
                 <div className="form-group">
                   <label className="section-label">Ngày Khởi Hành</label>
@@ -240,7 +228,7 @@ function TourDetail() {
                       </div>
                     ))}
                     {tourData && departures.length === 0 && (
-                      <p style={{ fontSize: "13px", color: "#666" }}>
+                      <p className="date-grid-empty-msg">
                         Tour đang cập nhật lịch khởi hành.
                       </p>
                     )}
@@ -342,13 +330,6 @@ function TourDetail() {
                   className="btn-add-cart"
                   onClick={handleBooking}
                   disabled={!selectedDate || departures.length === 0}
-                  style={{
-                    opacity: !selectedDate || departures.length === 0 ? 0.6 : 1,
-                    cursor:
-                      !selectedDate || departures.length === 0
-                        ? "not-allowed"
-                        : "pointer",
-                  }}
                 >
                   {departures.length === 0
                     ? "Chưa có lịch khởi hành"
@@ -359,6 +340,15 @@ function TourDetail() {
           </aside>
         </div>
       </div>
+
+      {/* 7. Thanh chốt tour nổi thông minh (Floating Sticky Booking Bar) */}
+      <TourStickyBookingBar
+        tour={tourDetail}
+        selectedDate={selectedDate}
+        passengers={{ adults, children, infants }}
+        totalPrice={totalPrice}
+        onBookNow={handleBooking}
+      />
     </div>
   );
 }
