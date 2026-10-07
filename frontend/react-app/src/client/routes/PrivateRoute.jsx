@@ -16,7 +16,7 @@ function PrivateRoute() {
     localStorage.removeItem("client_user");
   }
 
-  const isLogin = Boolean(token && user);
+  const isLogin = Boolean(user || token);
 
   useEffect(() => {
     if (!isLogin) {
