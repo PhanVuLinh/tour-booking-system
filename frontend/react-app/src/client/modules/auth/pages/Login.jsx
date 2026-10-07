@@ -32,7 +32,7 @@ function Login() {
     try {
       const response = await login(loginData);
       if (response.success) {
-        localStorage.setItem("client_token", response.data.token);
+        localStorage.removeItem("client_token");
         localStorage.setItem("client_user", JSON.stringify(response.data.user));
         toast.success(`Chào mừng ${response.data.user.full_name} quay trở lại!`);
         navigate("/");
@@ -54,7 +54,7 @@ function Login() {
       const response = await loginGoogle(credentialResponse.credential);
 
       if (response.success) {
-        localStorage.setItem("client_token", response.data.token);
+        localStorage.removeItem("client_token");
         localStorage.setItem("client_user", JSON.stringify(response.data.user));
         toast.success(`Chào mừng ${response.data.user.full_name} quay trở lại!`);
         navigate("/");
@@ -76,7 +76,7 @@ function Login() {
       const apiResult = await loginFacebook(response.accessToken);
 
       if (apiResult.success) {
-        localStorage.setItem("client_token", apiResult.data.token);
+        localStorage.removeItem("client_token");
         localStorage.setItem("client_user", JSON.stringify(apiResult.data.user));
         toast.success(
           `Chào mừng ${apiResult.data.user.full_name} quay trở lại!`,

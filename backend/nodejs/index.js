@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const routes = require("./routes");
@@ -22,12 +23,14 @@ initCronJobs();
 app.use(
   cors({
     origin: allowedOrigins,
+    credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
-//Cho phép gửi data lên dạng json
+//Cho phép đọc cookie và gửi data lên dạng json
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api", routes);

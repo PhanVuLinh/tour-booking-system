@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Breadcrumb } from "../../../shared";
 import { getProfile } from "../services/userService";
+import { logout } from "../../auth/services/authService";
 
 function ProfileLayout() {
   const location = useLocation();
@@ -54,12 +55,18 @@ function ProfileLayout() {
     fetchProfile();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsLoggingOut(true);
-    localStorage.removeItem("client_token");
-    localStorage.removeItem("client_user");
-    toast.success("Đăng xuất thành công");
-    navigate("/");
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Lỗi khi đăng xuất:", err);
+    } finally {
+      localStorage.removeItem("client_token");
+      localStorage.removeItem("client_user");
+      toast.success("Đăng xuất thành công");
+      navigate("/");
+    }
   };
 
   return (

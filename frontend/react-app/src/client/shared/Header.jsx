@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import { getHeaderCategories } from "./services/sharedService";
+import { logout } from "../modules/auth/services/authService";
 
 function Header() {
   const navigate = useNavigate();
@@ -47,9 +48,8 @@ function Header() {
       });
 
     //LocalStorage lấy user
-    const token = localStorage.getItem("client_token");
     const userStr = localStorage.getItem("client_user");
-    if (token && userStr) {
+    if (userStr) {
       try {
         const parsedUser = JSON.parse(userStr);
         setCurrentUser(parsedUser);
@@ -62,17 +62,21 @@ function Header() {
   }, [location.pathname]);
 
   // Đăng xuất
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Lỗi khi đăng xuất:", err);
+    } finally {
       localStorage.removeItem("client_token");
       localStorage.removeItem("client_user");
       setCurrentUser(null);
       toast.success("Đăng xuất thành công");
       setIsLoading(false);
       navigate("/");
-    }, 800);
+    }
   };
   return (
     <>
